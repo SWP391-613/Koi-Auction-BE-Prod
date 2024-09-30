@@ -1,0 +1,8 @@
+FROM mysql
+
+ENV MYSQL_ROOT_PASSWORD=Luucaohoang1604^^
+ENV MYSQL_DATABASE=koi_company_dev_db
+ENV MYSQL_USER=lcaohoanq
+ENV MYSQL_PASSWORD=Luucaohoang1604^^
+
+COPY ./docs/dataForCI.sql /docker-entrypoint-initdb.d/

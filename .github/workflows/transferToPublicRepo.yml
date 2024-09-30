@@ -1,0 +1,54 @@
+name: Transfer Project to Public Repo
+
+on:
+  push:
+    branches: [ "develop" ]
+
+jobs:
+  transfer-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private repository
+        uses: actions/checkout@v4
+
+      - name: Transfer to Public Repo
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          # Configure Git
+          git config --global user.name "lcaohoanq"
+          git config --global user.email "hoangclw@gmail.com"
+
+          # Set up SSH
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/id_ed25519
+
+          # Add GitHub to known hosts
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+          # Clone the public repository
+          git clone git@github.com:SWP391-613/Koi-Auction-BE-Prod.git public-repo
+
+          # Remove existing files in public repo (except .git)
+          find public-repo -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+
+          # Copy files, excluding Spring Boot profile files and docker-compose-prod.yml
+          rsync -av --exclude='.git' \
+                    --exclude='.env' \
+                    --exclude='src/main/resources/application-*.yml' \
+                    --exclude='src/main/resources/application-*.properties' \
+                    --exclude='docker-compose-prod.yml' \
+                    . public-repo/
+
+          # Commit and push changes
+          cd public-repo
+          git add .
+          if git diff --staged --quiet; then
+            git commit --allow-empty -m "Sync with private repository"
+          else
+            git commit -m "Update from private repository - ${{ github.ref_name }} branch"
+          fi
+          git push origin main

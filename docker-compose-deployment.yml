@@ -1,0 +1,55 @@
+networks:
+  koi_networks_on_deployment:
+    driver: bridge
+
+services:
+  mysql:
+    image: lcaohoanq/koiauction_on_ci:1.2
+    container_name: mysql_db_koi_deployment
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+    networks:
+      - koi_networks_on_deployment
+    environment:
+      MYSQL_ROOT_PASSWORD: Luucaohoang1604^^
+      MYSQL_DATABASE: koi_company_dev_db # db inside the lcaohoanq/koiauction_on_ci:1.0 container
+      MYSQL_USER: lcaohoanq
+      MYSQL_PASSWORD: Luucaohoang1604^^
+    volumes:
+      - mysql_data_deployment:/var/lib/mysql        # Persist MySQL data
+    ports:
+      - "3306:3306"
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: phpmyadmin_ui_koi_deployment
+    networks:
+      - koi_networks_on_deployment
+    environment:
+      PMA_HOST: mysql_db_koi_deployment                 # Hostname of the MySQL service (container name)
+      PMA_USER: root                     # MySQL root user
+      PMA_PASSWORD: Luucaohoang1604^^    # MySQL root password
+    ports:
+      - "80:80"                        # Expose phpMyAdmin on port 81
+
+  koiauction:
+    image: lcaohoanq/koiauction_on_deployment:1.2
+    container_name: koiauction_on_deployment
+    networks:
+      - koi_networks_on_deployment
+    ports:
+      - "8088:4000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_db_koi_deployment:3306/koi_company_dev_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Luucaohoang1604^^
+#      SPRING_PROFILES_ACTIVE: dev
+
+volumes:
+  mysql_data_deployment:
+    driver: local

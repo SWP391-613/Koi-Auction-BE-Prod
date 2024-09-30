@@ -1,0 +1,48 @@
+<configuration>
+    <property name="LOG_FILE" value="src/main/resources/logs/application.log" />
+
+  <!--    FILE -->
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_FILE}</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--   CONSOLE -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--    ROLLING -->
+    <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- The main log file -->
+        <file>logs/app.log</file>
+        <!-- Continue appending to the file after the application restarts -->
+        <append>true</append>
+        <!-- Define the rolling policy -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- File name pattern for the rolled over files -->
+            <fileNamePattern>logs/rolling-app.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- Keep log files for 30 days -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <!-- Define the log output format -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <logger name="com.swp391_09" level="DEBUG" additivity="false">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="ROLLING"/>
+    </logger>
+
+</configuration>

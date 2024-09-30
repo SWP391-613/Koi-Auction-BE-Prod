@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: Koi-BE
+  output:
+    ansi:
+      enabled: ALWAYS
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+
+  profiles:
+    active: dev

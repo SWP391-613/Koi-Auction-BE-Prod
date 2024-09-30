@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Account Blocked</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+<table id="Block-Account-Page">
+  <tr>
+    <td class="container">
+      <div class="content">
+        <table>
+          <tr>
+            <td>
+              <p class="brand"><span style="color:#ff0000;">Java Snake Game</span> Corporation</p>
+            </td>
+          </tr>
+          <tr>
+            <td class="border" id="border-fail">
+              <h1 class="title" id="title-fail">ACCOUNT BLOCKED</h1>
+              <p>Dear User,</p>
+              <p>We regret to inform you that your account associated with the email <strong th:text="${email}"></strong> has been blocked.</p>
+              <p>Reason: <strong style="color:#ff0000;" th:text="${reason}"></strong></p>
+              <p>If you believe this is a mistake, please contact our support team at support@example.com for further assistance.</p>
+              <p>Best regards,</p>
+              <p>The Java Snake Game Team</p>
+            </td>
+          </tr>
+          <tr class="contact">
+            <td>
+              Java Snake Game Corporation - 0123 456 789 - support@example.com
+            </td>
+          </tr>
+        </table>
+      </div>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

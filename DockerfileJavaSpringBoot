@@ -1,0 +1,21 @@
+#Build
+FROM maven:3.9.9-eclipse-temurin-17-alpine AS build
+WORKDIR /app
+COPY . /app/koi-auction-be
+# RUN mvn package -f /app/koi-auction-be/pom.xml
+RUN mvn package -Dspring.profiles.active=dev -DskipTests -f /app/koi-auction-be/pom.xml
+
+#multi-staging
+FROM openjdk:17-slim
+WORKDIR /app
+COPY --from=build /app/koi-auction-be/target/koibe-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/koi-auction-be/uploads uploads
+
+EXPOSE 4000
+CMD ["java","-jar","app.jar"]
+
+#docker build -t shopapp-spring:1.0.0 -f ./DockerfileJavaSpring .
+#docker login
+#create sunlight4d/shopapp-spring:1.0.0 repository on DockerHub
+#docker tag shopapp-spring:1.0.0 sunlight4d/shopapp-spring:1.0.0
+#docker push sunlight4d/shopapp-spring:1.0.0
