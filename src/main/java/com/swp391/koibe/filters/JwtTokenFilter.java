@@ -104,7 +104,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/users/login", apiPrefix), "POST"),
                 Pair.of(String.format("%s/users/details", apiPrefix), "PUT"),
                 Pair.of(String.format("%s/users/block", apiPrefix), "PUT"),
+
+                //Verify OTP
                 Pair.of(String.format("%s/users/verify", apiPrefix), "PUT"),
+                Pair.of(String.format("%s/users/verify", apiPrefix), "POST"),
 
                 Pair.of(String.format("%s/oauth2", apiPrefix), "POST"),
                 Pair.of(String.format("%s/oauth2/google-client-id", apiPrefix), "GET"),

@@ -197,6 +197,12 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public User getUserByEmail(String email) throws DataNotFoundException {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("User not found: " + email));
+    }
+
+    @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -292,7 +298,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void verifyOtp(Long userId, int otp) throws Exception {
+    public void verifyOtp(Long userId, String otp) throws Exception {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new DataNotFoundException(
                 localizationUtils.getLocalizedMessage(MessageKeys.USER_NOT_FOUND)
@@ -308,8 +314,9 @@ public class UserService implements IUserService {
             throw new DataNotFoundException("User is banned");
         }
 
-        Otp otpEntity = otpService.getOtpByEmail(user
-             .getEmail())
+        Otp otpEntity = otpService.getOtpByEmailOtp(
+            user.getEmail(),
+            otp)
             .orElseThrow(() -> new DataNotFoundException("OTP not found"));
 
         //check the otp is expired or not

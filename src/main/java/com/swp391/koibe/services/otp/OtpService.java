@@ -33,8 +33,8 @@ public class OtpService implements IOtpService{
     }
 
     @Override
-    public Optional<Otp> getOtpByEmail(String email) {
-        return otpRepository.findByEmail(email);
+    public Optional<Otp> getOtpByEmailOtp(String email, String otp) {
+        return otpRepository.findByEmailAndOtp(email, otp);
     }
 
 }

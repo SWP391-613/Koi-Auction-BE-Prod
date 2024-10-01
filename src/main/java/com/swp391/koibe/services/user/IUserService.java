@@ -17,6 +17,7 @@ public interface IUserService {
     String login(String email, String password) throws Exception;
     String loginOrRegisterGoogle(String email, String name, String googleId, String avatarUrl) throws Exception;
     User getUserById(long id) throws DataNotFoundException;
+    User getUserByEmail(String email) throws DataNotFoundException;
     List<User> getAllUsers();
     Page<User> findAll(String keyword, Pageable pageable) throws Exception;
     void resetPassword(Long userId, String newPassword)
@@ -30,5 +31,5 @@ public interface IUserService {
     User getUserDetailsFromToken(String token) throws Exception;
 
     //Otp
-    void verifyOtp(Long userId, int otp) throws Exception;
+    void verifyOtp(Long userId, String otp) throws Exception;
 }

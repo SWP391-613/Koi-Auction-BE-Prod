@@ -4,6 +4,8 @@ import com.swp391.koibe.components.LocalizationUtils;
 import com.swp391.koibe.dtos.UpdateUserDTO;
 import com.swp391.koibe.dtos.UserLoginDTO;
 import com.swp391.koibe.dtos.UserRegisterDTO;
+import com.swp391.koibe.dtos.VerifyUserDTO;
+import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Token;
 import com.swp391.koibe.models.User;
@@ -194,7 +196,29 @@ public class UserController {
         try {
             String extractedToken = authorizationHeader.substring(7);
             User user = userService.getUserDetailsFromToken(extractedToken);
-            userService.verifyOtp(user.getId(), otp);
+            userService.verifyOtp(user.getId(), String.valueOf(otp));
+            otpResponse.setMessage(localizationUtils.getLocalizedMessage(MessageKeys.VERIFY_USER_SUCCESSFULLY));
+            return ResponseEntity.ok().body(otpResponse);
+        } catch (Exception e){
+            otpResponse.setMessage(localizationUtils.getLocalizedMessage(MessageKeys.VERIFY_USER_FAILED));
+            otpResponse.setReason(e.getMessage());
+            return ResponseEntity.badRequest().body(otpResponse);
+        }
+    }
+
+    @PostMapping("/verify")
+    public ResponseEntity<OtpResponse> verifiedUserNotLogin(
+        @Valid @RequestBody VerifyUserDTO verifyUserDTO,
+        BindingResult result
+    ) {
+        if(result.hasErrors()){
+            throw new MethodArgumentNotValidException(result);
+        }
+
+        OtpResponse otpResponse = new OtpResponse();
+        try {
+            User user = userService.getUserByEmail(verifyUserDTO.email());
+            userService.verifyOtp(user.getId(), verifyUserDTO.otp());
             otpResponse.setMessage(localizationUtils.getLocalizedMessage(MessageKeys.VERIFY_USER_SUCCESSFULLY));
             return ResponseEntity.ok().body(otpResponse);
         } catch (Exception e){

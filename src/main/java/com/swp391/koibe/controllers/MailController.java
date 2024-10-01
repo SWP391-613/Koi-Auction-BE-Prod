@@ -4,14 +4,15 @@ import com.swp391.koibe.constants.EmailSubject;
 import com.swp391.koibe.enums.EmailBlockReasonEnum;
 import com.swp391.koibe.enums.EmailCategoriesEnum;
 import com.swp391.koibe.enums.UserStatus;
-import com.swp391.koibe.enums.UserStatusEnum;
+import com.swp391.koibe.models.Otp;
 import com.swp391.koibe.models.User;
 import com.swp391.koibe.responses.MailResponse;
 import com.swp391.koibe.services.mail.MailSenderService;
+import com.swp391.koibe.services.otp.IOtpService;
 import com.swp391.koibe.utils.OTPUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +28,7 @@ public class MailController {
 
     private final MailSenderService mailSenderService;
     private final HttpServletRequest request;
+    private final IOtpService otpService;
 
     //api: /otp/send?type=email&recipient=abc@gmail
     public ResponseEntity<MailResponse> sendOtp(@RequestParam String toEmail) {
@@ -45,6 +47,17 @@ public class MailController {
             EmailCategoriesEnum.OTP.getType(),
             context);
         MailResponse response = new MailResponse("Mail sent successfully");
+
+        Otp otpEntity = Otp.builder()
+            .email(toEmail)
+            .otp(otp)
+            .expiredAt(LocalDateTime.now().plusMinutes(5))
+            .isUsed(false)
+            .isExpired(false)
+            .build();
+
+        otpService.createOtp(otpEntity);
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
