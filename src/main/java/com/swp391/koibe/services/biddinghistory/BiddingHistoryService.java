@@ -1,6 +1,7 @@
 package com.swp391.koibe.services.biddinghistory;
 
 import com.swp391.koibe.dtos.BidDTO;
+import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.AuctionKoi;
 import com.swp391.koibe.models.Bid;
@@ -9,6 +10,7 @@ import com.swp391.koibe.repositories.BidHistoryRepository;
 import com.swp391.koibe.responses.BidResponse;
 import com.swp391.koibe.services.auctionkoi.IAuctionKoiService;
 import com.swp391.koibe.services.user.IUserService;
+import com.swp391.koibe.utils.DTOConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -46,8 +48,8 @@ public class BiddingHistoryService implements IBiddingHistoryService {
     }
 
     @Override
-    public Page<Bid> getAllBidHistories(Pageable pageable) {
-        return null;
+    public Page<BidResponse> getAllBidHistories(Pageable pageable) {
+        return bidHistoryRepository.findAll(pageable).map(DTOConverter::convertToBidDTO);
     }
 
     @Override
@@ -94,14 +96,21 @@ public class BiddingHistoryService implements IBiddingHistoryService {
 
         auctionKoi.setCurrentBid(bidRequest.bidAmount());
         auctionKoi.setCurrentBidderId(bidder.getId());
-        auctionKoiService.updateAuctionKoi(auctionKoi.getId(), auctionKoi);
+
+        UpdateAuctionKoiDTO updateAuctionKoiDTO = UpdateAuctionKoiDTO.builder()
+                .currentBid(bidRequest.bidAmount())
+                .currentBidderId(bidder.getId())
+                .build();
+
+        auctionKoiService.updateAuctionKoi(auctionKoi.getAuction().getId(), auctionKoi.getKoi().getId(),
+                                           updateAuctionKoiDTO);
 
         BidResponse bidResponse = BidResponse.builder()
                 .auctionKoiId(auctionKoi.getId())
                 .bidderId(bidder.getId())
                 .bidAmount(bidRequest.bidAmount())
                 .bidderName(bidder.getFirstName() + " " + bidder.getLastName())
-                .bidTime(bid.getBidTime())
+                .bidTime(bid.getBidTime().toString())
                 .build();
 
         messagingTemplate.convertAndSend("/topic/auction/" + auctionKoi.getId(), bidResponse);

@@ -66,6 +66,12 @@ public class AuctionService implements IAuctionService {
     }
 
     @Override
+    public Auction findAuctionById(long id) throws DataNotFoundException {
+        return auctionRepository.findById(id)
+            .orElseThrow(() -> new DataNotFoundException("Auction not found"));
+    }
+
+    @Override
     public Page<AuctionResponse> getAllAuctions(Pageable pageable) {
         Page<Auction> auctions = auctionRepository.findAll(pageable);
         return auctions.map(DTOConverter::convertToAuctionDTO);

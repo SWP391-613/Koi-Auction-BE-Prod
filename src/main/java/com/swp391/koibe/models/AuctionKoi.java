@@ -21,24 +21,24 @@ public class AuctionKoi {
 
     @Column(name = "base_price")
     @Min(0)
-    private Float basePrice;
+    private Long basePrice;
 
-    // New fields
-    @Column(name = "current_bid", nullable = false, columnDefinition = "int default 0")
-    private int currentBid; // Track current highest bid
-
-    @Column(name = "bid_step", nullable = false, columnDefinition = "int default 0")
-    private int bidStep; // Track the bid step
-
-    @Column(name = "current_bidder_id", nullable = true) // Nullable since no bidder initially
-    private Long currentBidderId; // Track the highest bidder
-
-    @Column(name = "is_sold", nullable = false, columnDefinition = "boolean default false")
-    private boolean isSold; // Track if the item has been sold
+    @Column(name = "bid_step", columnDefinition = "int default 0")
+    private long bidStep; // Track the bid step
 
     @Enumerated(EnumType.STRING)
     @Column(name = "bid_method")
     private EBidMethod bidMethod;
+
+    @Column(name = "is_sold", nullable = false, columnDefinition = "boolean default false")
+    private boolean isSold; // Track if the item has been sold
+
+    // New fields
+    @Column(name = "current_bid")
+    private Long currentBid; // Track current highest bid
+
+    @Column(name = "current_bidder_id") // Nullable since no bidder initially
+    private Long currentBidderId; // Track the highest bidder
 
     @ManyToOne
     @JoinColumn(name = "auction_id")

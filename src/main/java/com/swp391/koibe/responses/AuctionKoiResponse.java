@@ -17,17 +17,17 @@ public class AuctionKoiResponse {
     @JsonProperty("id")
     private long id;
 
-    @JsonProperty("auction_id")
-    private long auctionId;
-
-    @JsonProperty("koi_id")
-    private long koiId;
-
     @JsonProperty("base_price")
-    private Float basePrice;
+    private long basePrice;
+
+    @JsonProperty("bid_step")
+    private long bidStep;
+
+    @JsonProperty("bid_method")
+    private String bidMethod;
 
     @JsonProperty("current_bid")
-    private int currentBid;
+    private long currentBid;
 
     @JsonProperty("current_bidder_id")
     private Long currentBidderId;
@@ -35,7 +35,10 @@ public class AuctionKoiResponse {
     @JsonProperty("is_sold")
     private boolean isSold;
 
-    @JsonProperty("bid_method")
-    private String bidMethod;
+    @JsonProperty("auction_id")
+    private long auctionId;
+
+    @JsonProperty("koi_id")
+    private long koiId;
 
 }

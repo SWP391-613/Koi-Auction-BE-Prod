@@ -29,7 +29,7 @@ public class Bid {
     private Long id;
 
     @Column(name = "bid_amount")
-    private int bidAmount; // Optional, if you want to enforce bid increments
+    private long bidAmount; // Optional, if you want to enforce bid increments
 
     @Column(name = "bid_time")
     private LocalDateTime bidTime; // Track when the bid was placed

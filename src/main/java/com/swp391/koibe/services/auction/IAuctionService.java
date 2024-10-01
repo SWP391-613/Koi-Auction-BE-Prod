@@ -17,6 +17,8 @@ public interface IAuctionService {
 
         AuctionResponse getById(long id) throws DataNotFoundException;
 
+        Auction findAuctionById(long id) throws DataNotFoundException;
+
         Page<AuctionResponse> getAllAuctions(Pageable pageable);
 
         Auction update(long auctionId, AuctionDTO auctionDTO) throws DataNotFoundException;

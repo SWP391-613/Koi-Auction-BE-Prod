@@ -11,7 +11,7 @@ public record BidDTO (
     @JsonProperty("bid_amount")
     @Min(value = 1, message = "Bid amount must be greater than 0")
     @NotNull(message = "Bid amount is required")
-    int bidAmount,
+    long bidAmount,
 
     @JsonProperty("bid_time")
     @NotNull(message = "Bid time is required")

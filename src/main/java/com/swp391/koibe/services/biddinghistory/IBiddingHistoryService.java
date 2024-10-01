@@ -13,7 +13,7 @@ import java.util.List;
 public interface IBiddingHistoryService {
     Bid createBidHistory(Bid bid) throws DataNotFoundException;
     Bid getBidHistoryById(long id);
-    Page<Bid> getAllBidHistories(Pageable pageable);
+    Page<BidResponse> getAllBidHistories(Pageable pageable);
     Bid updateBidHistory(long id, Bid bid);
     void deleteBidHistory(long id);
     boolean existsByName(String name);

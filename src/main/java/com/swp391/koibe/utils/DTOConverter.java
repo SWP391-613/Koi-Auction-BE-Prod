@@ -68,8 +68,8 @@ public class DTOConverter {
             .koiId(auctionKoi.getKoi().getId())
             .basePrice(auctionKoi.getBasePrice())
             .bidMethod(auctionKoi.getBidMethod() != null ? auctionKoi.getBidMethod().getType() : null)
-            .currentBid(auctionKoi.getCurrentBid())
-            .currentBidderId(auctionKoi.getCurrentBidderId())
+            .currentBid(auctionKoi.getCurrentBid() == null ? 0 : auctionKoi.getCurrentBid())
+            .currentBidderId(auctionKoi.getCurrentBidderId() == null ? 0 : auctionKoi.getCurrentBidderId())
             .isSold(auctionKoi.isSold())
             .build();
     }
@@ -79,8 +79,8 @@ public class DTOConverter {
             .auctionKoiId(bid.getAuctionKoi().getId())
             .bidderId(bid.getBidder().getId())
             .bidAmount(bid.getBidAmount())
-            .bidTime(bid.getBidTime())
-            .bidderName(bid.getBidder().getFirstName() + " " + bid.getBidder().getLastName())
+            .bidTime(bid.getBidTime().toString())
+            .bidderName(String.format("%s %s", bid.getBidder().getFirstName(),bid.getBidder().getLastName()))
             .build();
     }
 

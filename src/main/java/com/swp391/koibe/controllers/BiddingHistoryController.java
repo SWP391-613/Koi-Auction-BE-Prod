@@ -1,11 +1,13 @@
 package com.swp391.koibe.controllers;
 
 import com.swp391.koibe.dtos.BidDTO;
+import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
 import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.*;
 import com.swp391.koibe.repositories.AuctionParticipantRepository;
 import com.swp391.koibe.responses.BidResponse;
+import com.swp391.koibe.responses.pagination.BiddingHistoryPaginationResponse;
 import com.swp391.koibe.services.auctionkoi.IAuctionKoiService;
 import com.swp391.koibe.services.biddinghistory.IBiddingHistoryService;
 import com.swp391.koibe.services.user.IUserService;
@@ -14,6 +16,8 @@ import com.swp391.koibe.utils.DateTimeUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -99,8 +103,19 @@ public class BiddingHistoryController {
                     // Save all bid histories in batch
                     biddingHistoryService.createBidHistories(bidHistories);
 
+                    UpdateAuctionKoiDTO updateAuctionKoiDTO = UpdateAuctionKoiDTO.builder()
+                            .basePrice(auctionKoi.getBasePrice())
+                            .bidStep(auctionKoi.getBidStep())
+                            .bidMethod(String.valueOf(auctionKoi.getBidMethod()))
+                            .currentBid(auctionKoi.getCurrentBid())
+                            .currentBidderId(auctionKoi.getCurrentBidderId())
+                            .isSold(auctionKoi.isSold())
+                            .build();
+
                     // Update the AuctionKoi
-                    auctionKoiService.updateAuctionKoi(auctionKoi.getId(), auctionKoi);
+                    auctionKoiService.updateAuctionKoi(auctionKoi.getAuction().getId(),
+                                                       auctionKoi.getKoi().getId(),
+                                                       updateAuctionKoiDTO);
                 }
             }
 
@@ -121,6 +136,27 @@ public class BiddingHistoryController {
         Comparator<BidResponse> byBidTime = Comparator.comparing(BidResponse::getBidTime).reversed();
         bidResponses.sort(byBidTime);
         return ResponseEntity.ok(bidResponses);
+    }
+
+    @GetMapping("")
+    public ResponseEntity<?> getAllBiddingHistory(
+        @RequestParam("page") int page,
+        @RequestParam("limit") int limit
+    ){
+
+        BiddingHistoryPaginationResponse response = new BiddingHistoryPaginationResponse();
+
+        try {
+
+            PageRequest pageRequest = PageRequest.of(page, limit);
+            Page<BidResponse> bids = biddingHistoryService.getAllBidHistories(pageRequest);
+            response.setItems(bids.getContent());
+            response.setTotalPage(bids.getTotalPages());
+            response.setTotalItem(bids.getTotalElements());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/auctionkois/{auction_koi_id}/auction/{auction_id}")
@@ -195,7 +231,17 @@ public class BiddingHistoryController {
             // Update the current bid and current bidder of the auction koi
             auctionKoi.setCurrentBid(bid.bidAmount());
             auctionKoi.setCurrentBidderId(bid.bidderId());
-            auctionKoiService.updateAuctionKoi(auction_koi_id, auctionKoi);
+
+            UpdateAuctionKoiDTO udpateAuctionKoiDTO = UpdateAuctionKoiDTO.builder()
+                .basePrice(auctionKoi.getBasePrice())
+                .bidStep(auctionKoi.getBidStep())
+                .bidMethod(String.valueOf(auctionKoi.getBidMethod()))
+                .currentBid(bid.bidAmount())
+                .currentBidderId(bid.bidderId())
+                .isSold(auctionKoi.isSold())
+                .build();
+
+            auctionKoiService.updateAuctionKoi(auction_id, auctionKoi.getKoi().getId(), udpateAuctionKoiDTO);
 
             return ResponseEntity.status(HttpStatus.CREATED).body("Bid created successfully");
         } catch (Exception e) {
