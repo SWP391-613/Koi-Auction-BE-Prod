@@ -6,10 +6,10 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 
-interface UserRepository : JpaRepository<User?, Long?> {
-    fun findByEmail(email: String?): Optional<User?>?
-    fun findByPhoneNumber(phoneNumber: String?): Optional<User?>?
-    fun findByRoleName(roleName: String?, pageable: Pageable?): Page<User?>?
-    fun existsByPhoneNumber(phoneNumber: String?): Boolean
-    fun existsByEmail(email: String?): Boolean
+interface UserRepository : JpaRepository<User, Long> {
+    fun findByEmail(email: String): Optional<User>
+    fun findByPhoneNumber(phoneNumber: String): Optional<User>
+    fun findByRoleName(roleName: String, pageable: Pageable): Page<User>
+    fun existsByPhoneNumber(phoneNumber: String): Boolean
+    fun existsByEmail(email: String): Boolean
 }
