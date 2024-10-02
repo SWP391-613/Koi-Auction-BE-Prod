@@ -31,11 +31,6 @@ public class AuctionService implements IAuctionService {
         LocalDateTime endTime = DateTimeUtils.parseTime(auctionDTO.endTime());
         DateTimeUtils.validateAuctionTimes(startTime, endTime);
 
-        //=====================================Consider to check later, still accept the same title
-        if (auctionRepository.existsByTitle(auctionDTO.title())) {
-            throw new DataAlreadyExistException("Auction's title already exists");
-        }
-
         if(auctionDTO.statusName().equals(EAuctionStatus.ENDED.name())) {
             throw new MalformDataException("Cannot create ended auction");
         }
