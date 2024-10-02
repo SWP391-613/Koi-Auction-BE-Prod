@@ -76,6 +76,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 //KoiController
                 Pair.of(String.format("%s/kois", apiPrefix), "GET"),
                 Pair.of(String.format("%s/kois", apiPrefix), "POST"),
+                Pair.of(String.format("%s/kois", apiPrefix), "PUT"),
+                Pair.of(String.format("%s/kois", apiPrefix), "DELETE"),
 
                 //KoiImageController
                 Pair.of(String.format("%s/koiimage", apiPrefix), "GET"),

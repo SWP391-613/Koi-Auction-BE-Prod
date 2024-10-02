@@ -32,7 +32,7 @@ public class DTOConverter {
             .sex(koi.getSex())
             .length(koi.getLength())
             .age(koi.getAge())
-            //.basePrice(koi.getBasePrice())
+            .price(koi.getPrice())
             .statusName(koi.getStatus() != null ? koi.getStatus().getStatus() : null)
             .idDisplay(koi.getIsDisplay())
             .thumbnail(koi.getThumbnail())

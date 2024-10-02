@@ -3,7 +3,9 @@ package com.swp391.koibe.services.koi;
 import com.swp391.koibe.constants.ErrorMessage;
 import com.swp391.koibe.dtos.KoiDTO;
 import com.swp391.koibe.dtos.KoiImageDTO;
+import com.swp391.koibe.enums.EKoiStatus;
 import com.swp391.koibe.exceptions.InvalidParamException;
+import com.swp391.koibe.exceptions.base.DataAlreadyExistException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Category;
 import com.swp391.koibe.models.Koi;
@@ -34,6 +36,10 @@ public class KoiService implements IKoiService<KoiResponse> {
 
     @Override
     public Koi createKoi(KoiDTO koiDTO) throws DataNotFoundException {
+        // check if koi already existed
+        if (koiRepository.existsByName(koiDTO.name())) {
+            throw new DataAlreadyExistException("Koi already existed: " + koiDTO.name());
+        }
 
         User existedUser = userRepository.findById(koiDTO.ownerId())
             .orElseThrow(() ->
@@ -46,7 +52,7 @@ public class KoiService implements IKoiService<KoiResponse> {
         Koi newKoi = Koi.builder()
             .name(koiDTO.name())
             .price(koiDTO.price())
-//            .trackingStatus(koiDTO.getKoiTrackingStatus())
+            .status(EKoiStatus.valueOf(koiDTO.trackingStatus()))
             .isDisplay(koiDTO.isDisplay())
             .thumbnail(koiDTO.thumbnail())
             .sex(koiDTO.sex())
@@ -75,13 +81,40 @@ public class KoiService implements IKoiService<KoiResponse> {
     }
 
     @Override
-    public Koi updateKoi(long id, KoiDTO koiDTO) {
-        return null;
+    public KoiResponse updateKoi(long id, KoiDTO koiDTO) {
+        //find if koi exist
+        Koi existingKoi = koiRepository.findById(id)
+            .orElseThrow(() -> new DataNotFoundException("Koi not found: " + id));
+
+        //find if koi owner exist
+        User existingUser = userRepository.findById(koiDTO.ownerId())
+            .orElseThrow(() -> new DataNotFoundException("User not found: " + koiDTO.ownerId()));
+
+        // find if koi category exist
+        Category existingCategory = categoryRepository.findById(koiDTO.categoryId())
+            .orElseThrow(() -> new DataNotFoundException("Category not found: " + koiDTO.categoryId()));
+
+        existingKoi.setName(koiDTO.name());
+        existingKoi.setPrice(koiDTO.price());
+        existingKoi.setStatus(EKoiStatus.valueOf(koiDTO.trackingStatus()));
+        existingKoi.setIsDisplay(koiDTO.isDisplay());
+        existingKoi.setThumbnail(koiDTO.thumbnail());
+        existingKoi.setSex(koiDTO.sex());
+        existingKoi.setLength(koiDTO.length());
+        existingKoi.setAge(koiDTO.age());
+        existingKoi.setDescription(koiDTO.description());
+        existingKoi.setCategory(existingCategory);
+        existingKoi.setOwner(existingUser);
+
+        return DTOConverter.convertToKoiDTO(koiRepository.save(existingKoi));
     }
 
     @Override
     public void deleteKoi(long id) {
-
+        //find if koi exist
+        Koi existingKoi = koiRepository.findById(id)
+            .orElseThrow(() -> new DataNotFoundException("Koi not found: " + id));
+        koiRepository.delete(existingKoi);
     }
 
     @Override

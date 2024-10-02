@@ -1,16 +1,15 @@
 package com.swp391.koibe.controllers;
 
-import com.github.javafaker.Faker;
 import com.swp391.koibe.constants.ErrorMessage;
 import com.swp391.koibe.dtos.KoiDTO;
 import com.swp391.koibe.dtos.KoiImageDTO;
+import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.models.Koi;
 import com.swp391.koibe.models.KoiImage;
 import com.swp391.koibe.repositories.KoiRepository;
 import com.swp391.koibe.responses.KoiResponse;
 import com.swp391.koibe.responses.pagination.KoiPaginationResponse;
 import com.swp391.koibe.services.koi.IKoiService;
-import com.swp391.koibe.utils.SampleDataStorage;
 import jakarta.validation.Valid;
 import java.io.File;
 import java.io.IOException;
@@ -32,10 +31,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -51,38 +52,38 @@ public class KoiController {
     private final IKoiService<KoiResponse> koiService;
     private final KoiRepository koiRepository;
 
-    @PostMapping("/generateFakeKois")
-    private ResponseEntity<String> generateFakeKois() {
-        Faker faker = new Faker();
-
-        SampleDataStorage.Koi koi = new SampleDataStorage.Koi();
-
-        for (int i = 1; i < 300; i++) {
-            String koiName = koi.getKoiNames().get(faker.number().numberBetween(0, koi.getKoiNames().size()));
-//            if(koiService.existsByName(koiName)) {
-//                continue;
+//    @PostMapping("/generateFakeKois")
+//    private ResponseEntity<String> generateFakeKois() {
+//        Faker faker = new Faker();
+//
+//        SampleDataStorage.Koi koi = new SampleDataStorage.Koi();
+//
+//        for (int i = 1; i < 300; i++) {
+//            String koiName = koi.getKoiNames().get(faker.number().numberBetween(0, koi.getKoiNames().size()));
+////            if(koiService.existsByName(koiName)) {
+////                continue;
+////            }
+//            Koi koiDTO = Koi.builder()
+//                .name(koiName)
+//                .price((float)faker.number().numberBetween(10, 90_000_000))
+//                .EKoiStatus(koi.getKoiStatusList()[faker.number().numberBetween(0, koi.getKoiStatusList().length)])
+//                .isDisplay(faker.number().numberBetween(0, 2))
+//                .thumbnail("https://mjjlqhnswgbzvxfujauo.supabase.co/storage/v1/object/public/auctions/48/photos/Sanke%2040cm.png")
+//                .sex(koi.getGenders()[faker.number().numberBetween(0, koi.getGenders().length)])
+//                .length(faker.number().numberBetween(1, 100))
+//                .age(faker.number().numberBetween(1, 231)) //1-230
+//                .description(faker.lorem().sentence())
+//                .ownerId((long) faker.number().numberBetween(1, 4)) //userId from 1-3
+//                .categoryId(faker.number().numberBetween(1, 11)) //1-10 categories
+//                .build();
+//            try{
+//                koiService.createKoi(koiDTO);
+//            } catch (Exception e) {
+//                return ResponseEntity.badRequest().body(e.getMessage());
 //            }
-            KoiDTO koiDTO = KoiDTO.builder()
-                .name(koiName)
-                .price((float)faker.number().numberBetween(10, 90_000_000))
-                .EKoiStatus(koi.getKoiStatusList()[faker.number().numberBetween(0, koi.getKoiStatusList().length)])
-                .isDisplay(faker.number().numberBetween(0, 2))
-                .thumbnail("https://mjjlqhnswgbzvxfujauo.supabase.co/storage/v1/object/public/auctions/48/photos/Sanke%2040cm.png")
-                .sex(koi.getGenders()[faker.number().numberBetween(0, koi.getGenders().length)])
-                .length(faker.number().numberBetween(1, 100))
-                .age(faker.number().numberBetween(1, 231)) //1-230
-                .description(faker.lorem().sentence())
-                .ownerId((long) faker.number().numberBetween(1, 4)) //userId from 1-3
-                .categoryId(faker.number().numberBetween(1, 11)) //1-10 categories
-                .build();
-            try{
-                koiService.createKoi(koiDTO);
-            } catch (Exception e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
-            }
-        }
-        return ResponseEntity.ok("Fake kois generated");
-    }
+//        }
+//        return ResponseEntity.ok("Fake kois generated");
+//    }
 
     //pagination kois
     @GetMapping("") //kois/?page=0&limit=10
@@ -122,19 +123,46 @@ public class KoiController {
         //@RequestPart("file") MultipartFile file,
         BindingResult result
     ) {
+
+        if(result.hasErrors()){
+            throw new MethodArgumentNotValidException(result);
+        }
+
         try {
-            if (result.hasErrors()) {
-                List<FieldError> fieldErrorList = result.getFieldErrors();
-                List<String> errorMessages = fieldErrorList
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-                return ResponseEntity.badRequest().body(errorMessages);
-            }
             //need to save the product first to get the product id, get the id and add the image
             Koi newProduct = koiService.createKoi(koiDTO);
 //            productService.createProduct(koiDTO);
             return ResponseEntity.ok(newProduct);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<KoiResponse> updateProduct(
+        @PathVariable("id") Long koiId,
+        @Valid @RequestBody KoiDTO koiDTO,
+        BindingResult result
+    ) {
+
+        if(result.hasErrors()){
+            throw new MethodArgumentNotValidException(result);
+        }
+        KoiResponse updatedKoi = new KoiResponse();
+        try {
+            updatedKoi = koiService.updateKoi(koiId, koiDTO);
+            return ResponseEntity.ok(updatedKoi);
+        } catch (Exception e) {
+            updatedKoi.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(updatedKoi);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable("id") Long koiId) {
+        try {
+            koiService.deleteKoi(koiId);
+            return ResponseEntity.ok().body("Koi deleted successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -196,13 +224,13 @@ public class KoiController {
             throw new IOException("Invalid image format");
         }
         String filename = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-        String uniqueFileName = UUID.randomUUID().toString() + "_" + filename;
+        String uniqueFileName = UUID.randomUUID() + "_" + filename;
         Path uploadDir = Paths.get("uploads");
         if (!Files.exists(uploadDir)) {
             Files.createDirectories(uploadDir);
         }
         //File.separator: depends on the OS, for windows it is '\', for linux it is '/'
-        Path destination = Paths.get(uploadDir.toString() + File.separator + uniqueFileName);
+        Path destination = Paths.get(uploadDir + File.separator + uniqueFileName);
         //copy the file to the destination
         Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
         return uniqueFileName;

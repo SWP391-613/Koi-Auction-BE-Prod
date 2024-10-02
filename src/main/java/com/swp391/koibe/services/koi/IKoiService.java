@@ -16,7 +16,7 @@ public interface IKoiService<T> {
     Koi createKoi(KoiDTO koiDTO) throws DataNotFoundException;
     T getKoiById(long id) throws DataNotFoundException;
     Page<KoiResponse> getAllKois(Pageable pageable);
-    Koi updateKoi(long id, KoiDTO koiDTO);
+    KoiResponse updateKoi(long id, KoiDTO koiDTO);
     void deleteKoi(long id);
     boolean existsByName(String name);
     List<Koi> getAllKois();
