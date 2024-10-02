@@ -55,8 +55,8 @@ public class DTOConverter {
         return AuctionResponse.builder()
             .id(auction.getId())
             .title(auction.getTitle())
-            .startTime(auction.getStartTime())
-            .endTime(auction.getEndTime())
+            .startTime(String.valueOf(auction.getStartTime()))
+            .endTime(String.valueOf(auction.getEndTime()))
             .status(auction.getStatus() != null ? auction.getStatus().getStatus() : null)
             .build();
     }

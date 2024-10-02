@@ -98,8 +98,8 @@ public class AuctionController {
             Auction newAuction = auctionService.createAuction(auctionDTO);
             response.setId(newAuction.getId());
             response.setTitle(newAuction.getTitle());
-            response.setStartTime(newAuction.getStartTime());
-            response.setEndTime(newAuction.getEndTime());
+            response.setStartTime(String.valueOf(newAuction.getStartTime()));
+            response.setEndTime(String.valueOf(newAuction.getEndTime()));
             response.setStatus(newAuction.getStatus().getStatus());
             return ResponseEntity.status(201).body(response);
         }
@@ -126,8 +126,8 @@ public class AuctionController {
             Auction updatedAuction = auctionService.update(id, auctionDTO);
             response.setId(updatedAuction.getId());
             response.setTitle(updatedAuction.getTitle());
-            response.setStartTime(updatedAuction.getStartTime());
-            response.setEndTime(updatedAuction.getEndTime());
+            response.setStartTime(String.valueOf(updatedAuction.getStartTime()));
+            response.setEndTime(String.valueOf(updatedAuction.getEndTime()));
             response.setStatus(updatedAuction.getStatus().getStatus());
             return ResponseEntity.ok(response);
         }

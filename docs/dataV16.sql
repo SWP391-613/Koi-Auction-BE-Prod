@@ -9969,7 +9969,7 @@ CREATE TABLE `otps` (
   `is_expired` bit(1) DEFAULT NULL,
   `is_used` bit(1) DEFAULT NULL,
   `otp` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `otps`

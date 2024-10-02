@@ -27,10 +27,10 @@ public class AuctionResponse extends BaseResponse<Auction> {
     private String title;
 
     @JsonProperty("start_time")
-    private LocalDateTime startTime;
+    private String startTime;
 
     @JsonProperty("end_time")
-    private LocalDateTime endTime;
+    private String endTime;
 
     @JsonProperty("status")
     private String status;

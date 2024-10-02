@@ -54,19 +54,12 @@ public class UserController {
         BindingResult result,
         HttpServletRequest request) {
 
-        if (result.hasErrors()) {
-            List<FieldError> fieldErrorList = result.getFieldErrors();
-            List<String> errorMessages = fieldErrorList
-                .stream()
-                .map(FieldError::getDefaultMessage)
-                .toList();
-            return ResponseEntity.badRequest().body(LoginResponse.builder()
-                                                        .message(errorMessages.toString())
-                                                        .build());
+        if(result.hasErrors()){
+            throw new MethodArgumentNotValidException(result);
         }
 
         try {
-            String token = userService.login(userLoginDTO.email(), userLoginDTO.password());
+            String token = userService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword());
             String userAgent = request.getHeader("User-Agent");
             User userDetail = userService.getUserDetailsFromToken(token);
             Token jwtToken = tokenService.addToken(userDetail, token, isMobileDevice(userAgent));
