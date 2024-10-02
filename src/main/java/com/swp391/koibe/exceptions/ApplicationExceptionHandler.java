@@ -24,7 +24,7 @@ public class ApplicationExceptionHandler {
 
     @ExceptionHandler(DataNotFoundException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public BaseResponse handleDataNotFoundException(DataNotFoundException e) {
+    public BaseResponse<Object> handleDataNotFoundException(DataNotFoundException e) {
         return ExceptionResponse.builder()
             .message(localizationUtils.getLocalizedMessage("exception.data_not_found"))
             .reason(e.getMessage())
@@ -33,23 +33,25 @@ public class ApplicationExceptionHandler {
 
     @ExceptionHandler(NullPointerException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public BaseResponse handleNullPointerException(NullPointerException e) {
+    public BaseResponse<Object> handleNullPointerException(NullPointerException e) {
         return ExceptionResponse.builder()
             .message(localizationUtils.getLocalizedMessage("exception.null_pointer"))
+            .reason(e.getMessage())
             .build();
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public BaseResponse handleException(Exception e) {
+    public BaseResponse<Object> handleException(Exception e) {
         return ExceptionResponse.builder()
             .message(localizationUtils.getLocalizedMessage("exception.internal_server_error"))
+            .reason(e.getMessage())
             .build();
     }
 
     @ExceptionHandler(GenerateDataException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public BaseResponse handleGenerateDataException(GenerateDataException e) {
+    public BaseResponse<Object> handleGenerateDataException(GenerateDataException e) {
         return ExceptionResponse.builder()
             .message(localizationUtils.getLocalizedMessage("exception.generate_data_error"))
             .reason(e.getMessage())
@@ -59,7 +61,7 @@ public class ApplicationExceptionHandler {
     //DataAlreadyExistsException
     @ExceptionHandler(DataAlreadyExistException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public BaseResponse handleDataAlreadyExistsException(DataAlreadyExistException e) {
+    public BaseResponse<Object> handleDataAlreadyExistsException(DataAlreadyExistException e) {
         return ExceptionResponse.builder()
             .message(localizationUtils.getLocalizedMessage("exception.data_already_exist"))
             .reason(e.getMessage())
