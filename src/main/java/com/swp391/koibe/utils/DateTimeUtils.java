@@ -14,7 +14,9 @@ public class DateTimeUtils {
      * @return true if the auction is still active (not ended), false otherwise.
      */
     public static boolean isAuctionActive(LocalDateTime startTime, LocalDateTime endTime, LocalDateTime bidTime) {
-        return bidTime.isAfter(startTime) && bidTime.isBefore(endTime);
+        return
+//                bidTime.isAfter(startTime) &&
+                        bidTime.isBefore(endTime);
     }
 
     public static LocalDateTime parseTime(String bidTime) {

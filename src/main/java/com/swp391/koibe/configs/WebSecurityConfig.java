@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod.*;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -43,12 +42,12 @@ public class WebSecurityConfig {
                             .requestMatchers(
                                     String.format("%s/users/register", apiPrefix),
                                     String.format("%s/users/login", apiPrefix)
-                    // demo api
-                    // String.format("%s/products/test/view", apiPrefix)
+                                    // demo api
+                                    // String.format("%s/products/test/view", apiPrefix)
 
-                    // waiting to enable to add the swagger
+                                    // waiting to enable to add the swagger
 
-                    )
+                            )
                             .permitAll()
 
                             .requestMatchers(GET,
@@ -67,6 +66,11 @@ public class WebSecurityConfig {
                                     String.format("%s/categories/**", apiPrefix))
                             .hasAnyRole(Role.MANAGER)
 
+                            .requestMatchers(GET, "/auction-websocket/**").permitAll()
+                            .requestMatchers(GET,"/topic/**").permitAll()
+                            .requestMatchers(POST, "/auction-websocket/**").permitAll()
+                            .requestMatchers(POST,"/topic/**").permitAll()
+
                             .requestMatchers(PUT,
                                     String.format("%s/categories/**", apiPrefix))
                             .hasAnyRole(Role.MANAGER)
@@ -75,7 +79,7 @@ public class WebSecurityConfig {
                                     String.format("%s/categories/**", apiPrefix))
                             .hasAnyRole(Role.MANAGER)
                             .anyRequest().authenticated();
-                    // .anyRequest().permitAll();
+
 
                 });
 

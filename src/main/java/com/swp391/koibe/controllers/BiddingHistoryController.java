@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -200,15 +201,16 @@ public class BiddingHistoryController {
             }
 
             // Check if the bid amount is a multiple of the bid step
-            if ((bid.bidAmount() - auctionKoi.getCurrentBid()) % auctionKoi.getBidStep() != 0) {
-                return ResponseEntity.badRequest()
-                    .body("Bid amount must be a multiple of the bid step, current bid step is " + auctionKoi.getBidStep());
-            }
+//            if ((bid.bidAmount() - auctionKoi.getCurrentBid()) % auctionKoi.getBidStep() != 0) {
+//                return ResponseEntity.badRequest()
+//                    .body("Bid amount must be a multiple of the bid step, current bid step is " + auctionKoi.getBidStep());
+//            }
 
             // Check if the auction is still ongoing
             LocalDateTime now = LocalDateTime.now();
-            if (now.isBefore(auctionKoi.getAuction().getStartTime()) || now.isAfter(
-                auctionKoi.getAuction().getEndTime())) {
+            if (
+//                    now.isBefore(auctionKoi.getAuction().getStartTime()) ||
+                    now.isAfter(auctionKoi.getAuction().getEndTime())) {
                 return ResponseEntity.badRequest().body("Auction is not ongoing");
             }
 
@@ -218,9 +220,9 @@ public class BiddingHistoryController {
             }
 
             // Check if the bidder has already placed a bid
-            if (biddingHistoryService.hasBid(auction_koi_id, bid.bidderId())) {
-                return ResponseEntity.badRequest().body("Bidder has already placed a bid");
-            }
+//            if (biddingHistoryService.hasBid(auction_koi_id, bid.bidderId())) {
+//                return ResponseEntity.badRequest().body("Bidder has already placed a bid");
+//            }
 
             // Create the bidding history
             Bid newBid = Bid.builder()
@@ -253,10 +255,15 @@ public class BiddingHistoryController {
 
     }
 
-    @MessageMapping("/bid")
-    @SendTo("/topic/auctionkois/{auctionKoiId}")
-    public BidResponse processBid(@Payload BidDTO bidDTO) throws Exception {
+    @MessageMapping("/placeBid/{auctionKoiId}")
+    @SendTo("/topic/bidding/{auctionKoiId}")
+    public BidResponse processBid(@Payload BidDTO bidDTO, @DestinationVariable String auctionKoiId) throws Exception {
         return biddingHistoryService.placeBid(bidDTO);
     }
 
+    @MessageMapping("message")
+    @SendTo("/auctionkoi/public")
+    public String processMessage(String message) {
+        return message;
+    }
 }

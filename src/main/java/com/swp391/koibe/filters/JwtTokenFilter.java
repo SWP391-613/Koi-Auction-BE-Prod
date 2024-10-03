@@ -144,7 +144,13 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/auctionkoidetails", apiPrefix), "GET"),
                 Pair.of(String.format("%s/auctionkoidetails", apiPrefix), "POST"),
                 Pair.of(String.format("%s/auctionkoidetails", apiPrefix), "PUT"),
-                Pair.of(String.format("%s/auctionkoidetails", apiPrefix), "DELETE")
+                Pair.of(String.format("%s/auctionkoidetails", apiPrefix), "DELETE"),
+
+                //AuctionKoiWebsocket
+                Pair.of("/auction-websocket", "GET"),
+                Pair.of("/topic", "GET"),
+                Pair.of("/auction-websocket", "POST"),
+                Pair.of("/topic", "POST")
 
         // Pair.of(String.format("%s/products/test/view", apiPrefix), "GET")
         );
