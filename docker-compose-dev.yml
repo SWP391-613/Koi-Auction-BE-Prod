@@ -34,6 +34,37 @@ services:
     ports:
       - "81:80"                        # Expose phpMyAdmin on port 81
 
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus_koi_development
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    volumes:
+      - ./config/prometheus:/etc/prometheus
+    networks:
+      - koi_networks
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # connection Prometheus server URL
+  # http://prometheus:9090(prometheus is the service name)
+  # not use localhost because localhost refer to grafana itself
+  grafana:
+    image: grafana/grafana
+    container_name: grafana_koi_development
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=sysadmin
+      - GF_SECURITY_ADMIN_PASSWORD=sysadmin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - koi_networks
+
 volumes:
   mysql_data:
+    driver: local
+  grafana_data:
     driver: local
