@@ -6,9 +6,7 @@ import com.swp391.koibe.enums.EAuctionStatus;
 import com.swp391.koibe.enums.EBidMethod;
 import com.swp391.koibe.exceptions.MalformDataException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
-import com.swp391.koibe.models.Auction;
-import com.swp391.koibe.models.AuctionKoi;
-import com.swp391.koibe.models.Koi;
+import com.swp391.koibe.models.*;
 import com.swp391.koibe.repositories.AuctionKoiRepository;
 import com.swp391.koibe.repositories.AuctionRepository;
 import com.swp391.koibe.repositories.KoiRepository;
@@ -105,8 +103,16 @@ public class AuctionKoiService implements IAuctionKoiService {
     }
 
     @Override
-    public AuctionKoi updateAuctionKoi(long auctionId, long koiId, UpdateAuctionKoiDTO updateAuctionKoiDTO) {
-        return null;
+    public AuctionKoiResponse updateAuctionKoi(long auctionKoiId, UpdateAuctionKoiDTO updateAuctionKoiDTO) {
+        // find auctionKoi
+        AuctionKoi updateAuctionKoi = auctionKoiRepository.findById(auctionKoiId)
+                .orElseThrow(() -> new DataNotFoundException("auctionKoi not found: " + auctionKoiId));
+
+        updateAuctionKoi.setCurrentBid(updateAuctionKoi.getCurrentBid());
+        updateAuctionKoi.setCurrentBidderId(updateAuctionKoi.getCurrentBidderId());
+        updateAuctionKoi.setSold(updateAuctionKoi.isSold());
+
+        return DTOConverter.convertToAuctionKoiDTO(auctionKoiRepository.save(updateAuctionKoi));
     }
 
     @Override

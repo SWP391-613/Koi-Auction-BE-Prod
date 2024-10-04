@@ -3,16 +3,18 @@ package com.swp391.koibe.services.biddinghistory;
 import com.swp391.koibe.dtos.BidDTO;
 import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
+import com.swp391.koibe.models.Auction;
 import com.swp391.koibe.models.AuctionKoi;
 import com.swp391.koibe.models.Bid;
 import com.swp391.koibe.models.User;
 import com.swp391.koibe.repositories.BidHistoryRepository;
 import com.swp391.koibe.responses.BidResponse;
 import com.swp391.koibe.services.auctionkoi.IAuctionKoiService;
+import com.swp391.koibe.services.token.ITokenService;
 import com.swp391.koibe.services.user.IUserService;
 import com.swp391.koibe.utils.DTOConverter;
+import com.swp391.koibe.utils.DateTimeUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -28,14 +30,13 @@ public class BiddingHistoryService implements IBiddingHistoryService {
 
     private final BidHistoryRepository bidHistoryRepository;
 
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    @Autowired
-    private IAuctionKoiService auctionKoiService;
+    private final IAuctionKoiService auctionKoiService;
 
-    @Autowired
-    private IUserService userService;
+    private final IUserService userService;
+
+    private final ITokenService tokenService;
 
     @Override
     public Bid createBidHistory(Bid bid) throws DataNotFoundException {
@@ -79,43 +80,74 @@ public class BiddingHistoryService implements IBiddingHistoryService {
     @Override
     public BidResponse placeBid(BidDTO bidRequest) throws Exception {
         AuctionKoi auctionKoi = auctionKoiService.getAuctionKoiById(bidRequest.auctionKoiId());
-        User bidder = userService.getUserById(bidRequest.bidderId());
-
-        if (auctionKoi.getCurrentBid() >= bidRequest.bidAmount()) {
-            throw new IllegalArgumentException("Bid amount must be higher than the current bid");
-        }
+        User bidder = tokenService.findUserByToken(bidRequest.bidderToken()).getUser();
+        Auction auction = auctionKoi.getAuction();
 
         Bid bid = Bid.builder()
                 .auctionKoi(auctionKoi)
                 .bidder(bidder)
                 .bidAmount(bidRequest.bidAmount())
-                .bidTime(LocalDateTime.now())
+                .bidTime(LocalDateTime.parse(bidRequest.bidTime()))
                 .build();
 
-        bidHistoryRepository.save(bid);
+        try {
 
-        auctionKoi.setCurrentBid(bidRequest.bidAmount());
-        auctionKoi.setCurrentBidderId(bidder.getId());
+            if (!DateTimeUtils.isAuctionActive(auction.getStartTime(), auction.getEndTime(), bid.getBidTime())) {
+                throw new IllegalArgumentException("AuctionKoi has been ended!");
+            }
 
-        UpdateAuctionKoiDTO updateAuctionKoiDTO = UpdateAuctionKoiDTO.builder()
-                .currentBid(bidRequest.bidAmount())
-                .currentBidderId(bidder.getId())
-                .build();
+            //check if koi in auction is sold or not
+            if (auctionKoi.isSold()) {
+                throw new IllegalArgumentException("AuctionKoi has been sold!");
+            }
 
-        auctionKoiService.updateAuctionKoi(auctionKoi.getAuction().getId(), auctionKoi.getKoi().getId(),
-                                           updateAuctionKoiDTO);
+            // Check if the bid amount is higher than the current bid
+            if (auctionKoi.getCurrentBid() >= bid.getBidAmount()) {
+                throw new IllegalArgumentException("Bid amount must be higher than the current bid");
+            }
 
-        BidResponse bidResponse = BidResponse.builder()
-                .auctionKoiId(auctionKoi.getId())
-                .bidderId(bidder.getId())
-                .bidAmount(bidRequest.bidAmount())
-                .bidderName(bidder.getFirstName() + " " + bidder.getLastName())
-                .bidTime(bid.getBidTime().toString())
-                .build();
+            // Check if the bid amount is a multiple of the bid step
+            if ((bid.getBidAmount() - auctionKoi.getCurrentBid() == 0 ?
+                    auctionKoi.getBasePrice() : auctionKoi.getCurrentBid()) % auctionKoi.getBidStep() != 0) {
+                throw new IllegalArgumentException("Bid amount must be a multiple of the bid step");
+            }
 
-        messagingTemplate.convertAndSend("/topic/auction/" + auctionKoi.getId(), bidResponse);
+            // Check if the bidder is the owner of the koi
+            if (bidder.getId() == auctionKoi.getKoi().getOwner().getId()) {
+                throw new IllegalArgumentException("Owner can not Bid your Koi");
+            }
 
-        return bidResponse;
+            // any bid method logic will implement later
+
+            // Update the current bid and current bidder of the auction koi
+            UpdateAuctionKoiDTO updateAuctionKoiDTO = UpdateAuctionKoiDTO.builder()
+                    .basePrice(auctionKoi.getBasePrice())
+                    .bidStep(auctionKoi.getBidStep())
+                    .bidMethod(String.valueOf(auctionKoi.getBidMethod()))
+                    .currentBid(bid.getBidAmount())
+                    .currentBidderId(bid.getBidder().getId())
+                    .isSold(auctionKoi.isSold())
+                    .build();
+
+            auctionKoiService.updateAuctionKoi(auctionKoi.getId(), updateAuctionKoiDTO);
+            bidHistoryRepository.save(bid);
+
+            //update bidder balance
+
+            BidResponse bidResponse = BidResponse.builder()
+                    .auctionKoiId(auctionKoi.getId())
+                    .bidderId(bidder.getId())
+                    .bidAmount(bidRequest.bidAmount())
+                    .bidderName(bidder.getFirstName() + " " + bidder.getLastName())
+                    .bidTime(bid.getBidTime().toString())
+                    .build();
+
+            messagingTemplate.convertAndSend("/topic/auction/" + auctionKoi.getId(), bidResponse);
+
+            return bidResponse;
+        } catch (Exception e){
+            throw e;
+        }
     }
 
     @Override
@@ -124,8 +156,12 @@ public class BiddingHistoryService implements IBiddingHistoryService {
     }
 
     @Override
-    //(biddingHistoryService.hasBid(auction_koi_id, bid.getBidder().getId()))
     public boolean hasBid(Long auctionKoiId, Long bidderId) {
         return bidHistoryRepository.existsByAuctionKoiIdAndBidderId(auctionKoiId, bidderId);
+    }
+
+    @Override
+    public Bid getBidderLatestBid(Long auctionKoiId, Long bidderId) {
+        return null;
     }
 }

@@ -11,7 +11,6 @@ import com.swp391.koibe.responses.AuctionKoiResponse;
 import com.swp391.koibe.responses.BidResponse;
 import com.swp391.koibe.services.auction.IAuctionService;
 import com.swp391.koibe.services.auctionkoi.IAuctionKoiService;
-import com.swp391.koibe.services.biddinghistory.BiddingHistoryService;
 import com.swp391.koibe.services.biddinghistory.IBiddingHistoryService;
 import com.swp391.koibe.services.koi.IKoiService;
 import com.swp391.koibe.services.user.IUserService;
@@ -201,7 +200,7 @@ public class AuctionKoiController {
 
         AuctionKoiResponse response = new AuctionKoiResponse();
         try {
-            AuctionKoi updatedAuctionKoi = auctionKoiService.updateAuctionKoi(auction_id, koi_id,
+            AuctionKoi updatedAuctionKoi = auctionKoiService.updateAuctionKoi(auction_id,
                     updateAuctionKoiDTO);
             response.setBasePrice(updatedAuctionKoi.getBasePrice());
             response.setBidStep(updatedAuctionKoi.getBidStep());

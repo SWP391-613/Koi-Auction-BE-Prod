@@ -64,6 +64,11 @@ public class TokenService implements ITokenService{
         tokenRepository.save(existingToken);
     }
 
+    @Override
+    public Token findUserByToken(String token) throws DataNotFoundException {
+        return tokenRepository.findByToken(token);
+    }
+
     @Transactional
     @Override
     public Token addToken(User user,String token, boolean isMobileDevice) {

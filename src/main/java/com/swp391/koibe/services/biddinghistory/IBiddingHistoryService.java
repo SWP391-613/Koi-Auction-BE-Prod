@@ -22,4 +22,5 @@ public interface IBiddingHistoryService {
     BidResponse placeBid(BidDTO bidDTO) throws Exception;
     List<Bid> getBidsByAuctionKoiId(Long auctionKoiId);
     boolean hasBid(Long auctionKoiId, Long bidderId);
+    Bid getBidderLatestBid(Long auctionKoiId, Long bidderId);
 }

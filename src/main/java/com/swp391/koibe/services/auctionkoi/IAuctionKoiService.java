@@ -5,12 +5,10 @@ import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.AuctionKoi;
 import com.swp391.koibe.responses.AuctionKoiResponse;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import org.springframework.stereotype.Component;
 
 public interface IAuctionKoiService {
     AuctionKoi createAuctionKoi(AuctionKoiDTO auctionKoiDTO) throws DataNotFoundException;
@@ -18,7 +16,7 @@ public interface IAuctionKoiService {
     AuctionKoiResponse getAuctionKoiResponeById(long id) throws DataNotFoundException;
     List<AuctionKoiResponse> getAuctionKoiByAuctionId(long id);
     Page<AuctionKoiResponse> getAllAuctionKois(Pageable pageable);
-    AuctionKoi updateAuctionKoi(long auctionId, long koiId, UpdateAuctionKoiDTO updateAuctionKoiDTO);
+    AuctionKoiResponse updateAuctionKoi(long auctionKoiId, UpdateAuctionKoiDTO updateAuctionKoiDTO);
     void deleteAuctionKoi(long id);
     boolean existsByName(String name);
     List<AuctionKoi> getAuctionIsSold();
