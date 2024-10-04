@@ -67,6 +67,7 @@ public class DTOConverter {
             .auctionId(auctionKoi.getAuction().getId())
             .koiId(auctionKoi.getKoi().getId())
             .basePrice(auctionKoi.getBasePrice())
+            .bidStep(auctionKoi.getBidStep())
             .bidMethod(auctionKoi.getBidMethod() != null ? auctionKoi.getBidMethod().getType() : null)
             .currentBid(auctionKoi.getCurrentBid() == null ? 0 : auctionKoi.getCurrentBid())
             .currentBidderId(auctionKoi.getCurrentBidderId() == null ? 0 : auctionKoi.getCurrentBidderId())
