@@ -9,3 +9,6 @@ scrape_configs:
     metrics_path: '/api/v1/actuator/prometheus'
     static_configs:
       - targets: ['host.docker.internal:4000']
+
+rule_files:
+  - alert.rules.yml  # Include your alert rules file here

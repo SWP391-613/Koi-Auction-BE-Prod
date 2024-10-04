@@ -1,0 +1,20 @@
+groups:
+  - name: spring-boot-app-alerts
+    rules:
+      - alert: HighLoginRequestRate
+        expr: rate(custom_login_requests[1m]) > 5
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High rate of login requests"
+          description: "More than 5 login requests per second for the last minute."
+
+  - name: high_cpu_usage
+    rules:
+      - expr: avg(irate(node_cpu{mode="idle"}[5m])) < 0.05
+        alert: HighCPU
+        for: 10m
+        annotations:
+          summary: "High CPU Usage Detected on Node {{ $labels.node }}"
+          description: "Average CPU idle below 5% for 5 minutes on node {{ $labels.node }}"

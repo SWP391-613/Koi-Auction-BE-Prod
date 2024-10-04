@@ -1,0 +1,16 @@
+global:
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'lvhhoangg1@gmail.com'
+  smtp_auth_username: 'lvhhoangg1@gmail.com'
+  smtp_auth_password: 'ojlx ohfr qxwd llxx'
+  smtp_require_tls: true
+
+route:
+  group_by: ['alertname']
+  receiver: 'email-notifications'
+  repeat_interval: 1h  # Frequency for sending repeated notifications
+
+receivers:
+  - name: 'email-notifications'
+    email_configs:
+      - to: 'hoangclw@gmail.com'

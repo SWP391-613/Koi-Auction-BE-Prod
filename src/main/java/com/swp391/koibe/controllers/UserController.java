@@ -20,12 +20,14 @@ import com.swp391.koibe.services.user.IUserService;
 import com.swp391.koibe.utils.DTOConverter;
 import com.swp391.koibe.utils.MessageKeys;
 import com.swp391.koibe.utils.ResponseUtils;
+import io.micrometer.core.annotation.Timed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.Time;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -48,6 +50,10 @@ public class UserController {
     private final LocalizationUtils localizationUtils;
     private final TokenService tokenService;
 
+    @Timed(
+        value = "custom.login.requests",
+        extraTags = {"uri", "/api/v1/users/login"},
+        description = "Track login request count")
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
         @RequestBody @Valid UserLoginDTO userLoginDTO,
@@ -97,6 +103,10 @@ public class UserController {
         }
     }
 
+    @Timed(
+        value = "custom.register.requests",
+        extraTags = {"uri", "/api/v1/users/register"},
+        description = "Track register request count")
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> createUser(
         @RequestBody @Valid UserRegisterDTO userRegisterDTO,
@@ -199,6 +209,10 @@ public class UserController {
         }
     }
 
+    @Timed(
+        value = "custom.verify.requests",
+        extraTags = {"uri", "/api/v1/users/verify"},
+        description = "Track verify request count")
     @PostMapping("/verify")
     public ResponseEntity<OtpResponse> verifiedUserNotLogin(
         @Valid @RequestBody VerifyUserDTO verifyUserDTO,
@@ -221,6 +235,10 @@ public class UserController {
         }
     }
 
+    @Timed(
+        value = "custom.logout.requests",
+        extraTags = {"uri", "/api/v1/users/logout"},
+        description = "Track logout request count")
     @PostMapping("/logout")
     public ResponseEntity<LogoutResponse> logout(
         @RequestHeader("Authorization") String authorizationHeader
