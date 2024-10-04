@@ -54,7 +54,7 @@ services:
     image: grafana/grafana
     container_name: grafana_koi_development
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=sysadmin
       - GF_SECURITY_ADMIN_PASSWORD=sysadmin
