@@ -17,9 +17,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -37,6 +39,7 @@ public class BiddingHistoryController {
     private final IUserService userService;
     private final IBiddingHistoryService biddingHistoryService;
     private final AuctionParticipantRepository auctionParticipantRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @PostMapping("/generateFakeAuctionKoiDetails")
     public ResponseEntity<String> generateFakeAuctionKoiDetails() {
@@ -138,9 +141,8 @@ public class BiddingHistoryController {
 
     @GetMapping("")
     public ResponseEntity<?> getAllBiddingHistory(
-        @RequestParam("page") int page,
-        @RequestParam("limit") int limit
-    ){
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit) {
 
         BiddingHistoryPaginationResponse response = new BiddingHistoryPaginationResponse();
 
@@ -157,22 +159,22 @@ public class BiddingHistoryController {
         }
     }
 
-//    @PostMapping("/auctionkois/{auction_koi_id}/auction/{auction_id}")
-//    //localhost:8080/api/v1/auctionkoidetails/auctionkois/1/auction/1
-//    public ResponseEntity<?> createBiddingHistory(
-//        @PathVariable long auction_koi_id,
-//        @PathVariable long auction_id,
-//        @Valid @RequestBody BidDTO bid,
-//        BindingResult result
-//    ) {
-//
-//    }
+    // @PostMapping("/auctionkois/{auction_koi_id}/auction/{auction_id}")
+    // //localhost:8080/api/v1/auctionkoidetails/auctionkois/1/auction/1
+    // public ResponseEntity<?> createBiddingHistory(
+    // @PathVariable long auction_koi_id,
+    // @PathVariable long auction_id,
+    // @Valid @RequestBody BidDTO bid,
+    // BindingResult result
+    // ) {
+    //
+    // }
 
     @MessageMapping("/placeBid")
     @SendTo("/topic/auctionKoi")
     public BidResponse processBid(@Payload BidDTO bidDTO
-                                  //,@DestinationVariable String auctionKoiId
-                                  ) throws Exception {
+    // ,@DestinationVariable String auctionKoiId
+    ) throws Exception {
         return biddingHistoryService.placeBid(bidDTO);
     }
 
@@ -181,4 +183,17 @@ public class BiddingHistoryController {
     public String processMessage(String message) {
         return message;
     }
+
+    @MessageMapping("/auctionkoi/{auctionKoiId}/bid")
+    @SendTo("/topic/auctionkoi/{auctionKoiId}")
+    public BidResponse processBid(@DestinationVariable Long auctionKoiId, @Payload BidDTO bidDTO) throws Exception {
+        BidResponse bidResponse = biddingHistoryService.placeBid(bidDTO);
+
+        // Send the update to the specific auction koi topic
+        messagingTemplate.convertAndSend("/topic/auctionkoi/" + auctionKoiId, bidResponse);
+
+        return bidResponse;
+    }
+
+    // You can add more methods for other types of updates if needed
 }

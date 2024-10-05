@@ -10,6 +10,7 @@ import com.swp391.koibe.models.Bid;
 import com.swp391.koibe.models.User;
 import com.swp391.koibe.repositories.BidHistoryRepository;
 import com.swp391.koibe.responses.BidResponse;
+import com.swp391.koibe.services.Biddable;
 import com.swp391.koibe.services.auctionkoi.IAuctionKoiService;
 import com.swp391.koibe.services.token.ITokenService;
 import com.swp391.koibe.services.user.IUserService;
@@ -28,7 +29,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class BiddingHistoryService implements IBiddingHistoryService {
+public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
 
     private final BidHistoryRepository bidHistoryRepository;
 
@@ -77,7 +78,6 @@ public class BiddingHistoryService implements IBiddingHistoryService {
         }
     }
 
-
     @Transactional
     @Override
     public BidResponse placeBid(BidDTO bidRequest) throws Exception {
@@ -89,70 +89,72 @@ public class BiddingHistoryService implements IBiddingHistoryService {
                 .auctionKoi(auctionKoi)
                 .bidder(bidder)
                 .bidAmount(bidRequest.bidAmount())
-                .bidTime(LocalDateTime.parse(bidRequest.bidTime()))
+                .bidTime(LocalDateTime.now())
                 .build();
 
-        try {
-
-            if (!DateTimeUtils.isAuctionActive(auction.getStartTime(), auction.getEndTime(), bid.getBidTime())) {
-                throw new IllegalArgumentException("AuctionKoi has been ended!");
-            }
-
-            //check if koi in auction is sold or not
-            if (auctionKoi.isSold()) {
-                throw new IllegalArgumentException("AuctionKoi has been sold!");
-            }
-
-            // Check if the bid amount is higher than the current bid
-            if (auctionKoi.getCurrentBid() >= bid.getBidAmount()) {
-                throw new IllegalArgumentException("Bid amount must be higher than the current bid");
-            }
-
-            // Check if the bid amount is a multiple of the bid step
-            if ((bid.getBidAmount() - auctionKoi.getCurrentBid() == 0 ?
-                    auctionKoi.getBasePrice() : auctionKoi.getCurrentBid()) % auctionKoi.getBidStep() != 0) {
-                throw new IllegalArgumentException("Bid amount must be a multiple of the bid step");
-            }
-
-            // Check if the bidder is the owner of the koi
-            if (bidder.getId() == auctionKoi.getKoi().getOwner().getId()) {
-                throw new IllegalArgumentException("Owner can not Bid your Koi");
-            }
-
-            // any bid method logic will implement later
-
-            // Update the current bid and current bidder of the auction koi
-            UpdateAuctionKoiDTO updateAuctionKoiDTO = UpdateAuctionKoiDTO.builder()
-                    .basePrice(auctionKoi.getBasePrice())
-                    .bidStep(auctionKoi.getBidStep())
-                    .bidMethod(String.valueOf(auctionKoi.getBidMethod()))
-                    .currentBid(bid.getBidAmount())
-                    .currentBidderId(bid.getBidder().getId())
-                    .isSold(auctionKoi.isSold())
-                    .build();
-
-            //get bidder lastest bid
-            Long bidedAmount = bid.getBidAmount() -
-                    getBidderLatestBid(auctionKoi.getId(), bidder.getId()).getBidAmount();
-
-            bidHistoryRepository.save(bid);
-            userService.updateUserBalance(bidder.getId(), bidedAmount);
-            auctionKoiService.updateAuctionKoi(auctionKoi.getId(), updateAuctionKoiDTO);
-
-            BidResponse bidResponse = BidResponse.builder()
-                    .auctionKoiId(auctionKoi.getId())
-                    .bidderId(bidder.getId())
-                    .bidAmount(bidRequest.bidAmount())
-                    .bidderName(bidder.getFirstName() + " " + bidder.getLastName())
-                    .bidTime(bid.getBidTime().toString())
-                    .build();
-
-            messagingTemplate.convertAndSend("/topic/auction/" + auctionKoi.getId(), bidResponse);
-
-            return bidResponse;
-        } catch (Exception e) {
-            throw e;
+        if (!DateTimeUtils.isAuctionActive(auction.getStartTime(), auction.getEndTime(), bid.getBidTime())) {
+            throw new IllegalArgumentException("AuctionKoi has been ended!");
         }
+
+        // check if koi in auction is sold or not
+        if (auctionKoi.isSold()) {
+            throw new IllegalArgumentException("AuctionKoi has been sold!");
+        }
+
+        // because the current bid can be null, so we need to check if the current bid is null
+        if (auctionKoi.getCurrentBid() == null) {
+            auctionKoi.setCurrentBid(0L);
+        }
+
+        // Check if the bid amount is higher than the current bid
+        if (auctionKoi.getCurrentBid() >= bid.getBidAmount()) {
+            throw new IllegalArgumentException("Bid amount must be higher than the current bid");
+        }
+
+        // Check if the bid amount is a multiple of the bid step
+        if ((bid.getBidAmount() - auctionKoi.getCurrentBid() == 0 ? auctionKoi.getBasePrice()
+                : auctionKoi.getCurrentBid()) % auctionKoi.getBidStep() != 0) {
+            throw new IllegalArgumentException("Bid amount must be a multiple of the bid step");
+        }
+
+        // Check if the bidder is the owner of the koi
+        if (bidder.getId() == auctionKoi.getKoi().getOwner().getId()) {
+            throw new IllegalArgumentException("Owner can not Bid your Koi");
+        }
+
+        // any bid method logic will implement later
+
+        // Update the current bid and current bidder of the auction koi
+        UpdateAuctionKoiDTO updateAuctionKoiDTO = UpdateAuctionKoiDTO.builder()
+                .basePrice(auctionKoi.getBasePrice())
+                .bidStep(auctionKoi.getBidStep())
+                .bidMethod(String.valueOf(auctionKoi.getBidMethod()))
+                .currentBid(bid.getBidAmount())
+                .currentBidderId(bid.getBidder().getId())
+                .isSold(auctionKoi.isSold())
+                .build();
+
+        // calculate bidder bid amount
+        Long bidedAmount = bid.getBidAmount() - (getBidderLatestBid(auctionKoi.getId(), bidder.getId()) != null
+                ? getBidderLatestBid(auctionKoi.getId(), bidder.getId()).getBidAmount()
+                : 0);
+
+        bidHistoryRepository.save(bid);
+//        userService.updateUserBalance(bidder.getId(), bidedAmount);
+        auctionKoiService.updateAuctionKoi(auctionKoi.getId(), updateAuctionKoiDTO);
+
+        BidResponse bidResponse = BidResponse.builder()
+                .auctionKoiId(auctionKoi.getId())
+                .bidderId(bidder.getId())
+                .bidAmount(bidRequest.bidAmount())
+                .bidderName(bidder.getFirstName() + " " + bidder.getLastName())
+                .bidTime(bid.getBidTime().toString())
+                .build();
+
+        // Send the update to the specific auction koi topic
+        messagingTemplate.convertAndSend("/topic/auctionkoi/" + auctionKoi.getId(), bidResponse);
+
+        return bidResponse;
     }
 
     @Override
@@ -165,7 +167,6 @@ public class BiddingHistoryService implements IBiddingHistoryService {
         return bidHistoryRepository.existsByAuctionKoiIdAndBidderId(auctionKoiId, bidderId);
     }
 
-
     @Override
     public Bid getBidderLatestBid(Long auctionKoiId, Long bidderId) {
         List<Bid> bidList = bidHistoryRepository.findAllByAuctionKoiId(auctionKoiId);
@@ -177,5 +178,25 @@ public class BiddingHistoryService implements IBiddingHistoryService {
                 .sorted(Comparator.comparing(Bid::getBidTime).reversed())
                 .toList();
         return bidList.isEmpty() ? null : bidList.get(0);
+    }
+
+    @Override
+    public void acsending() {
+
+    }
+
+    @Override
+    public void desending() {
+
+    }
+
+    @Override
+    public void fixedPrice() {
+
+    }
+
+    @Override
+    public void sealed() {
+
     }
 }

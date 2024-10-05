@@ -228,23 +228,23 @@ public class AuctionKoiController {
         }
     }
 
-    @PostMapping("/auction/{auction_id}/koi/{koi_id}/bid")
-    public ResponseEntity<BidResponse> placeBid(
-            @PathVariable Long auction_id,
-            @PathVariable Long koi_id,
-            @Valid @RequestBody BidDTO bidRequest,
-            BindingResult result) throws Exception {
-        if (result.hasErrors()) {
-            throw new MethodArgumentNotValidException(result);
-        }
-        BidDTO bidDTO = BidDTO.builder()
-                .auctionKoiId(koi_id)
-                .bidAmount(bidRequest.bidAmount())
-                .bidTime(bidRequest.bidTime())
-                .bidderId(bidRequest.bidderId())
-                .build();
-        BidResponse response = biddingHistoryService.placeBid(bidDTO);
-        return ResponseEntity.ok(response);
-    }
+//    @PostMapping("/auction/{auction_id}/koi/{koi_id}/bid")
+//    public ResponseEntity<BidResponse> placeBid(
+//            @PathVariable Long auction_id,
+//            @PathVariable Long koi_id,
+//            @Valid @RequestBody BidDTO bidRequest,
+//            BindingResult result) throws Exception {
+//        if (result.hasErrors()) {
+//            throw new MethodArgumentNotValidException(result);
+//        }
+//        BidDTO bidDTO = BidDTO.builder()
+//                .auctionKoiId(koi_id)
+//                .bidAmount(bidRequest.bidAmount())
+//                .bidTime(bidRequest.bidTime())
+//                .bidderId(bidRequest.bidderId())
+//                .build();
+//        BidResponse response = biddingHistoryService.placeBid(bidDTO);
+//        return ResponseEntity.ok(response);
+//    }
 
 }

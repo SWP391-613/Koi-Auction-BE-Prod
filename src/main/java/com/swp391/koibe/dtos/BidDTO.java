@@ -13,9 +13,9 @@ public record BidDTO (
     @NotNull(message = "Bid amount is required")
     long bidAmount,
 
-    @JsonProperty("bid_time")
-    @NotNull(message = "Bid time is required")
-    String bidTime,
+//    @JsonProperty("bid_time")
+//    @NotNull(message = "Bid time is required")
+//    String bidTime,
 
     @JsonProperty("auction_koi_id")
     @NotNull(message = "Auction koi ID is required")
