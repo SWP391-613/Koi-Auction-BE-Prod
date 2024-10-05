@@ -1,6 +1,7 @@
 package com.swp391.koibe.dtos.auctionkoi;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.core.util.Json;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -42,5 +43,7 @@ public record AuctionKoiDTO(
 
     @Positive(message = "Koi ID must be positive")
     @NotNull(message = "Koi ID is required")
-    @JsonProperty("koi_id") Long koiId
+    @JsonProperty("koi_id") Long koiId,
+
+    @JsonProperty("ceil_price") Long ceilPrice
 ) {}

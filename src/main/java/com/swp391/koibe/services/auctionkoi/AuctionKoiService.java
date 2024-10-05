@@ -13,8 +13,10 @@ import com.swp391.koibe.repositories.KoiRepository;
 import com.swp391.koibe.responses.AuctionKoiResponse;
 import com.swp391.koibe.services.auction.AuctionService;
 import com.swp391.koibe.utils.DTOConverter;
+
 import java.util.Objects;
 import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,8 +38,8 @@ public class AuctionKoiService implements IAuctionKoiService {
 
         //check if the auction is already include this koi
         List<AuctionKoi> auctionKois = auctionKoiRepository.getAuctionKoiByAuctionId(auctionKoiDTO.auctionId());
-        for(AuctionKoi auctionKoi : auctionKois){
-            if(Objects.equals(auctionKoi.getKoi().getId(), auctionKoiDTO.koiId())){
+        for (AuctionKoi auctionKoi : auctionKois) {
+            if (Objects.equals(auctionKoi.getKoi().getId(), auctionKoiDTO.koiId())) {
                 throw new MalformDataException("This koi is already in this auction");
             }
         }
@@ -48,31 +50,32 @@ public class AuctionKoiService implements IAuctionKoiService {
 
         //check auction status is not ended
         Auction auction = auctionService.findAuctionById(auctionKoiDTO.auctionId());
-        if(auction.getStatus() == EAuctionStatus.ENDED){
+        if (auction.getStatus() == EAuctionStatus.ENDED) {
             throw new MalformDataException("Auction is ended");
         }
 
         // check if koi exists
-        if(!koiRepository.existsById(auctionKoiDTO.koiId())){
+        if (!koiRepository.existsById(auctionKoiDTO.koiId())) {
             throw new DataNotFoundException("Koi not found");
         }
 
         Optional<Koi> existingKoi = koiRepository.findById(auctionKoiDTO.koiId());
-        if(existingKoi.isEmpty()){
+        if (existingKoi.isEmpty()) {
             throw new DataNotFoundException("Koi not found");
         }
 
         // save auction koi
         AuctionKoi newAuctionKoi = AuctionKoi.builder()
-            .basePrice(auctionKoiDTO.basePrice())
-            .bidStep(auctionKoiDTO.bidStep())
-            .bidMethod(EBidMethod.valueOf(auctionKoiDTO.bidMethod()))
-            .isSold(false)
-            .currentBid(0L)
-            .currentBidderId(0L)
-            .auction(auctionService.findAuctionById(auctionKoiDTO.auctionId()))
-            .koi(existingKoi.get())
-            .build();
+                .basePrice(auctionKoiDTO.basePrice())
+                .bidStep(auctionKoiDTO.bidStep())
+                .bidMethod(EBidMethod.valueOf(auctionKoiDTO.bidMethod()))
+                .ceilPrice(auctionKoiDTO.ceilPrice())
+                .isSold(false)
+                .currentBid(0L)
+                .currentBidderId(0L)
+                .auction(auctionService.findAuctionById(auctionKoiDTO.auctionId()))
+                .koi(existingKoi.get())
+                .build();
 
         return auctionKoiRepository.save(newAuctionKoi);
     }

@@ -19,6 +19,9 @@ public class AuctionKoi {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "ceil_price")
+    private Long ceilPrice;
+
     @Column(name = "base_price")
     @Min(0)
     private Long basePrice;
