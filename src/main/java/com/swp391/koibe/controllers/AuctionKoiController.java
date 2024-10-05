@@ -188,34 +188,34 @@ public class AuctionKoiController {
         }
     }
 
-    @PutMapping("/auction/{auction_id}/koi/{koi_id}")
-    public ResponseEntity<AuctionKoiResponse> updateAuctionKoi(
-            @PathVariable Long auction_id,
-            @PathVariable Long koi_id,
-            @Valid @RequestBody UpdateAuctionKoiDTO updateAuctionKoiDTO,
-            BindingResult result) {
-        if (result.hasErrors()) {
-            throw new MethodArgumentNotValidException(result);
-        }
-
-        AuctionKoiResponse response = new AuctionKoiResponse();
-        try {
-            AuctionKoi updatedAuctionKoi = auctionKoiService.updateAuctionKoi(auction_id,
-                    updateAuctionKoiDTO);
-            response.setBasePrice(updatedAuctionKoi.getBasePrice());
-            response.setBidStep(updatedAuctionKoi.getBidStep());
-            response.setBidMethod(String.valueOf(updatedAuctionKoi.getBidMethod()));
-            response.setCurrentBid(updatedAuctionKoi.getCurrentBid());
-            response.setCurrentBidderId(updatedAuctionKoi.getCurrentBidderId());
-            response.setSold(updatedAuctionKoi.isSold());
-            response.setKoiId(updatedAuctionKoi.getKoi().getId());
-            response.setAuctionId(updatedAuctionKoi.getAuction().getId());
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error updating auctionkoi: " + e.getMessage());
-            throw new GenerateDataException("Error updating auctionkoi: " + e.getMessage());
-        }
-    }
+//    @PutMapping("/auction/{auction_id}/koi/{koi_id}")
+//    public ResponseEntity<AuctionKoiResponse> updateAuctionKoi(
+//            @PathVariable Long auction_id,
+//            @PathVariable Long koi_id,
+//            @Valid @RequestBody UpdateAuctionKoiDTO updateAuctionKoiDTO,
+//            BindingResult result) {
+//        if (result.hasErrors()) {
+//            throw new MethodArgumentNotValidException(result);
+//        }
+//
+//        AuctionKoiResponse response = new AuctionKoiResponse();
+//        try {
+//            AuctionKoi updatedAuctionKoi = auctionKoiService.updateAuctionKoi(auction_id,
+//                    updateAuctionKoiDTO);
+//            response.setBasePrice(updatedAuctionKoi.getBasePrice());
+//            response.setBidStep(updatedAuctionKoi.getBidStep());
+//            response.setBidMethod(String.valueOf(updatedAuctionKoi.getBidMethod()));
+//            response.setCurrentBid(updatedAuctionKoi.getCurrentBid());
+//            response.setCurrentBidderId(updatedAuctionKoi.getCurrentBidderId());
+//            response.setSold(updatedAuctionKoi.isSold());
+//            response.setKoiId(updatedAuctionKoi.getKoi().getId());
+//            response.setAuctionId(updatedAuctionKoi.getAuction().getId());
+//            return ResponseEntity.ok(response);
+//        } catch (Exception e) {
+//            log.error("Error updating auctionkoi: " + e.getMessage());
+//            throw new GenerateDataException("Error updating auctionkoi: " + e.getMessage());
+//        }
+//    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteAuctionKoi(@PathVariable Long id) {

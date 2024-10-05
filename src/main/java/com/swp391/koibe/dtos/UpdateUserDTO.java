@@ -22,5 +22,6 @@ public record UpdateUserDTO(
     String status,
     @JsonProperty("date_of_birth") Date dob,
     @JsonProperty("avatar_url") String avatarUrl,
-    @JsonProperty("google_account_id") int googleAccountId
+    @JsonProperty("google_account_id") int googleAccountId,
+    @JsonProperty("balance_account") long balanceAccount
 ) {}

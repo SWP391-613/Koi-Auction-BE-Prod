@@ -1,6 +1,7 @@
 package com.swp391.koibe.services.biddinghistory;
 
 import com.swp391.koibe.dtos.BidDTO;
+import com.swp391.koibe.dtos.UpdateUserDTO;
 import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Auction;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -129,10 +131,13 @@ public class BiddingHistoryService implements IBiddingHistoryService {
                     .isSold(auctionKoi.isSold())
                     .build();
 
-            auctionKoiService.updateAuctionKoi(auctionKoi.getId(), updateAuctionKoiDTO);
-            bidHistoryRepository.save(bid);
+            //get bidder lastest bid
+            Long bidedAmount = bid.getBidAmount() -
+                    getBidderLatestBid(auctionKoi.getId(), bidder.getId()).getBidAmount();
 
-            //update bidder balance
+            bidHistoryRepository.save(bid);
+            userService.updateUserBalance(bidder.getId(), bidedAmount);
+            auctionKoiService.updateAuctionKoi(auctionKoi.getId(), updateAuctionKoiDTO);
 
             BidResponse bidResponse = BidResponse.builder()
                     .auctionKoiId(auctionKoi.getId())
@@ -145,7 +150,7 @@ public class BiddingHistoryService implements IBiddingHistoryService {
             messagingTemplate.convertAndSend("/topic/auction/" + auctionKoi.getId(), bidResponse);
 
             return bidResponse;
-        } catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }
@@ -160,8 +165,17 @@ public class BiddingHistoryService implements IBiddingHistoryService {
         return bidHistoryRepository.existsByAuctionKoiIdAndBidderId(auctionKoiId, bidderId);
     }
 
+
     @Override
     public Bid getBidderLatestBid(Long auctionKoiId, Long bidderId) {
-        return null;
+        List<Bid> bidList = bidHistoryRepository.findAllByAuctionKoiId(auctionKoiId);
+        if (bidList.isEmpty()) {
+            return null;
+        }
+        bidList = bidList.stream()
+                .filter(bid -> bid.getBidder().getId().equals(bidderId))
+                .sorted(Comparator.comparing(Bid::getBidTime).reversed())
+                .toList();
+        return bidList.isEmpty() ? null : bidList.get(0);
     }
 }
