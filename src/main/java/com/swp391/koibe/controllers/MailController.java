@@ -7,7 +7,7 @@ import com.swp391.koibe.enums.UserStatus;
 import com.swp391.koibe.models.Otp;
 import com.swp391.koibe.models.User;
 import com.swp391.koibe.responses.MailResponse;
-import com.swp391.koibe.services.mail.MailSenderService;
+import com.swp391.koibe.services.mail.MailService;
 import com.swp391.koibe.services.otp.IOtpService;
 import com.swp391.koibe.utils.OTPUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +26,7 @@ import org.thymeleaf.context.Context;
 @RequiredArgsConstructor
 public class MailController {
 
-    private final MailSenderService mailSenderService;
+    private final MailService mailService;
     private final HttpServletRequest request;
     private final IOtpService otpService;
 
@@ -43,9 +43,9 @@ public class MailController {
         String otp = OTPUtils.generateOTP();
         context.setVariable("name", name);
         context.setVariable("otp", otp);
-        mailSenderService.sendNewMail(toEmail, EmailSubject.subjectGreeting(name),
-            EmailCategoriesEnum.OTP.getType(),
-            context);
+        mailService.sendMail(toEmail, EmailSubject.subjectGreeting(name),
+                             EmailCategoriesEnum.OTP.getType(),
+                             context);
         MailResponse response = new MailResponse("Mail sent successfully");
 
         Otp otpEntity = Otp.builder()
@@ -66,8 +66,8 @@ public class MailController {
         User user = (User) request.getAttribute("validatedEmail");
         Context context = new Context();
         context.setVariable("reason", EmailBlockReasonEnum.ABUSE.getReason());
-        mailSenderService.sendNewMail(toEmail, EmailSubject.subjectBlockEmail(user.getFirstName()),
-            EmailCategoriesEnum.BLOCK_ACCOUNT.getType(), context);
+        mailService.sendMail(toEmail, EmailSubject.subjectBlockEmail(user.getFirstName()),
+                             EmailCategoriesEnum.BLOCK_ACCOUNT.getType(), context);
         MailResponse response = new MailResponse("Mail sent successfully");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -80,7 +80,7 @@ public class MailController {
         String otp = OTPUtils.generateOTP();
         context.setVariable("name", name);
         context.setVariable("otp", otp);
-        mailSenderService.sendNewMail(toEmail, EmailSubject.subjectGreeting(name), EmailCategoriesEnum.FORGOT_PASSWORD.getType(), context);
+        mailService.sendMail(toEmail, EmailSubject.subjectGreeting(name), EmailCategoriesEnum.FORGOT_PASSWORD.getType(), context);
         MailResponse response = new MailResponse("Mail sent successfully");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

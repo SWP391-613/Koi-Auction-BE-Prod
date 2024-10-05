@@ -5,7 +5,7 @@ import com.swp391.koibe.models.User;
 import com.swp391.koibe.enums.EmailCategoriesEnum;
 import com.swp391.koibe.responses.ForgotPasswordResponse;
 import com.swp391.koibe.repositories.UserRepository;
-import com.swp391.koibe.services.mail.MailSenderService;
+import com.swp391.koibe.services.mail.MailService;
 import com.swp391.koibe.utils.OTPUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class ForgotPasswordController {
 
     private final UserRepository userRepository;
     private final HttpServletRequest request;
-    private final MailSenderService mailSenderService;
+    private final MailService mailService;
 
     @PutMapping("")
     public ResponseEntity<ForgotPasswordResponse> forgotPassword(@RequestParam @Validated String email_phone) {
@@ -38,13 +38,13 @@ public class ForgotPasswordController {
         context.setVariable("otp", otp);
 
         if(user.getEmail() != null){
-            mailSenderService.sendNewMail(user.getEmail(), EmailSubject.subjectGreeting(name),
-                EmailCategoriesEnum.FORGOT_PASSWORD.getType(),
-                context);
+            mailService.sendMail(user.getEmail(), EmailSubject.subjectGreeting(name),
+                                 EmailCategoriesEnum.FORGOT_PASSWORD.getType(),
+                                 context);
         } else {
-            mailSenderService.sendNewMail(user.getPhoneNumber(), EmailSubject.subjectGreeting(name),
-                EmailCategoriesEnum.FORGOT_PASSWORD.getType(),
-                context);
+            mailService.sendMail(user.getPhoneNumber(), EmailSubject.subjectGreeting(name),
+                                 EmailCategoriesEnum.FORGOT_PASSWORD.getType(),
+                                 context);
         }
 
         ForgotPasswordResponse response = new ForgotPasswordResponse("Forgot password sent successfully");

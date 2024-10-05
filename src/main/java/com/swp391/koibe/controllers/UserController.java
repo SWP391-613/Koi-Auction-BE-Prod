@@ -1,6 +1,7 @@
 package com.swp391.koibe.controllers;
 
 import com.swp391.koibe.components.LocalizationUtils;
+import com.swp391.koibe.custom.RetryAndBlock;
 import com.swp391.koibe.dtos.UpdateUserDTO;
 import com.swp391.koibe.dtos.UserLoginDTO;
 import com.swp391.koibe.dtos.UserRegisterDTO;
@@ -213,6 +214,7 @@ public class UserController {
         value = "custom.verify.requests",
         extraTags = {"uri", "/api/v1/users/verify"},
         description = "Track verify request count")
+    @RetryAndBlock(maxAttempts = 3, blockDurationSeconds = 3600, maxDailyAttempts = 6)
     @PostMapping("/verify")
     public ResponseEntity<OtpResponse> verifiedUserNotLogin(
         @Valid @RequestBody VerifyUserDTO verifyUserDTO,

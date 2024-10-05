@@ -20,7 +20,7 @@ import com.swp391.koibe.repositories.RoleRepository;
 import com.swp391.koibe.repositories.SocialAccountRepository;
 import com.swp391.koibe.repositories.UserRepository;
 
-import com.swp391.koibe.services.mail.MailSenderService;
+import com.swp391.koibe.services.mail.MailService;
 import com.swp391.koibe.services.otp.OtpService;
 import com.swp391.koibe.utils.MessageKeys;
 import com.swp391.koibe.utils.OTPUtils;
@@ -54,7 +54,7 @@ public class UserService implements IUserService {
     private final RoleRepository roleRepository;
     private final SocialAccountRepository socialAccountRepository;
     private final LocalizationUtils localizationUtils;
-    private final MailSenderService mailSenderService;
+    private final MailService mailService;
     private final OtpService otpService;
 
     @Override
@@ -110,7 +110,7 @@ public class UserService implements IUserService {
         context.setVariable("name", savedUser.getFirstName());
         context.setVariable("otp", otp);
 
-        mailSenderService.sendNewMail(
+        mailService.sendMail(
                 savedUser.getEmail(),
                 "Verify your email",
                 EmailCategoriesEnum.OTP.getType(),
@@ -357,6 +357,17 @@ public class UserService implements IUserService {
         } else {
             throw new DataNotFoundException("Invalid OTP");
         }
+    }
+
+    @Override
+    public void bannedUser(Long userId) throws DataNotFoundException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException(
+                        localizationUtils.getLocalizedMessage(MessageKeys.USER_NOT_FOUND)
+                ));
+
+        user.setStatus(UserStatus.BANNED);
+        userRepository.save(user);
     }
 
     @Override

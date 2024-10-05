@@ -34,4 +34,5 @@ public interface IUserService {
 
     //Otp
     void verifyOtp(Long userId, String otp) throws Exception;
+    void bannedUser(Long userId) throws DataNotFoundException;
 }

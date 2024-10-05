@@ -8,7 +8,8 @@ import lombok.Getter;
 public enum EmailCategoriesEnum {
     OTP("sendOtp"),
     BLOCK_ACCOUNT("blockAccount"),
-    FORGOT_PASSWORD("forgotPassword");
+    FORGOT_PASSWORD("forgotPassword"),
+    RETRY_BLOCK_ALERT("retryBlockAlert");
 
     private final String type;
 }

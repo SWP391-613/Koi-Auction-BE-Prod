@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -47,7 +46,7 @@ public class AuctionController {
                     .title(" Auction #" + i)
                     .build();
             try {
-                 auctionService.createAuction(auction);
+                 auctionService.createAscendingAuction(auction);
             } catch (Exception e) {
                 log.error("Error creating auction: " + e.getMessage());
                 throw new GenerateDataException();
@@ -95,7 +94,7 @@ public class AuctionController {
 
         AuctionResponse response = new AuctionResponse();
         try {
-            Auction newAuction = auctionService.createAuction(auctionDTO);
+            Auction newAuction = auctionService.createAscendingAuction(auctionDTO);
             response.setId(newAuction.getId());
             response.setTitle(newAuction.getTitle());
             response.setStartTime(String.valueOf(newAuction.getStartTime()));

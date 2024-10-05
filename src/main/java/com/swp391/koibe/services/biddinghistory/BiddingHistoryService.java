@@ -41,6 +41,7 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
 
     private final ITokenService tokenService;
 
+
     @Override
     public Bid createBidHistory(Bid bid) throws DataNotFoundException {
         return bidHistoryRepository.save(bid);
@@ -134,10 +135,16 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
                 .isSold(auctionKoi.isSold())
                 .build();
 
+        if (getBidderLatestBid(auctionKoi.getId(), bidder.getId()) == null){
+            // save the user to auction participant
+        }
+
         // calculate bidder bid amount
         Long bidedAmount = bid.getBidAmount() - (getBidderLatestBid(auctionKoi.getId(), bidder.getId()) != null
                 ? getBidderLatestBid(auctionKoi.getId(), bidder.getId()).getBidAmount()
                 : 0);
+
+
 
         bidHistoryRepository.save(bid);
 //        userService.updateUserBalance(bidder.getId(), bidedAmount);
@@ -181,22 +188,34 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
     }
 
     @Override
-    public void acsending() {
+    public void ascending() {
+        //for the bid method ascending
+        //user can bid until the end time
 
     }
 
     @Override
-    public void desending() {
+    public void descending() {
+        //for the bid method descending
+        //the koi in auctionkoi of this method will drop price to the lowest
+        //user who bid first is the winner and the AuctionKoi's is_sold is true
+
 
     }
 
     @Override
     public void fixedPrice() {
+        //for the bid method fixedPrice
+        //like the e-commerce, sold the Koi in fixed price
+        //user who buy first is the winner the AuctionKoi's is_sold is true
 
     }
 
     @Override
     public void sealed() {
+        //for the bid method sealed
+        //user can only bid one time and bid price will be hidden from other bidder
+        //at the auction end time, the bid list will open and the highest bid is winner
 
     }
 }

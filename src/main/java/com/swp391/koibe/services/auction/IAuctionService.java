@@ -13,7 +13,13 @@ import java.util.List;
 
 public interface IAuctionService {
 
-        Auction createAuction(AuctionDTO auctionDTO) throws DataAlreadyExistException;
+        Auction createAscendingAuction(AuctionDTO auctionDTO) throws DataAlreadyExistException;
+
+        Auction createDescendingAuction(AuctionDTO auctionDTO) throws DataAlreadyExistException;
+
+        Auction creatSealedAuction(AuctionDTO auctionDTO) throws DataAlreadyExistException;
+
+        Auction createFixedPriceAuction(AuctionDTO auctionDTO) throws DataAlreadyExistException;
 
         AuctionResponse getById(long id) throws DataNotFoundException;
 

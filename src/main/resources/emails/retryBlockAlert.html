@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Alert</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background-color: #f4f4f4; padding: 20px; text-align: center; }
+    .content { padding: 20px; }
+    .footer { background-color: #f4f4f4; padding: 10px; text-align: center; font-size: 0.8em; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Security Alert</h1>
+  </div>
+  <div class="content">
+    <p>Dear Manager,</p>
+    <p>This is an automated security alert from your system.</p>
+
+    <div th:if="${blockDuration}">
+      <p>A user account has been temporarily blocked due to multiple failed attempts:</p>
+      <ul>
+        <li>User Email: <strong th:text="${userEmail}"></strong></li>
+        <li>IP Address: <strong th:text="${ip}"></strong></li>
+        <li>Endpoint: <strong th:text="${endpoint}"></strong></li>
+        <li>Block Duration: <strong th:text="${blockDuration}"></strong> minutes</li>
+      </ul>
+    </div>
+
+    <div th:unless="${blockDuration}">
+      <p>A user has exceeded the maximum daily attempts and has been flagged for service:</p>
+      <ul>
+        <li>User Email: <strong th:text="${userEmail}"></strong></li>
+        <li>IP Address: <strong th:text="${ip}"></strong></li>
+        <li>Endpoint: <strong th:text="${endpoint}"></strong></li>
+      </ul>
+    </div>
+
+    <p>Please investigate this activity to ensure the security of your system and take appropriate action regarding this user account.</p>
+  </div>
+  <div class="footer">
+    <p>This is an automated message. Please do not reply to this email.</p>
+  </div>
+</div>
+</body>
+</html>

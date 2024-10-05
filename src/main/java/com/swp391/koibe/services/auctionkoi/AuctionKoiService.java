@@ -108,9 +108,9 @@ public class AuctionKoiService implements IAuctionKoiService {
         AuctionKoi updateAuctionKoi = auctionKoiRepository.findById(auctionKoiId)
                 .orElseThrow(() -> new DataNotFoundException("auctionKoi not found: " + auctionKoiId));
 
-        updateAuctionKoi.setCurrentBid(updateAuctionKoi.getCurrentBid());
-        updateAuctionKoi.setCurrentBidderId(updateAuctionKoi.getCurrentBidderId());
-        updateAuctionKoi.setSold(updateAuctionKoi.isSold());
+        updateAuctionKoi.setCurrentBid(updateAuctionKoiDTO.currentBid());
+        updateAuctionKoi.setCurrentBidderId(updateAuctionKoiDTO.currentBidderId());
+        updateAuctionKoi.setSold(updateAuctionKoiDTO.isSold());
 
         return DTOConverter.convertToAuctionKoiDTO(auctionKoiRepository.save(updateAuctionKoi));
     }

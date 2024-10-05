@@ -26,7 +26,7 @@ public class AuctionService implements IAuctionService {
     private final AuctionRepository auctionRepository;
 
     @Override
-    public Auction createAuction(AuctionDTO auctionDTO) throws DataAlreadyExistException {
+    public Auction createAscendingAuction(AuctionDTO auctionDTO) throws DataAlreadyExistException {
         LocalDateTime startTime = DateTimeUtils.parseTime(auctionDTO.startTime());
         LocalDateTime endTime = DateTimeUtils.parseTime(auctionDTO.endTime());
         DateTimeUtils.validateAuctionTimes(startTime, endTime);
@@ -51,6 +51,21 @@ public class AuctionService implements IAuctionService {
             .build();
 
         return auctionRepository.save(newAuction);
+    }
+
+    @Override
+    public Auction createDescendingAuction(AuctionDTO auctionDTO) throws DataAlreadyExistException {
+        return null;
+    }
+
+    @Override
+    public Auction creatSealedAuction(AuctionDTO auctionDTO) throws DataAlreadyExistException {
+        return null;
+    }
+
+    @Override
+    public Auction createFixedPriceAuction(AuctionDTO auctionDTO) throws DataAlreadyExistException {
+        return null;
     }
 
     @Override
