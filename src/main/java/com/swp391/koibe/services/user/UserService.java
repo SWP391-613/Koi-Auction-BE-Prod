@@ -284,17 +284,17 @@ public class UserService implements IUserService {
 
     @Transactional
     @Override
-    public User updateUserBalance(Long userId, Long bidAmount) throws Exception {
+    public User updateUserBalance(Long userId, Long payment) throws Exception {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException(
                         localizationUtils.getLocalizedMessage(MessageKeys.USER_NOT_FOUND)
                 ));
 
-        if (user.getAccountBalance() < bidAmount) {
+        if (user.getAccountBalance() < payment) {
             throw new InsufficientFundsException("Not enough money");
         }
 
-        user.setAccountBalance(user.getAccountBalance() - bidAmount);
+        user.setAccountBalance(user.getAccountBalance() - payment);
         log.info("User {} balance updated. New balance: {}", userId, user.getAccountBalance());
 
         return userRepository.save(user);

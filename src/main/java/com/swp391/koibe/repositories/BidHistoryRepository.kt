@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface BidHistoryRepository : JpaRepository<Bid, Long> {
     fun findAllByAuctionKoiId(auctionKoiId: Long): List<Bid>
     fun existsByAuctionKoiIdAndBidderId(auctionKoiId: Long, bidderId: Long): Boolean
+    fun existsByBidderId(bidderId: Long): Boolean
 }

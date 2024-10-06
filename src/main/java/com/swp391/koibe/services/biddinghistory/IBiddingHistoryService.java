@@ -16,7 +16,7 @@ public interface IBiddingHistoryService {
     Page<BidResponse> getAllBidHistories(Pageable pageable);
     Bid updateBidHistory(long id, Bid bid);
     void deleteBidHistory(long id);
-    boolean existsByName(String name);
+    boolean existsById(long id);
     void createBidHistories(List<Bid> bidHistories) throws DataNotFoundException;
     @Transactional
     BidResponse placeBid(BidDTO bidDTO) throws Exception;
