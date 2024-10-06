@@ -1,10 +1,24 @@
 package com.swp391.koibe.models;
 
 import com.swp391.koibe.enums.EBidMethod;
-import jakarta.persistence.*;
+import com.swp391.koibe.models.listener.AuctionKoiListener;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
-import java.util.List;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,6 +27,7 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "auction_kois")
+@EntityListeners(AuctionKoiListener.class)
 public class AuctionKoi {
 
     @Id

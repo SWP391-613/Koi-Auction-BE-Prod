@@ -1,15 +1,15 @@
 package com.swp391.koibe.models;
 
 import com.swp391.koibe.enums.EAuctionStatus;
+import com.swp391.koibe.models.listener.AuctionListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -25,6 +25,7 @@ import lombok.Setter;
 @Builder
 @Entity
 @Table(name = "auctions")
+@EntityListeners(AuctionListener.class)
 public class Auction {
 
     @Id

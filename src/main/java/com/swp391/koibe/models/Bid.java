@@ -1,7 +1,9 @@
 package com.swp391.koibe.models;
 
+import com.swp391.koibe.models.listener.BidListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,6 +24,7 @@ import lombok.Setter;
 @Builder
 @Entity
 @Table(name="auction_kois_details")
+@EntityListeners(BidListener.class)
 public class Bid {
 
     @Id
