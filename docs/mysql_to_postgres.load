@@ -1,0 +1,15 @@
+LOAD DATABASE
+     FROM      mysql://lcaohoanq:Luucaohoang1604^^@mysql:3306/koi_company_dev
+     INTO postgresql://admin:Luucaohoang1604^^@postgres:5432/koi_company_dev
+
+ WITH include drop, create tables, create indexes, reset sequences
+
+ SET maintenance_work_mem to '128MB', work_mem to '12MB'
+
+ CAST type datetime to timestamp using zero-dates-to-null,
+      type date to date using zero-dates-to-null
+
+ EXCLUDING TABLE NAMES MATCHING ~<ods\.>
+
+ BEFORE LOAD DO
+ $$ create schema if not exists ods; $$;

@@ -10,10 +10,10 @@ public interface IAuctionKoiRedisService {
     void clear();
     List<AuctionKoiResponse> getAllAuctionKois(
             String keyword,
-            Long categoryId, PageRequest pageRequest) throws JsonProcessingException;
+            Integer bidMethod, PageRequest pageRequest) throws JsonProcessingException;
     void saveAllAuctionKois(List<AuctionKoiResponse> auctionKoiResponses,
                                 String keyword,
-                                Long categoryId,
+                                Integer bidMethod,
                                 PageRequest pageRequest) throws JsonProcessingException;
 
 }

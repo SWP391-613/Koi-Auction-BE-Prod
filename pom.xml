@@ -180,6 +180,13 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.3</version>
+            <scope>runtime</scope>
+        </dependency>
         <!-- Kotlin -->
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>

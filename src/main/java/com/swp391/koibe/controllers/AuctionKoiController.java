@@ -1,5 +1,6 @@
 package com.swp391.koibe.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.swp391.koibe.dtos.BidDTO;
 import com.swp391.koibe.dtos.auctionkoi.AuctionKoiDTO;
 import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
@@ -9,16 +10,19 @@ import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.AuctionKoi;
 import com.swp391.koibe.responses.AuctionKoiResponse;
 import com.swp391.koibe.responses.BidResponse;
+import com.swp391.koibe.responses.pagination.AuctionKoiPaginationResponse;
 import com.swp391.koibe.services.auction.IAuctionService;
 import com.swp391.koibe.services.auctionkoi.IAuctionKoiService;
 import com.swp391.koibe.services.biddinghistory.IBiddingHistoryService;
 import com.swp391.koibe.services.koi.IKoiService;
+import com.swp391.koibe.services.redis.auctionkoi.AuctionKoiRedisService;
 import com.swp391.koibe.services.user.IUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +40,7 @@ public class AuctionKoiController {
     private final IKoiService koiService;
     private final IUserService userService;
     private final IBiddingHistoryService biddingHistoryService;
+    private final AuctionKoiRedisService auctionKoiRedisService;
 
     @GetMapping("/auction/{id}")
     public ResponseEntity<List<AuctionKoiResponse>> getAuctionKoisByAuctionId(@PathVariable Long id) {
@@ -46,6 +51,37 @@ public class AuctionKoiController {
             throw new DataNotFoundException();
         }
     }
+
+//    //localhost:8080/api/v1/auctionkois/auction?id=1
+//    @GetMapping("/auction")
+//    public ResponseEntity<AuctionKoiPaginationResponse> getDetailAuction(
+//        @RequestParam(defaultValue = "") String keyword,
+//        @RequestParam(defaultValue = "0", name = "bid_method") int bidMethod,
+//        @RequestParam(defaultValue = "0") int page,
+//        @RequestParam(defaultValue = "10") int limit
+//    ) throws JsonProcessingException {
+//        try {
+//            int totalPages = 0;
+//            //productRedisService.clear();
+//            // Tạo Pageable từ thông tin trang và giới hạn
+//            PageRequest pageRequest = PageRequest.of(
+//                page, limit,
+//                //Sort.by("createdAt").descending()
+//                Sort.by("id").ascending()
+//            );
+//
+//            List<AuctionKoiResponse> auctionKoiResponseList = auctionKoiRedisService
+//                .getAllAuctionKois(keyword, bidMethod, pageRequest);
+//            if(auctionKoiResponseList!=null && !auctionKoiResponseList.isEmpty()){
+//                totalPages = auctionKoiResponseList.get(0).getTotalPages();
+//            }
+//
+//            return ResponseEntity.ok(auctionKoiService.getAuctionKoiByAuctionId(id));
+//        } catch (Exception e) {
+//            log.error("Error getting auctionkois by auction id: " + e.getMessage());
+//            throw new DataNotFoundException();
+//        }
+//    }
 
     @GetMapping("/{aid}/{id}")
     public ResponseEntity<?> getAuctionKoiByAuctionIdAndKoiId(@PathVariable Long aid, @PathVariable Long id) {

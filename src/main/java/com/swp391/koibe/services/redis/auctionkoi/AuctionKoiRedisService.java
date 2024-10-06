@@ -20,7 +20,7 @@ public class AuctionKoiRedisService implements IAuctionKoiRedisService {
     @Value("${spring.data.redis.use-redis-cache}")
     private boolean useRedisCache;
     private String getKeyFrom(String keyword,
-                       Long categoryId,
+                       Integer bidMethod,
                        PageRequest pageRequest) {
         int pageNumber = pageRequest.getPageNumber();
         int pageSize = pageRequest.getPageSize();
@@ -28,18 +28,18 @@ public class AuctionKoiRedisService implements IAuctionKoiRedisService {
         String sortDirection = sort.getOrderFor("id")
                 .getDirection() == Sort.Direction.ASC ? "asc": "desc";
         String key = String.format("all_auctionkois:%s:%d:%d:%d:%s",
-                keyword, categoryId, pageNumber, pageSize, sortDirection);
+                keyword, bidMethod, pageNumber, pageSize, sortDirection);
         return key;
     }
     @Override
     public List<AuctionKoiResponse> getAllAuctionKois(String keyword,
-                                                Long categoryId,
+                                                Integer bidMethod,
                                                 PageRequest pageRequest) throws JsonProcessingException {
 
         if(useRedisCache == false) {
             return null;
         }
-        String key = this.getKeyFrom(keyword, categoryId, pageRequest);
+        String key = this.getKeyFrom(keyword, bidMethod, pageRequest);
         String json = (String) redisTemplate.opsForValue().get(key);
         List<AuctionKoiResponse> auctionResponses =
                 json != null ?
@@ -56,9 +56,9 @@ public class AuctionKoiRedisService implements IAuctionKoiRedisService {
     //save to Redis
     public void saveAllAuctionKois(List<AuctionKoiResponse> auctionKoiResponses,
                                 String keyword,
-                                Long categoryId,
+                                Integer bidMethod,
                                 PageRequest pageRequest) throws JsonProcessingException {
-        String key = this.getKeyFrom(keyword, categoryId, pageRequest);
+        String key = this.getKeyFrom(keyword, bidMethod, pageRequest);
         String json = redisObjectMapper.writeValueAsString(auctionKoiResponses);
         redisTemplate.opsForValue().set(key, json);
     }
