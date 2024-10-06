@@ -2,6 +2,7 @@ package com.swp391.koibe.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 
 @Builder
@@ -12,10 +13,18 @@ public record AuctionDTO (
 
     @JsonProperty("start_time")
     @NotBlank(message = "Start time is required")
+    @Pattern(
+        regexp = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{6}$",
+        message = "Start time must be in the format yyyy-MM-dd HH:mm:ss.SSSSSS"
+    )
     String startTime,
 
     @JsonProperty("end_time")
     @NotBlank(message = "End time is required")
+    @Pattern(
+        regexp = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{6}$",
+        message = "End time must be in the format yyyy-MM-dd HH:mm:ss.SSSSSS"
+    )
     String endTime,
 
     @JsonProperty("status")

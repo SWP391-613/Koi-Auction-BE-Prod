@@ -20,6 +20,9 @@ public class AuctionKoiResponse {
     @JsonProperty("base_price")
     private long basePrice;
 
+    @JsonProperty("ceil_price")
+    private Long ceilPrice;
+
     @JsonProperty("bid_step")
     private long bidStep;
 

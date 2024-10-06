@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface AuctionKoiRepository : JpaRepository<AuctionKoi, Long> {
     fun getAuctionKoiByAuctionId(auctionId: Long): List<AuctionKoi>
+    fun getAuctionKoiByAuctionIdAndKoiId(auctionId: Long, koiId: Long): AuctionKoi
 }

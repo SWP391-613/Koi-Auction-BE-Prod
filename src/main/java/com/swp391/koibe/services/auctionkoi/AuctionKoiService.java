@@ -42,6 +42,9 @@ public class AuctionKoiService implements IAuctionKoiService {
             if (Objects.equals(auctionKoi.getKoi().getId(), auctionKoiDTO.koiId())) {
                 throw new MalformDataException("This koi is already in this auction");
             }
+            //this will ensure that if the koi are in auction (already defined it) then
+            //it will not be added to the auction again
+            //prevent duplicate koi in auction and different bid method on the same koi in the same auction
         }
 
         // check if auction exists
@@ -55,13 +58,23 @@ public class AuctionKoiService implements IAuctionKoiService {
         }
 
         // check if koi exists
-        if (!koiRepository.existsById(auctionKoiDTO.koiId())) {
-            throw new DataNotFoundException("Koi not found");
-        }
-
         Optional<Koi> existingKoi = koiRepository.findById(auctionKoiDTO.koiId());
         if (existingKoi.isEmpty()) {
             throw new DataNotFoundException("Koi not found");
+        }
+
+        // Validate ceil price based on bid method
+        Long validCeilPrice = null;
+        if (EBidMethod.valueOf(auctionKoiDTO.bidMethod()) == EBidMethod.DESCENDING_BID) {
+            if (auctionKoiDTO.ceilPrice() == null) {
+                throw new MalformDataException("Ceil price is required for DESCENDING_BID");
+            }
+            validCeilPrice = auctionKoiDTO.ceilPrice(); // Set the provided ceil price
+
+            if(validCeilPrice <= auctionKoiDTO.basePrice()) {
+                throw new MalformDataException("Ceil price must be greater than base price");
+            }
+
         }
 
         // save auction koi
@@ -69,10 +82,10 @@ public class AuctionKoiService implements IAuctionKoiService {
                 .basePrice(auctionKoiDTO.basePrice())
                 .bidStep(auctionKoiDTO.bidStep())
                 .bidMethod(EBidMethod.valueOf(auctionKoiDTO.bidMethod()))
-                .ceilPrice(auctionKoiDTO.ceilPrice())
-                .isSold(false)
-                .currentBid(0L)
-                .currentBidderId(0L)
+                .ceilPrice(validCeilPrice)
+                .isSold(false) // default is false when add new koi to auction (if sold, update later)
+                .currentBid(auctionKoiDTO.currentBid() != null ? auctionKoiDTO.currentBid() : 0L)
+                .currentBidderId(auctionKoiDTO.currentBidderId() != null ? auctionKoiDTO.currentBidderId() : 0L)
                 .auction(auctionService.findAuctionById(auctionKoiDTO.auctionId()))
                 .koi(existingKoi.get())
                 .build();
@@ -111,6 +124,22 @@ public class AuctionKoiService implements IAuctionKoiService {
         AuctionKoi updateAuctionKoi = auctionKoiRepository.findById(auctionKoiId)
                 .orElseThrow(() -> new DataNotFoundException("auctionKoi not found: " + auctionKoiId));
 
+        if(updateAuctionKoi.getBidMethod() == EBidMethod.DESCENDING_BID){
+            if(updateAuctionKoi.getCeilPrice() == null){
+                throw new MalformDataException("Ceil price is required for DESCENDING_BID");
+            }
+            if(updateAuctionKoi.getCurrentBid() > updateAuctionKoi.getCeilPrice()){
+                throw new MalformDataException("Current bid must be less than ceil price");
+            }
+            if(updateAuctionKoi.getCurrentBid() <= updateAuctionKoi.getBasePrice()){
+                throw new MalformDataException("Current bid must be greater than base price");
+            }
+        }
+
+        updateAuctionKoi.setBasePrice(updateAuctionKoiDTO.basePrice());
+        updateAuctionKoi.setBidStep(updateAuctionKoiDTO.bidStep());
+        updateAuctionKoi.setBidMethod(EBidMethod.valueOf(updateAuctionKoiDTO.bidMethod()));
+        updateAuctionKoi.setCeilPrice(updateAuctionKoiDTO.ceilPrice());
         updateAuctionKoi.setCurrentBid(updateAuctionKoiDTO.currentBid());
         updateAuctionKoi.setCurrentBidderId(updateAuctionKoiDTO.currentBidderId());
         updateAuctionKoi.setSold(updateAuctionKoiDTO.isSold());

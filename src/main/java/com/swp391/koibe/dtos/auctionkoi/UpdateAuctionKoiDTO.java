@@ -24,6 +24,9 @@ public record UpdateAuctionKoiDTO (
     @Min(value = 50000, message = "Minimum bid step is 50000")
     long bidStep,
 
+    @JsonProperty("ceil_price")
+    Long ceilPrice, //this field is optional, can be null but will set later, if the auction is DESCENDING_BID
+
     @JsonProperty("bid_method")
     @NotBlank(message = "Bid Method is required")
     @Pattern(regexp = "FIXED_PRICE|SEALED_BID|ASCENDING_BID|DESCENDING_BID", message = "Bid Method must be either FIXED_PRICE, SEALED_BID, ASCENDING_BID, DESCENDING_BID")
