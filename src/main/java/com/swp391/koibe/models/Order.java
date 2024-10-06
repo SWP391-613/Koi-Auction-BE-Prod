@@ -1,7 +1,9 @@
 package com.swp391.koibe.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.swp391.koibe.enums.OrderStatus;
 import jakarta.persistence.*;
+import java.util.List;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -65,7 +67,8 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
-//    @OneToMany(mappedBy = "order")
-//    private List<OrderDetail> orderDetails;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<OrderDetail> orderDetails;
 
  }

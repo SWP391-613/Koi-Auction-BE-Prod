@@ -22,6 +22,17 @@ services:
     ports:
       - "3306:3306"
 
+  redis-container:
+    image: docker.io/redis:7.2.3
+    container_name: redis-container
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-data:/data # Mount a volume for Redis data persistence
+    networks:
+      - koi_networks
+
   phpmyadmin:
     image: phpmyadmin:5
     container_name: phpmyadmin_ui_koi_development

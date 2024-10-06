@@ -1,15 +1,14 @@
 package com.swp391.koibe.services.orderdetail;
 
+import com.swp391.koibe.dtos.OrderDetailDTO;
+import com.swp391.koibe.exceptions.base.DataNotFoundException;
+import com.swp391.koibe.models.OrderDetail;
+import java.util.List;
+
 public interface IOrderDetailService {
-
-    void createOrderDetail(int orderId, int productId, int quantity) throws Exception;
-
-    void updateOrderDetail(int id, int orderId, int productId, int quantity) throws Exception;
-
-    void deleteOrderDetail(int id) throws Exception;
-
-    void getOrderDetail(int id) throws Exception;
-
-    void getOrderDetails() throws Exception;
-
+    OrderDetail createOrderDetail(OrderDetailDTO newOrderDetail) throws Exception;
+    OrderDetail getOrderDetail(Long id) throws DataNotFoundException;
+    OrderDetail updateOrderDetail(Long id, OrderDetailDTO newOrderDetailData) throws DataNotFoundException;
+    void deleteById(Long id);
+    List<OrderDetail> findByOrderId(Long orderId);
 }
