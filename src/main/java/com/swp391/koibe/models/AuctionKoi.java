@@ -27,7 +27,7 @@ import lombok.Setter;
 @Builder
 @Entity
 @Table(name = "auction_kois")
-@EntityListeners(AuctionKoiListener.class)
+//@EntityListeners(AuctionKoiListener.class)
 public class AuctionKoi {
 
     @Id

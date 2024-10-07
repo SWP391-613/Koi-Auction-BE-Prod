@@ -26,7 +26,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@EntityListeners(KoiListener.class)
+//@EntityListeners(KoiListener.class)
 public class Koi extends BaseEntity{
 
     @Id
