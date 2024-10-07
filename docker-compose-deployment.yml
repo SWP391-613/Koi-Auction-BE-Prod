@@ -35,7 +35,7 @@ services:
       - "80:80"                        # Expose phpMyAdmin on port 81
 
   koiauction:
-    image: lcaohoanq/koiauction_on_cd:1.3 #change version here
+    image: lcaohoanq/koiauction_on_cd:1.4 #change version here
     container_name: koiauction_on_deployment
     networks:
       - koi_networks_on_deployment
