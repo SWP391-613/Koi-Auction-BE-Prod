@@ -24,44 +24,15 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Get Current Version
-        id: get_version
-        run: |
-          # Read the current version from the VERSION file
-          current_version=$(cat VERSION)
-          echo "Current version is $current_version"
-          
-          # Split the version number by "." and increment the last number
-          major_version=$(echo $current_version | cut -d. -f1)
-          minor_version=$(echo $current_version | cut -d. -f2)
-          new_version="$major_version.$((minor_version + 1))"
-          
-          echo "New version is $new_version"
-          
-          # Store the new version in a GitHub Actions environment variable
-          echo "version=$new_version" >> $GITHUB_ENV
-
-      - name: Build and Push Docker Image
+      - name: Build and Push (BE + MySQL DB) Docker Image
         run: |
           # Use the new version to tag the Docker image
-          docker build -f DockerfileJavaSpringBoot -t ${{ secrets.DOCKER_USERNAME }}/koiauction_on_cd:${{ env.version }} .
+          docker build -f DockerfileJavaSpringBoot -t ${{ secrets.DOCKER_USERNAME }}/koiauction_on_cd:latest .
+          docker build -f Dockerfile-db -t ${{ secrets.DOCKER_USERNAME }}/koiauction_on_ci:latest .
           
           # Push the versioned image with tag to DockerHub
-          docker push ${{ secrets.DOCKER_USERNAME }}/koiauction_on_cd:${{ env.version }}
-
-      - name: Update VERSION File
-        run: |
-          # Update the VERSION file with the new version
-          echo ${{ env.version }} > VERSION
-          
-          # Configure Git to commit the change
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          
-          # Commit and push the updated VERSION file
-          git add VERSION
-          git commit -m "Increment version to ${{ env.version }}"
-          git push
+          docker push ${{ secrets.DOCKER_USERNAME }}/koiauction_on_cd:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/koiauction_on_ci:latest
 
       - name: Log out from DockerHub
         run: docker logout
