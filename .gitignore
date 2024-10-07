@@ -35,3 +35,4 @@ build/
 .env
 src/main/resources/application-prod.yml
 logs/
+redis-data/dump.rdb

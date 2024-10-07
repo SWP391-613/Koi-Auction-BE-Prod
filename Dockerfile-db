@@ -5,4 +5,17 @@ ENV MYSQL_DATABASE=koi_company_dev_db
 ENV MYSQL_USER=lcaohoanq
 ENV MYSQL_PASSWORD=Luucaohoang1604^^
 
-COPY ./docs/dataForCI.sql /docker-entrypoint-initdb.d/
+# COPY ./docs/dataForCI.sql /docker-entrypoint-initdb.d/
+
+# Select the latest db version inside docs/dataCD directory
+
+# Copy all SQL files from docs/dataCD/ into the image
+COPY ./docs/dataCD /docs/dataCD
+
+# Select the latest SQL file from /docs/dataCD and copy it to the MySQL init directory
+RUN LATEST_SQL=$(ls /docs/dataCD/dataV*.sql | sort -V | tail -n 1) && \
+    echo "Copying latest SQL file: $LATEST_SQL" && \
+    cp "$LATEST_SQL" /docker-entrypoint-initdb.d/
+
+# Optional: To verify the file was copied correctly
+RUN ls /docker-entrypoint-initdb.d/
