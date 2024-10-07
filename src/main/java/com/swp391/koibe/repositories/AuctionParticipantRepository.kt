@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 
 interface AuctionParticipantRepository : JpaRepository<AuctionParticipant, Long> {
-    fun findByAuctionIdAndUserId(auctionId: Long, userId: Long): Optional<AuctionParticipant>
+    fun getAuctionParticipantByAuctionIdAndUserId(auctionId: Long, userId: Long): AuctionParticipant?
 }

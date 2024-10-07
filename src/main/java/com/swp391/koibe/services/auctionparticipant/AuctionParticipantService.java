@@ -32,6 +32,11 @@ public class AuctionParticipantService implements IAuctionParticipantService {
 
     @Override
     public Boolean hasJoinedAuction(long auctionId, long userId) {
-        return auctionParticipantRepository.findByAuctionIdAndUserId(auctionId, userId).isPresent();
+        try {
+            return auctionParticipantRepository.getAuctionParticipantByAuctionIdAndUserId(auctionId, userId) != null;
+        } catch (Exception e) {
+            System.out.println("loi vcl: "+e.getMessage());
+            return false;
+        }
     }
 }

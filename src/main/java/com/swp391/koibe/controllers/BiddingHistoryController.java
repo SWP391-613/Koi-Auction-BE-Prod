@@ -195,5 +195,14 @@ public class BiddingHistoryController {
         return bidResponse;
     }
 
+    @GetMapping("/test")
+    public ResponseEntity<?> test() {
+        try{
+            return ResponseEntity.ok().body(biddingHistoryService.getBidderLatestBid(1L, 5L));
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     // You can add more methods for other types of updates if needed
 }
