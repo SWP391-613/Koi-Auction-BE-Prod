@@ -40,6 +40,15 @@ public class ApplicationExceptionHandler {
             .build();
     }
 
+    @ExceptionHandler(BiddingRuleException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public BaseResponse<Object> handleBiddingRuleException(BiddingRuleException e) {
+        return ExceptionResponse.builder()
+                .message(localizationUtils.getLocalizedMessage("bid.exception.bidding_rule_error"))
+                .reason(e.getMessage())
+                .build();
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public BaseResponse<Object> handleException(Exception e) {

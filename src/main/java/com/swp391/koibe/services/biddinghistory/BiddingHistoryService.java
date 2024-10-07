@@ -2,6 +2,7 @@ package com.swp391.koibe.services.biddinghistory;
 
 import com.swp391.koibe.dtos.BidDTO;
 import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
+import com.swp391.koibe.exceptions.BiddingRuleException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.*;
 import com.swp391.koibe.repositories.BidHistoryRepository;
@@ -30,8 +31,6 @@ import java.util.List;
 public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
 
     private final BidHistoryRepository bidHistoryRepository;
-
-    private final SimpMessagingTemplate messagingTemplate;
 
     private final IAuctionKoiService auctionKoiService;
 
@@ -116,7 +115,7 @@ public Bid getBidderLatestBid(Long auctionKoiId, Long bidderId) {
 
         // 8.1.1 check the Bid_Amount and Current_Price + Bid_Step
         if (bid.getBidAmount() < auctionKoi.getCurrentBid() + auctionKoi.getBidStep()) {
-            throw new IllegalArgumentException("Bid amount must be higher than the current bid plus bid step");
+            throw new BiddingRuleException("Bid amount must be higher than the current bid plus bid step");
         }
 
         // 8.1.2 check Bidder Balance => calculate the cost if bidder already bid before
@@ -168,7 +167,7 @@ public Bid getBidderLatestBid(Long auctionKoiId, Long bidderId) {
 
         // 8.3.1 check if bidder has been placed before
         if (getBidderLatestBid(auctionKoi.getId(), bidder.getId()) != null) {
-            throw new IllegalArgumentException("Bidder has already placed a bid");
+            throw new BiddingRuleException("Bidder has already placed a bid");
         }
 
         // 8.3.3 check Bidder Balance
@@ -204,7 +203,7 @@ public Bid getBidderLatestBid(Long auctionKoiId, Long bidderId) {
             case DESCENDING_BID -> descending(auctionKoi, bidder, bid);
             case FIXED_PRICE -> fixedPrice(auctionKoi, bidder, bid);
             case SEALED_BID -> sealed(auctionKoi, bidder, bid);
-            default -> throw new IllegalArgumentException("Invalid bid method");
+            default -> throw new BiddingRuleException("Invalid bid method");
         };
 
         updateAuctionParticipant(auction, bidder, bid, latestBid);
@@ -231,21 +230,18 @@ public Bid getBidderLatestBid(Long auctionKoiId, Long bidderId) {
                 .bidTime(bid.getBidTime().toString())
                 .build();
 
-        // Send the update to the specific auction koi topic
-        messagingTemplate.convertAndSend("/topic/auctionkoi/" + auctionKoi.getId(), bidResponse);
-
         return bidResponse;
     }
 
     private void validateBid(Auction auction, AuctionKoi auctionKoi, Bid bid, User bidder) {
         // 4. check if the auction is active
         if (!DateTimeUtils.isAuctionActive(auction.getStartTime(), auction.getEndTime(), bid.getBidTime())) {
-            throw new IllegalArgumentException("AuctionKoi has been ended!");
+            throw new BiddingRuleException("AuctionKoi has been ended!");
         }
 
         // 5. check if koi in auction is sold or not
         if (auctionKoi.isSold()) {
-            throw new IllegalArgumentException("AuctionKoi has been sold!");
+            throw new BiddingRuleException("AuctionKoi has been sold!");
         }
 
         // 6. because the current bid can be null, so we need to check if the current
@@ -256,12 +252,12 @@ public Bid getBidderLatestBid(Long auctionKoiId, Long bidderId) {
 
         // 7. Check if the bidder is the owner of the koi
         if (bidder.getId().equals(auctionKoi.getKoi().getOwner().getId())) {
-            throw new IllegalArgumentException("Owner can not Bid your Koi");
+            throw new BiddingRuleException("Owner can not Bid your Koi");
         }
 
         // 8. Check if the bid amount is higher than the base price
         if (bid.getBidAmount() < auctionKoi.getBasePrice()) {
-            throw new IllegalArgumentException("Bid amount must be higher than the base price");
+            throw new BiddingRuleException("Bid amount must be higher than the base price");
         }
     }
 

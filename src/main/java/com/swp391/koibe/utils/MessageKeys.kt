@@ -28,4 +28,6 @@ object MessageKeys {
     const val INSERT_CATEGORY_FAILED: String = "category.create_category.create_failed"
     const val WRONG_PHONE_PASSWORD: String = "user.login.wrong_phone_password"
     const val ROLE_DOES_NOT_EXISTS: String = "user.login.role_not_exist"
+
+    const val BIDDING_RULES_ERROR: String = "bid.exception.bidding_rule_error"
 }

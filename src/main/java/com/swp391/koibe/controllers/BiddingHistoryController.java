@@ -159,31 +159,6 @@ public class BiddingHistoryController {
         }
     }
 
-    // @PostMapping("/auctionkois/{auction_koi_id}/auction/{auction_id}")
-    // //localhost:8080/api/v1/auctionkoidetails/auctionkois/1/auction/1
-    // public ResponseEntity<?> createBiddingHistory(
-    // @PathVariable long auction_koi_id,
-    // @PathVariable long auction_id,
-    // @Valid @RequestBody BidDTO bid,
-    // BindingResult result
-    // ) {
-    //
-    // }
-
-    @MessageMapping("/placeBid")
-    @SendTo("/topic/auctionKoi")
-    public BidResponse processBid(@Payload BidDTO bidDTO
-    // ,@DestinationVariable String auctionKoiId
-    ) throws Exception {
-        return biddingHistoryService.placeBid(bidDTO);
-    }
-
-    @MessageMapping("message")
-    @SendTo("/auctionkoi/public")
-    public String processMessage(String message) {
-        return message;
-    }
-
     @MessageMapping("/auctionkoi/{auctionKoiId}/bid")
     @SendTo("/topic/auctionkoi/{auctionKoiId}")
     public BidResponse processBid(@DestinationVariable Long auctionKoiId, @Payload BidDTO bidDTO) throws Exception {
