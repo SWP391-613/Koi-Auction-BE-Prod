@@ -4,6 +4,7 @@ import com.swp391.koibe.dtos.KoiDTO;
 import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.models.User;
 import com.swp391.koibe.responses.KoiResponse;
+import com.swp391.koibe.responses.pagination.KoiPaginationResponse;
 import com.swp391.koibe.responses.pagination.UserPaginationResponse;
 import com.swp391.koibe.responses.UserResponse;
 import com.swp391.koibe.services.user.breeder.IBreederService;
@@ -73,14 +74,23 @@ public class BreederController {
         }
     }
 
-    @GetMapping("/{id}/kois")
-    public ResponseEntity<List<KoiResponse>> getKoisByBreederId(
-        @PathVariable("id") long id) {
+    @GetMapping("/kois")
+    public ResponseEntity<KoiPaginationResponse> getKoisByBreederId(
+        @RequestParam("breeder_id") long breeder_id,
+        @RequestParam("page") int page,
+        @RequestParam("limit") int limit) {
+
+        KoiPaginationResponse response = new KoiPaginationResponse();
+
         try {
-            List<KoiResponse> breeders = breederService.getKoisByBreederID(id);
-            return ResponseEntity.ok(breeders);
+            PageRequest pageRequest = PageRequest.of(page, limit);
+            Page<KoiResponse> koiList = breederService.getKoisByBreederID(breeder_id, pageRequest);
+            response.setItems(koiList.getContent());
+            response.setTotalPage(koiList.getTotalPages());
+            response.setTotalItem(koiList.getTotalElements());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.notFound().build();
         }
     }
 
