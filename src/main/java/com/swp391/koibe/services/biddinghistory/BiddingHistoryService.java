@@ -68,7 +68,7 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
         return bidHistoryRepository.save(bidHistory);
     }
 
-    @Override
+    @Override   
     public void deleteBidHistory(long id) {
         bidHistoryRepository.deleteById(id);
     }

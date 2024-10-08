@@ -47,7 +47,6 @@ public class DTOConverter {
             .id(koiImage.getId())
             .koiId(koiImage.getKoi().getId())
             .imageUrl(koiImage.getImageUrl())
-            .videoUrl(koiImage.getVideoUrl())
             .build();
     }
 

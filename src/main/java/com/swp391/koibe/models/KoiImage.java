@@ -27,7 +27,6 @@ public class KoiImage {
     private Koi koi;
 
     @Column(name = "image_url", length = 300)
-    @NotNull
     @JsonProperty("image_url")
     private String imageUrl;
 

@@ -13,5 +13,9 @@ public record KoiImageDTO(
 
     @JsonProperty("image_url")
     @Size(min = 5, max = 300, message = "Image URL must be between 5 and 300 characters")
-    String imageUrl
+    String imageUrl,
+
+    @JsonProperty("video_url")
+    @Size(min = 5, max = 300, message = "Video URL must be between 5 and 300 characters")
+    String videoUrl
 ) {}

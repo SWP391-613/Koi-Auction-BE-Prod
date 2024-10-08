@@ -162,12 +162,14 @@ public class BiddingHistoryController {
     @MessageMapping("/auctionkoi/{auctionKoiId}/bid")
     @SendTo("/topic/auctionkoi/{auctionKoiId}")
     public BidResponse processBid(@DestinationVariable Long auctionKoiId, @Payload BidDTO bidDTO) throws Exception {
-        BidResponse bidResponse = biddingHistoryService.placeBid(bidDTO);
+        try {
+            BidResponse bidResponse = biddingHistoryService.placeBid(bidDTO);
+//            messagingTemplate.convertAndSend("/topic/auctionkoi/" + auctionKoiId, bidResponse);
 
-        // Send the update to the specific auction koi topic
-        messagingTemplate.convertAndSend("/topic/auctionkoi/" + auctionKoiId, bidResponse);
-
-        return bidResponse;
+            return bidResponse;
+        } catch (Exception e) {
+            throw new Exception("Error placing bid: " + e.getMessage());
+        }
     }
 
     @GetMapping("/test")

@@ -66,10 +66,10 @@ public class WebSecurityConfig {
                                     String.format("%s/categories/**", apiPrefix))
                             .hasAnyRole(Role.MANAGER)
 
-                            .requestMatchers(GET, "/auction-websocket/**").permitAll()
-                            .requestMatchers(GET,"/topic/**").permitAll()
-                            .requestMatchers(POST, "/auction-websocket/**").permitAll()
-                            .requestMatchers(POST,"/topic/**").permitAll()
+                            .requestMatchers(GET, String.format("%s/auction-websocket/**", apiPrefix)).permitAll()
+                            .requestMatchers(GET, "/topic/**", apiPrefix).permitAll()
+                            .requestMatchers(POST, String.format("%s/auction-websocket/**", apiPrefix)).permitAll()
+                            .requestMatchers(POST, "/topic/**", apiPrefix).permitAll()
 
                             .requestMatchers(PUT,
                                     String.format("%s/categories/**", apiPrefix))
