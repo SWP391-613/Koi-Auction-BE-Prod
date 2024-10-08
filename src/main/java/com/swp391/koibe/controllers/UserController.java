@@ -6,6 +6,7 @@ import com.swp391.koibe.dtos.UpdateUserDTO;
 import com.swp391.koibe.dtos.UserLoginDTO;
 import com.swp391.koibe.dtos.UserRegisterDTO;
 import com.swp391.koibe.dtos.VerifyUserDTO;
+import com.swp391.koibe.exceptions.MalformDataException;
 import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Token;
@@ -104,6 +105,26 @@ public class UserController {
             return ResponseEntity.ok(DTOConverter.convertToUserDTO(user));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // PUT: localhost:4000/api/v1/users/4/deposit/100
+    // Header: Authorization Bearer token
+    @PutMapping("/{userId}/deposit/{payment}")
+    public ResponseEntity<String> deposit(
+        @PathVariable long userId,
+        @PathVariable long payment
+    ) {
+
+        if (payment <= 0) throw new MalformDataException("Payment must be greater than 0.");
+
+        try {
+            userService.updateAccountBalance(userId, payment);
+            return ResponseEntity.ok().body("Successfully deposited.");
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.badRequest().body("User not found.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

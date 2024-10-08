@@ -295,9 +295,20 @@ public class UserService implements IUserService {
         }
 
         user.setAccountBalance(user.getAccountBalance() - payment);
-        log.info("User {} balance updated. New balance: {}", userId, user.getAccountBalance());
+//        log.info("User {} balance updated. New balance: {}", userId, user.getAccountBalance());
 
         return userRepository.save(user);
+    }
+
+    @Override
+    public void updateAccountBalance(Long userId, Long payment) throws Exception {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException(
+                        localizationUtils.getLocalizedMessage(MessageKeys.USER_NOT_FOUND)
+                ));
+        existingUser.setAccountBalance(existingUser.getAccountBalance() + payment);
+        log.info("User {} balance updated. New balance: {}", userId, existingUser.getAccountBalance());
+        userRepository.save(existingUser);
     }
 
     //Token

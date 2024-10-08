@@ -72,6 +72,10 @@ public class WebSecurityConfig {
                             .requestMatchers(POST, "/topic/**", apiPrefix).permitAll()
 
                             .requestMatchers(PUT,
+                                    String.format("%s/users**", apiPrefix)).hasAnyRole(Role.MEMBER, Role.STAFF,
+                                                                                          Role.BREEDER, Role.MANAGER)
+
+                            .requestMatchers(PUT,
                                     String.format("%s/categories/**", apiPrefix))
                             .hasAnyRole(Role.MANAGER)
 
