@@ -90,6 +90,12 @@ public class OrderService implements IOrderService{
         orderDetailRepository.saveAll(orderDetails);
         return order;
     }
+
+    @Override
+    public Order createOrder(Order order) throws Exception {
+        return orderRepository.save(order);
+    }
+
     @Transactional
     public Order updateOrderWithDetails(OrderWithDetailsDTO orderWithDetailsDTO) {
         modelMapper.typeMap(OrderWithDetailsDTO.class, Order.class)

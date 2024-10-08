@@ -1,7 +1,9 @@
 package com.swp391.koibe.services.biddinghistory;
 
 import com.swp391.koibe.dtos.BidDTO;
+import com.swp391.koibe.dtos.OrderDTO;
 import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
+import com.swp391.koibe.enums.OrderStatus;
 import com.swp391.koibe.exceptions.BiddingRuleException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.*;
@@ -10,6 +12,8 @@ import com.swp391.koibe.responses.BidResponse;
 import com.swp391.koibe.services.Biddable;
 import com.swp391.koibe.services.auctionkoi.IAuctionKoiService;
 import com.swp391.koibe.services.auctionparticipant.IAuctionParticipantService;
+import com.swp391.koibe.services.order.IOrderService;
+import com.swp391.koibe.services.orderdetail.OrderDetailService;
 import com.swp391.koibe.services.token.ITokenService;
 import com.swp391.koibe.services.user.IUserService;
 import com.swp391.koibe.utils.DTOConverter;
@@ -21,6 +25,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -39,6 +44,9 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
     private final ITokenService tokenService;
 
     private final IAuctionParticipantService auctionParticipantService;
+
+    private final IOrderService orderService;
+    private final OrderDetailService orderDetailService;
 
     @Override
     public Bid createBidHistory(Bid bid) throws DataNotFoundException {
@@ -68,7 +76,7 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
         return bidHistoryRepository.save(bidHistory);
     }
 
-    @Override   
+    @Override
     public void deleteBidHistory(long id) {
         bidHistoryRepository.deleteById(id);
     }
@@ -96,15 +104,15 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
     }
 
     @Override
-public Bid getBidderLatestBid(Long auctionKoiId, Long bidderId) {
-    ArrayList<Bid> bids = getBidsByAuctionKoiId(auctionKoiId);
-    if (bids.isEmpty()) {
-        return null;
-    } else {
-        return bids.stream()
-                .filter(bid -> bid.getBidder().getId().equals(bidderId))
-                .max(Comparator.comparing(Bid::getBidTime))
-                .orElse(null);
+    public Bid getBidderLatestBid(Long auctionKoiId, Long bidderId) {
+        ArrayList<Bid> bids = getBidsByAuctionKoiId(auctionKoiId);
+        if (bids.isEmpty()) {
+            return null;
+        } else {
+            return bids.stream()
+                    .filter(bid -> bid.getBidder().getId().equals(bidderId))
+                    .max(Comparator.comparing(Bid::getBidTime))
+                    .orElse(null);
         }
     }
 
@@ -146,6 +154,7 @@ public Bid getBidderLatestBid(Long auctionKoiId, Long bidderId) {
 
         // 8.4.5 set is_sold true
         auctionKoi.setSold(true);
+
         return auctionKoi;
     }
 
@@ -222,6 +231,11 @@ public Bid getBidderLatestBid(Long auctionKoiId, Long bidderId) {
 
         auctionKoiService.updateAuctionKoi(auctionKoi.getId(), updateAuctionKoiDTO);
 
+        // Create order for auction koi if it is sold
+        if (auctionKoi.isSold()) {
+            createOrderForAuctionKoi(auctionKoi, bidder);
+        }
+
         BidResponse bidResponse = BidResponse.builder()
                 .auctionKoiId(auctionKoi.getId())
                 .bidderId(bidder.getId())
@@ -275,5 +289,33 @@ public Bid getBidderLatestBid(Long auctionKoiId, Long bidderId) {
                 auctionParticipantService.createAuctionParticipant(auctionParticipant);
             }
         }
+    }
+
+    private void createOrderForAuctionKoi(AuctionKoi auctionKoi, User bidder) throws Exception {
+        Order order = Order.builder()
+                .user(bidder)
+                .fullName(bidder.getFirstName() + " " + bidder.getLastName())
+                .email(bidder.getEmail())
+                .status(OrderStatus.PENDING)
+                .address(bidder.getAddress())
+                .phoneNumber(bidder.getPhoneNumber())
+                .totalMoney(499.99F)
+                .shippingMethod("Standard")
+                .shippingAddress(bidder.getAddress())
+                .shippingDate(LocalDate.now())
+                .paymentMethod("Cash")
+                .build();
+
+        OrderDetail orderDetail = OrderDetail.builder()
+                .order(order)
+                .koi(auctionKoi.getKoi())
+                .numberOfProducts(1)
+                .price(0F)
+                .totalMoney(0F)
+                .build();
+
+        order.setOrderDetails(List.of(orderDetail));
+        orderService.createOrder(order);
+        orderDetailService.createOrderDetail(orderDetail);
     }
 }

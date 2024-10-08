@@ -39,6 +39,11 @@ public class OrderDetailService implements IOrderDetailService{
     }
 
     @Override
+    public OrderDetail createOrderDetail(OrderDetail orderDetail) throws Exception {
+        return orderDetailRepository.save(orderDetail);
+    }
+
+    @Override
     public OrderDetail getOrderDetail(Long id) throws DataNotFoundException {
         return orderDetailRepository.findById(id)
                 .orElseThrow(()->new DataNotFoundException("Cannot find OrderDetail with id: "+id));
