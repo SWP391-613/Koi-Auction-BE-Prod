@@ -44,7 +44,7 @@ public class UserResponse {
     private String statusName;
 
     @JsonProperty("date_of_birth")
-    private Date dob;
+    private String dob;
 
     @JsonProperty("avatar_url")
     private String avatarUrl;
@@ -57,5 +57,11 @@ public class UserResponse {
 
     @JsonProperty("account_balance")
     private long accountBalance;
+
+    @JsonProperty("created_at")
+    private String createdAt;
+
+    @JsonProperty("updated_at")
+    private String updatedAt;
 
 }

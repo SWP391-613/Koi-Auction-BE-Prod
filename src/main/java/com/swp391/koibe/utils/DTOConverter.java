@@ -2,6 +2,7 @@ package com.swp391.koibe.utils;
 
 import com.swp391.koibe.models.*;
 import com.swp391.koibe.responses.*;
+import java.time.format.DateTimeFormatter;
 
 public class DTOConverter {
 
@@ -17,11 +18,13 @@ public class DTOConverter {
             .isActive(user.isActive() ? 1 : 0)
             .isSubscription(user.isSubscription() ? 1 : 0)
             .statusName(user.getStatus() != null ? user.getStatus().getStatus() : null)
-            .dob(user.getDob())
+            .dob(String.valueOf(user.getDob()).split(" ")[0])
             .avatarUrl(user.getAvatarUrl())
             .googleAccountId(user.getGoogleAccountId())
             .roleName(user.getRole() != null ? user.getRole().getName() : null)
             .accountBalance(user.getAccountBalance())
+            .createdAt(user.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME))
+            .updatedAt(user.getUpdatedAt().format(DateTimeFormatter.ISO_DATE_TIME))
             .build();
     }
 
