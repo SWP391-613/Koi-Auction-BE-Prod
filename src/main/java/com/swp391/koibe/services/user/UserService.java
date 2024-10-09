@@ -303,7 +303,7 @@ public class UserService implements IUserService {
         backoff = @Backoff(delay = 2000)       // 2 seconds delay between retries
     )
     @Override
-    public void updateAccountBalance(Long userId, Long payment) throws DataNotFoundException {
+    public void updateAccountBalance(Long userId, Long payment) throws Exception {
         User existingUser = userRepository.findById(userId)
             .orElseThrow(() -> new DataNotFoundException(
                 localizationUtils.getLocalizedMessage(MessageKeys.USER_NOT_FOUND)

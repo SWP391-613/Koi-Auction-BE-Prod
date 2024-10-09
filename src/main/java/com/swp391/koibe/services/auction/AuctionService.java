@@ -152,6 +152,7 @@ public class AuctionService implements IAuctionService {
         }
 
         return auctionRepository.save(auctionToUpdate);
+    }
     public Set<Auction> getAuctionOnCondition(String condition) {
 //        return switch (condition) {
 //            case "ACTIVE" -> auctionRepository.getAuctionsByStartTimeAfter(LocalDateTime.now());

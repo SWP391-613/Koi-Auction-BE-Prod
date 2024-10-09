@@ -80,7 +80,11 @@ public class SystemService {
             // iterate through the Map userBids
             for (Map.Entry<Long, Long> entry : userBids.entrySet()) {
                 Long bidedAmount = biddingHistoryService.getBidderLatestBid(entry.getKey(), auctionKoi.getId()).getBidAmount();
-                userService.updateAccountBalance(entry.getKey(), bidedAmount);
+                try {
+                    userService.updateAccountBalance(entry.getKey(), bidedAmount);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }

@@ -70,7 +70,7 @@ public class AuctionMailService implements IAuctionMailService {
     @Scheduled(cron = "0 0 7 * * MON,WED,FRI") // Every Monday, Wednesday, and Friday at 7:00 AM
     @Override
     public void notifyUsersAboutUpcomingAuctions() throws MessagingException {
-        Set<Auction> upcomingAuctions = auctionService.getAuctionOnStatus(EAuctionStatus.ACTIVE);
+        Set<Auction> upcomingAuctions = auctionService.getAuctionOnStatus(EAuctionStatus.ONGOING);
         Auction neerestAuction = upcomingAuctions.stream()
             .filter(auction -> auction.getStartTime().isAfter(
                 LocalDateTime.now())).findFirst().orElse(null);
