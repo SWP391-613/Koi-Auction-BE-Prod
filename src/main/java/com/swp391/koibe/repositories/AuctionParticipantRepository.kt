@@ -6,4 +6,5 @@ import java.util.*
 
 interface AuctionParticipantRepository : JpaRepository<AuctionParticipant, Long> {
     fun getAuctionParticipantByAuctionIdAndUserId(auctionId: Long, userId: Long): AuctionParticipant?
+    fun getAuctionParticipantsByAuctionId(auctionId: Long): List<AuctionParticipant>
 }

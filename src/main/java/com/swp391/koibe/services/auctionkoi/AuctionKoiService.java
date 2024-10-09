@@ -6,23 +6,22 @@ import com.swp391.koibe.enums.EAuctionStatus;
 import com.swp391.koibe.enums.EBidMethod;
 import com.swp391.koibe.exceptions.MalformDataException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
-import com.swp391.koibe.models.*;
+import com.swp391.koibe.models.Auction;
+import com.swp391.koibe.models.AuctionKoi;
+import com.swp391.koibe.models.Koi;
 import com.swp391.koibe.repositories.AuctionKoiRepository;
 import com.swp391.koibe.repositories.AuctionRepository;
 import com.swp391.koibe.repositories.KoiRepository;
 import com.swp391.koibe.responses.AuctionKoiResponse;
 import com.swp391.koibe.services.auction.AuctionService;
 import com.swp391.koibe.utils.DTOConverter;
-
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

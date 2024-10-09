@@ -6,7 +6,7 @@
 //import com.swp391.koibe.enums.EmailCategoriesEnum;
 //import com.swp391.koibe.exceptions.base.DataNotFoundException;
 //import com.swp391.koibe.models.User;
-//import com.swp391.koibe.services.mail.MailService;
+//import com.swp391.koibe.services.mail.IMailService;
 //import com.swp391.koibe.services.user.IUserService;
 //import jakarta.servlet.http.HttpServletRequest;
 //import java.time.Duration;
@@ -39,7 +39,7 @@
 //    private final Map<String, Instant> blockedIPs = new ConcurrentHashMap<>();
 //    private final Map<String, Integer> dailyAttemptCounter = new ConcurrentHashMap<>();
 //    private final Map<String, LocalDate> lastAttemptDate = new ConcurrentHashMap<>();
-//    private final MailService mailService;
+//    private final IMailService mailService;
 //    private final IUserService userService;
 //    private final JwtTokenUtils jwtTokenUtils;
 //    private final EmailConfig emailConfig;

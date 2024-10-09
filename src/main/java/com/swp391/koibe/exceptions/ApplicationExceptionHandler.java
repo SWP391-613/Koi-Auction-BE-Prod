@@ -77,6 +77,15 @@ public class ApplicationExceptionHandler {
             .build();
     }
 
+    @ExceptionHandler(InvalidApiPathVariableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public BaseResponse<Object> handleInvalidApiPathVariableException(InvalidApiPathVariableException e) {
+        return ExceptionResponse.builder()
+            .message(localizationUtils.getLocalizedMessage("exception.invalid_api_path_variable"))
+            .reason(e.getMessage())
+            .build();
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)

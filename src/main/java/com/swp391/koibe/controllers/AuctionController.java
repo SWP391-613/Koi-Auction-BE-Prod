@@ -8,8 +8,10 @@ import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Auction;
 import com.swp391.koibe.responses.AuctionResponse;
+import com.swp391.koibe.services.auction.IAuctionMailService;
 import com.swp391.koibe.services.auction.IAuctionService;
 import jakarta.validation.Valid;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class AuctionController {
 
     private final IAuctionService auctionService;
+    private final IAuctionMailService auctionMailService;
 
     @PostMapping("/generateFakeAuctions")
     private void generateFakeAuctions() {
@@ -51,6 +54,16 @@ public class AuctionController {
                 log.error("Error creating auction: " + e.getMessage());
                 throw new GenerateDataException();
             }
+        }
+    }
+
+    @GetMapping("/notify/upcoming")
+    public ResponseEntity<?> notifyAllUserUpcomingAuction(){
+        try{
+            auctionMailService.notifyUsersAboutUpcomingAuctions();
+            return ResponseEntity.ok("Success");
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

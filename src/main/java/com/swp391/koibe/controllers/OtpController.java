@@ -1,5 +1,6 @@
 package com.swp391.koibe.controllers;
 
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,7 @@ public class OtpController {
     private final PhoneController phoneController;
 
     @GetMapping("/send")
-    public ResponseEntity<?> sendOtp(@RequestParam String type, @RequestParam String recipient) {
+    public ResponseEntity<?> sendOtp(@RequestParam String type, @RequestParam String recipient) throws MessagingException {
         return switch (type.toLowerCase()) {
             case "mail" -> mailController.sendOtp(recipient);
             case "phone" -> phoneController.sendPhoneOtp(recipient);

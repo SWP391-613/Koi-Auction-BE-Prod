@@ -7,9 +7,10 @@ import com.swp391.koibe.enums.UserStatus;
 import com.swp391.koibe.models.Otp;
 import com.swp391.koibe.models.User;
 import com.swp391.koibe.responses.MailResponse;
-import com.swp391.koibe.services.mail.MailService;
+import com.swp391.koibe.services.mail.IMailService;
 import com.swp391.koibe.services.otp.IOtpService;
 import com.swp391.koibe.utils.OTPUtils;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +27,12 @@ import org.thymeleaf.context.Context;
 @RequiredArgsConstructor
 public class MailController {
 
-    private final MailService mailService;
+    private final IMailService mailService;
     private final HttpServletRequest request;
     private final IOtpService otpService;
 
     //api: /otp/send?type=email&recipient=abc@gmail
-    public ResponseEntity<MailResponse> sendOtp(@RequestParam String toEmail) {
+    public ResponseEntity<MailResponse> sendOtp(@RequestParam String toEmail) throws MessagingException {
         User user = (User) request.getAttribute("validatedEmail");
 
         if(user.getStatus() == UserStatus.VERIFIED){
@@ -62,7 +63,7 @@ public class MailController {
     }
 
     @GetMapping("/block")
-    ResponseEntity<MailResponse> sendBlockAccount(@RequestParam String toEmail) {
+    ResponseEntity<MailResponse> sendBlockAccount(@RequestParam String toEmail) throws MessagingException {
         User user = (User) request.getAttribute("validatedEmail");
         Context context = new Context();
         context.setVariable("reason", EmailBlockReasonEnum.ABUSE.getReason());
@@ -73,7 +74,7 @@ public class MailController {
     }
 
     @GetMapping(path = "/forgotPassword")
-    ResponseEntity<MailResponse> sendForgotPassword(@RequestParam String toEmail) {
+    ResponseEntity<MailResponse> sendForgotPassword(@RequestParam String toEmail) throws MessagingException {
         User user = (User) request.getAttribute("validatedEmail");
         String name = user.getFirstName();
         Context context = new Context();

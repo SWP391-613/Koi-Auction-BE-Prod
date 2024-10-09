@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upcoming Auction Notification</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background-color: #17a2b8;
+      color: #ffffff;
+      padding: 10px;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .content {
+      padding: 20px;
+      text-align: left;
+      line-height: 1.6;
+    }
+    .content h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    .content p {
+      margin-bottom: 20px;
+    }
+    .footer {
+      text-align: center;
+      color: #777;
+      font-size: 12px;
+    }
+    .footer p {
+      margin: 0;
+    }
+    .button {
+      background-color: #17a2b8;
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Upcoming Auction</h1>
+  </div>
+  <div class="content">
+    <p>Dear Mr/Ms <strong th:text="${name}"></strong>,</p>
+    <p>We are excited to inform you about an upcoming auction for <strong th:text="${auction_title}"></strong>.</p>
+    <p>Here are the key details:</p>
+    <ul>
+      <li><strong>Auction Title:</strong> <span th:text="${auction_title}"></span></li>
+      <li><strong>Auction Start Date:</strong> <span th:text="${auction_start_date}"></span></li>
+    </ul>
+    <p>Don't miss your chance to participate in this exciting event! Be ready to place your bids as the auction starts.</p>
+    <p>For more details and to mark the auction in your calendar, visit the auction page:</p>
+    <a class="button" th:href="${auction_url}">View Auction Details</a>
+  </div>
+  <div class="footer">
+    <p>&copy; <span th:text="${year}"></span> Auction Platform. All Rights Reserved.</p>
+  </div>
+</div>
+</body>
+</html>

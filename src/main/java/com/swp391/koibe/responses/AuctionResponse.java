@@ -7,6 +7,7 @@ import com.swp391.koibe.responses.base.BaseResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AuctionResponse extends BaseResponse<Auction> {
 
