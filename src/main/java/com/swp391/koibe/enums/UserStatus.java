@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum UserStatus {
 
-    ACTIVE("ACTIVE"),
+    ACTIVE("ONGOING"),
     INACTIVE("INACTIVE"),
     VERIFIED("VERIFIED"),
     UNVERIFIED("UNVERIFIED"),

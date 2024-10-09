@@ -7,8 +7,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum EAuctionStatus {
 
+    UPCOMING("UPCOMING"),
     ONGOING("ONGOING"),
-    ACTIVE("ACTIVE"),
     ENDED("ENDED");
 
     private final String status;

@@ -10,6 +10,7 @@ import com.swp391.koibe.repositories.AuctionRepository;
 import com.swp391.koibe.responses.AuctionResponse;
 import com.swp391.koibe.utils.DTOConverter;
 import com.swp391.koibe.utils.DateTimeUtils;
+
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Set;
@@ -32,24 +33,24 @@ public class AuctionService implements IAuctionService {
         LocalDateTime endTime = DateTimeUtils.parseTime(auctionDTO.endTime());
         DateTimeUtils.validateAuctionTimes(startTime, endTime);
 
-        if(auctionDTO.statusName().equals(EAuctionStatus.ENDED.name())) {
+        if (auctionDTO.statusName().equals(EAuctionStatus.ENDED.name())) {
             throw new MalformDataException("Cannot create ended auction");
         }
 
         // check if status name is valid
         boolean isValidStatus = Arrays.stream(EAuctionStatus.values())
-            .anyMatch(status -> status.name().equals(auctionDTO.statusName()));
+                .anyMatch(status -> status.name().equals(auctionDTO.statusName()));
 
         if (!isValidStatus) {
             throw new MalformDataException("Invalid auction status name");
         }
 
         Auction newAuction = Auction.builder()
-            .title(auctionDTO.title())
-            .startTime(startTime)
-            .endTime(endTime)
-            .status(EAuctionStatus.valueOf(auctionDTO.statusName()))
-            .build();
+                .title(auctionDTO.title())
+                .startTime(startTime)
+                .endTime(endTime)
+                .status(EAuctionStatus.valueOf(auctionDTO.statusName()))
+                .build();
 
         return auctionRepository.save(newAuction);
     }
@@ -72,14 +73,14 @@ public class AuctionService implements IAuctionService {
     @Override
     public AuctionResponse getById(long id) throws DataNotFoundException {
         return auctionRepository.findById(id)
-            .map(DTOConverter::convertToAuctionDTO)
-            .orElseThrow(() -> new DataNotFoundException("Auction not found"));
+                .map(DTOConverter::convertToAuctionDTO)
+                .orElseThrow(() -> new DataNotFoundException("Auction not found"));
     }
 
     @Override
     public Auction findAuctionById(long id) throws DataNotFoundException {
         return auctionRepository.findById(id)
-            .orElseThrow(() -> new DataNotFoundException("Auction not found"));
+                .orElseThrow(() -> new DataNotFoundException("Auction not found"));
     }
 
     @Override
@@ -92,7 +93,7 @@ public class AuctionService implements IAuctionService {
     @Override
     public Auction update(long auctionId, AuctionDTO auctionDTO) throws DataNotFoundException {
         Auction auction = auctionRepository.findById(auctionId)
-            .orElseThrow(() -> new DataNotFoundException("Auction not found"));
+                .orElseThrow(() -> new DataNotFoundException("Auction not found"));
 
         LocalDateTime startTime = DateTimeUtils.parseTime(auctionDTO.startTime());
         LocalDateTime endTime = DateTimeUtils.parseTime(auctionDTO.endTime());
@@ -100,7 +101,7 @@ public class AuctionService implements IAuctionService {
 
         // check if status name is valid
         boolean isValidStatus = Arrays.stream(EAuctionStatus.values())
-            .anyMatch(status -> status.name().equals(auctionDTO.statusName()));
+                .anyMatch(status -> status.name().equals(auctionDTO.statusName()));
 
         if (!isValidStatus) {
             throw new MalformDataException("Invalid auction status name");
@@ -119,7 +120,7 @@ public class AuctionService implements IAuctionService {
     @Override
     public void delete(long id) {
         Auction auction = auctionRepository.findById(id)
-            .orElseThrow(() -> new DataNotFoundException("Auction not found"));
+                .orElseThrow(() -> new DataNotFoundException("Auction not found"));
         auctionRepository.delete(auction);
     }
 
@@ -129,6 +130,28 @@ public class AuctionService implements IAuctionService {
     }
 
     @Override
+    public List<Auction> getAuctionByStatus(String status) {
+        return auctionRepository.findAllByStatus(EAuctionStatus.valueOf(status).name());
+    }
+
+    @Override
+    public Auction updateAuctionStatus(long auctionId, Auction auction) throws DataNotFoundException {
+        Auction auctionToUpdate = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new DataNotFoundException("Auction not found"));
+
+        if (auctionToUpdate.getStatus().equals((EAuctionStatus.UPCOMING))) {
+            if (auctionToUpdate.getStartTime().isBefore(LocalDateTime.now()) &&
+                    auctionToUpdate.getEndTime().isAfter(LocalDateTime.now())) {
+                auctionToUpdate.setStatus(EAuctionStatus.ONGOING);
+            }
+        }
+
+        if (auctionToUpdate.getEndTime().isBefore(LocalDateTime.now()) &&
+                auctionToUpdate.getStatus().equals(EAuctionStatus.ONGOING)) {
+            auctionToUpdate.setStatus(EAuctionStatus.ENDED);
+        }
+
+        return auctionRepository.save(auctionToUpdate);
     public Set<Auction> getAuctionOnCondition(String condition) {
 //        return switch (condition) {
 //            case "ACTIVE" -> auctionRepository.getAuctionsByStartTimeAfter(LocalDateTime.now());

@@ -1,7 +1,5 @@
 package com.swp391.koibe.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.swp391.koibe.dtos.BidDTO;
 import com.swp391.koibe.dtos.auctionkoi.AuctionKoiDTO;
 import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
 import com.swp391.koibe.exceptions.GenerateDataException;
@@ -9,8 +7,6 @@ import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.AuctionKoi;
 import com.swp391.koibe.responses.AuctionKoiResponse;
-import com.swp391.koibe.responses.BidResponse;
-import com.swp391.koibe.responses.pagination.AuctionKoiPaginationResponse;
 import com.swp391.koibe.services.auction.IAuctionService;
 import com.swp391.koibe.services.auctionkoi.IAuctionKoiService;
 import com.swp391.koibe.services.biddinghistory.IBiddingHistoryService;
@@ -22,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;

@@ -41,8 +41,6 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
 
     private final IUserService userService;
 
-    private final ITokenService tokenService;
-
     private final IAuctionParticipantService auctionParticipantService;
 
     private final IOrderService orderService;

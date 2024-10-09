@@ -18,7 +18,7 @@ public record UpdateUserDTO(
     @JsonProperty("confirm_password") String confirmPassword, // in case user wants to change password
     @JsonProperty("address") String address,
     @JsonProperty("status")
-    @Pattern(regexp = "ACTIVE|INACTIVE|VERIFIED|UNVERIFIED|BANNED", message = "Status must be either ACTIVE, INACTIVE, VERIFIED, UNVERIFIED, BANNED")
+    @Pattern(regexp = "ACTIVE|INACTIVE|VERIFIED|UNVERIFIED|BANNED", message = "Status must be either ONGOING, INACTIVE, VERIFIED, UNVERIFIED, BANNED")
     String status,
     @JsonProperty("date_of_birth") Date dob,
     @JsonProperty("avatar_url") String avatarUrl,
