@@ -7,10 +7,7 @@ import com.swp391.koibe.dtos.UserRegisterDTO;
 import com.swp391.koibe.enums.EmailCategoriesEnum;
 import com.swp391.koibe.enums.ProviderName;
 import com.swp391.koibe.enums.UserStatus;
-import com.swp391.koibe.exceptions.ExpiredTokenException;
-import com.swp391.koibe.exceptions.InsufficientFundsException;
-import com.swp391.koibe.exceptions.InvalidPasswordException;
-import com.swp391.koibe.exceptions.PermissionDeniedException;
+import com.swp391.koibe.exceptions.*;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Otp;
 import com.swp391.koibe.models.Role;
@@ -291,11 +288,10 @@ public class UserService implements IUserService {
                 ));
 
         if (user.getAccountBalance() < payment) {
-            throw new InsufficientFundsException("Not enough money");
+            throw new BiddingRuleException("Not enough money to make payment");
         }
 
         user.setAccountBalance(user.getAccountBalance() - payment);
-//        log.info("User {} balance updated. New balance: {}", userId, user.getAccountBalance());
 
         return userRepository.save(user);
     }
