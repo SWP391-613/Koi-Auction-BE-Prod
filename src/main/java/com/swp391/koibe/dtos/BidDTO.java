@@ -22,7 +22,8 @@ public record BidDTO (
     Long auctionKoiId,
 
     @NotNull(message = "Bidder ID is required")
-    @JsonProperty("bidder_token") String bidderToken
+    @JsonProperty("bidder_id")
+    Long bidderId
 ) {}
 
 //NotBlank only on String, either string is empty or null

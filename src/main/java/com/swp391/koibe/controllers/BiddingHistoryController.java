@@ -2,10 +2,12 @@ package com.swp391.koibe.controllers;
 
 import com.swp391.koibe.dtos.BidDTO;
 import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
+import com.swp391.koibe.exceptions.BiddingRuleException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.*;
 import com.swp391.koibe.repositories.AuctionParticipantRepository;
 import com.swp391.koibe.responses.BidResponse;
+import com.swp391.koibe.responses.base.BaseResponse;
 import com.swp391.koibe.responses.pagination.BiddingHistoryPaginationResponse;
 import com.swp391.koibe.services.auctionkoi.IAuctionKoiService;
 import com.swp391.koibe.services.biddinghistory.IBiddingHistoryService;
@@ -31,7 +33,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
-@RequestMapping("${api.prefix}/auctionkoidetails")
+@RequestMapping("${api.prefix}/bidding")
 @RequiredArgsConstructor
 public class BiddingHistoryController {
 
@@ -41,7 +43,7 @@ public class BiddingHistoryController {
     private final AuctionParticipantRepository auctionParticipantRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
-    @PostMapping("/generateFakeAuctionKoiDetails")
+    @PostMapping("/generatefakebiddinghistory")
     public ResponseEntity<String> generateFakeAuctionKoiDetails() {
         try {
             List<AuctionKoi> auctionKois = auctionKoiService.getAuctionIsSold();
@@ -159,16 +161,20 @@ public class BiddingHistoryController {
         }
     }
 
+    @PostMapping("/bid/{auctionKoiId}")
     @MessageMapping("/auctionkoi/{auctionKoiId}/bid")
-    @SendTo("/topic/auctionkoi/{auctionKoiId}")
-    public BidResponse processBid(@DestinationVariable Long auctionKoiId, @Payload BidDTO bidDTO) throws Exception {
+//    @SendTo("/topic/auctionkoi/{auctionKoiId}")
+    public ResponseEntity<?> processBid(@DestinationVariable @PathVariable Long auctionKoiId, @RequestBody BidDTO bidDTO) throws Exception {
         try {
             BidResponse bidResponse = biddingHistoryService.placeBid(bidDTO);
-//            messagingTemplate.convertAndSend("/topic/auctionkoi/" + auctionKoiId, bidResponse);
+            messagingTemplate.convertAndSend("/topic/auctionkoi/" + auctionKoiId, bidResponse);
 
-            return bidResponse;
+            return ResponseEntity.ok(bidResponse);
         } catch (Exception e) {
-            throw new Exception("Error placing bid: " + e.getMessage());
+            BaseResponse response = new BaseResponse();
+            response.setReason(BiddingRuleException.class.getSimpleName());
+            response.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
 

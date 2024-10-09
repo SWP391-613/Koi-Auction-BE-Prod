@@ -190,7 +190,7 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
         // 1. get the auction koi by id
         AuctionKoi auctionKoi = auctionKoiService.getAuctionKoiById(bidRequest.auctionKoiId());
         // 2. get the bidder by token
-        User bidder = tokenService.findUserByToken(bidRequest.bidderToken()).getUser();
+        User bidder = userService.getUserById(bidRequest.bidderId());
         // 3. get the auction by auction koi
         Auction auction = auctionKoi.getAuction();
 
@@ -232,9 +232,9 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
         auctionKoiService.updateAuctionKoi(auctionKoi.getId(), updateAuctionKoiDTO);
 
         // Create order for auction koi if it is sold
-        if (auctionKoi.isSold()) {
-            createOrderForAuctionKoi(auctionKoi, bidder);
-        }
+//        if (auctionKoi.isSold()) {
+//            createOrderForAuctionKoi(auctionKoi, bidder);
+//        }
 
         BidResponse bidResponse = BidResponse.builder()
                 .auctionKoiId(auctionKoi.getId())

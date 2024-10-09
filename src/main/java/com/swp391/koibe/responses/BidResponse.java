@@ -1,6 +1,7 @@
 package com.swp391.koibe.responses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.swp391.koibe.responses.base.BaseResponse;
 import lombok.Builder;
 import lombok.Data;
 
