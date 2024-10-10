@@ -3,51 +3,64 @@ package com.swp391.koibe.dtos;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public record OrderDTO(
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class OrderDTO {
     @JsonProperty("user_id")
     @Min(value = 1, message = "User's ID must be > 0")
-    Long userId,
+    Long userId;
 
-    @JsonProperty("fullname")
-    String fullName,
+    @JsonProperty("first_name")
+    String firstName;
 
-    String email,
-    String status,
-    String address,
+    @JsonProperty("last_name")
+    String lastName;
+
+    String email;
+    String status;
+    String address;
 
     @JsonProperty("phone_number")
     @NotBlank(message = "Phone number is required")
     @Size(min = 5, message = "Phone number must be at least 5 characters")
-    String phoneNumber,
+    String phoneNumber;
 
     @JsonProperty("note")
-    String note,
+    String note;
 
     @JsonProperty("total_money")
     @Min(value = 0, message = "Total money must be >= 0")
-    Float totalMoney,
+    @NotNull(message = "Total money is required")
+    Float totalMoney;
 
     @JsonProperty("shipping_method")
-    String shippingMethod,
+    String shippingMethod;
 
     @JsonProperty("shipping_address")
-    String shippingAddress,
+    String shippingAddress;
 
     @JsonProperty("shipping_date")
-    LocalDate shippingDate,
+    LocalDate shippingDate;
 
     @JsonProperty("payment_method")
-    String paymentMethod,
+    String paymentMethod;
 
     @JsonProperty("coupon_code")
-    String couponCode,
+    String couponCode;
 
     @JsonProperty("cart_items")
-    List<CartItemDTO> cartItems
-) {
-
+    List<CartItemDTO> cartItems;
 }

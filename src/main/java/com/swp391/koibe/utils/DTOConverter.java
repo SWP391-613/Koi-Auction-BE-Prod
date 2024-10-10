@@ -2,6 +2,8 @@ package com.swp391.koibe.utils;
 
 import com.swp391.koibe.models.*;
 import com.swp391.koibe.responses.*;
+import com.swp391.koibe.responses.order.OrderDetailResponse;
+import com.swp391.koibe.responses.order.OrderResponse;
 import java.time.format.DateTimeFormatter;
 
 public class DTOConverter {
@@ -85,6 +87,40 @@ public class DTOConverter {
             .bidAmount(bid.getBidAmount())
             .bidTime(bid.getBidTime().toString())
             .bidderName(String.format("%s %s", bid.getBidder().getFirstName(),bid.getBidder().getLastName()))
+            .build();
+    }
+
+    public static OrderResponse fromOrder(Order order) {
+        return OrderResponse
+            .builder()
+            .id(order.getId())
+            .userId(order.getUser().getId())
+            .firstName(order.getFirstName())
+            .lastName(order.getLastName())
+            .phoneNumber(order.getPhoneNumber())
+            .email(order.getEmail())
+            .address(order.getAddress())
+            .note(order.getNote())
+            .orderDate(order.getOrderDate())
+            .status(String.valueOf(order.getStatus()))
+            .totalMoney(order.getTotalMoney())
+            .shippingMethod(order.getShippingMethod())
+            .shippingAddress(order.getShippingAddress())
+            .shippingDate(order.getShippingDate())
+            .paymentMethod(order.getPaymentMethod())
+            .orderDetails(order.getOrderDetails())
+            .build();
+    }
+
+    public static OrderDetailResponse fromOrderDetail(OrderDetail orderDetail) {
+        return OrderDetailResponse
+            .builder()
+            .id(orderDetail.getId())
+            .orderId(orderDetail.getOrder().getId())
+            .productId(orderDetail.getKoi().getId())
+            .price(orderDetail.getPrice())
+            .numberOfProducts(orderDetail.getNumberOfProducts())
+            .totalMoney(orderDetail.getTotalMoney())
             .build();
     }
 

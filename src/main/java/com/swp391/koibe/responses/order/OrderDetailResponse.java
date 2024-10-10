@@ -32,16 +32,4 @@ public class OrderDetailResponse {
     private Float totalMoney;
 
     private String color;
-
-    public static OrderDetailResponse fromOrderDetail(OrderDetail orderDetail) {
-        return OrderDetailResponse
-                .builder()
-                .id(orderDetail.getId())
-                .orderId(orderDetail.getOrder().getId())
-                .productId(orderDetail.getKoi().getId())
-                .price(orderDetail.getPrice())
-                .numberOfProducts(orderDetail.getNumberOfProducts())
-                .totalMoney(orderDetail.getTotalMoney())
-                .build();
-    }
 }

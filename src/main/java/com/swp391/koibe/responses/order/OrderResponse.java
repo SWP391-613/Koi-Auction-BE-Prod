@@ -22,8 +22,11 @@ public class OrderResponse {
     @JsonProperty("user_id")
     private Long userId;
 
-    @JsonProperty("fullname")
-    private String fullName;
+    @JsonProperty("first_name")
+    private String firstName;
+
+    @JsonProperty("last_name")
+    private String lastName;
 
     @JsonProperty("phone_number")
     private String phoneNumber;
@@ -61,26 +64,4 @@ public class OrderResponse {
 
     @JsonProperty("order_details")
     private List<OrderDetail> orderDetails;
-
-    public static OrderResponse fromOrder(Order order) {
-        OrderResponse orderResponse =  OrderResponse
-                .builder()
-                .id(order.getId())
-                .userId(order.getUser().getId())
-                .fullName(order.getFullName())
-                .phoneNumber(order.getPhoneNumber())
-                .email(order.getEmail())
-                .address(order.getAddress())
-                .note(order.getNote())
-                .orderDate(order.getOrderDate())
-                .status(String.valueOf(order.getStatus()))
-                .totalMoney(order.getTotalMoney())
-                .shippingMethod(order.getShippingMethod())
-                .shippingAddress(order.getShippingAddress())
-                .shippingDate(order.getShippingDate())
-                .paymentMethod(order.getPaymentMethod())
-                .orderDetails(order.getOrderDetails())
-                .build();
-        return orderResponse;
-    }
 }

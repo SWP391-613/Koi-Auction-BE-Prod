@@ -6,6 +6,7 @@ import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.OrderDetail;
 import com.swp391.koibe.responses.order.OrderDetailResponse;
 import com.swp391.koibe.services.orderdetail.IOrderDetailService;
+import com.swp391.koibe.utils.DTOConverter;
 import com.swp391.koibe.utils.MessageKeys;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -33,12 +34,12 @@ public class OrderDetailController {
 
     //Thêm mới 1 order detail
     @PostMapping("")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_MEMBER')")
     public ResponseEntity<?> createOrderDetail(
         @Valid @RequestBody OrderDetailDTO orderDetailDTO) {
         try {
             OrderDetail newOrderDetail = orderDetailService.createOrderDetail(orderDetailDTO);
-            return ResponseEntity.ok().body(OrderDetailResponse.fromOrderDetail(newOrderDetail));
+            return ResponseEntity.ok().body(DTOConverter.fromOrderDetail(newOrderDetail));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -48,7 +49,7 @@ public class OrderDetailController {
     public ResponseEntity<?> getOrderDetail(
         @Valid @PathVariable("id") Long id) throws DataNotFoundException {
         OrderDetail orderDetail = orderDetailService.getOrderDetail(id);
-        return ResponseEntity.ok().body(OrderDetailResponse.fromOrderDetail(orderDetail));
+        return ResponseEntity.ok().body(DTOConverter.fromOrderDetail(orderDetail));
     }
 
     @GetMapping("/order/{orderId}")
@@ -58,14 +59,14 @@ public class OrderDetailController {
         List<OrderDetail> orderDetails = orderDetailService.findByOrderId(orderId);
         List<OrderDetailResponse> orderDetailResponses = orderDetails
             .stream()
-            .map(OrderDetailResponse::fromOrderDetail)
+            .map(DTOConverter::fromOrderDetail)
             .toList();
         return ResponseEntity.ok(orderDetailResponses);
     }
 
     @PutMapping("/{id}")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_MEMBER')")
     public ResponseEntity<?> updateOrderDetail(
         @Valid @PathVariable("id") Long id,
         @RequestBody OrderDetailDTO orderDetailDTO) {
@@ -79,7 +80,7 @@ public class OrderDetailController {
 
     @DeleteMapping("/{id}")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_MEMBER')")
     public ResponseEntity<?> deleteOrderDetail(
         @Valid @PathVariable("id") Long id) {
         orderDetailService.deleteById(id);

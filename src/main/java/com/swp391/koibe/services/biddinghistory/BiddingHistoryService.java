@@ -282,7 +282,8 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
     private void createOrderForAuctionKoi(AuctionKoi auctionKoi, User bidder) throws Exception {
         Order order = Order.builder()
                 .user(bidder)
-                .fullName(bidder.getFirstName() + " " + bidder.getLastName())
+                .firstName(bidder.getFirstName())
+                .lastName(bidder.getLastName())
                 .email(bidder.getEmail())
                 .status(OrderStatus.PENDING)
                 .address(bidder.getAddress())

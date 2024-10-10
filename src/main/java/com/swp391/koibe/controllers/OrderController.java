@@ -2,11 +2,14 @@ package com.swp391.koibe.controllers;
 
 import com.swp391.koibe.components.LocalizationUtils;
 import com.swp391.koibe.dtos.OrderDTO;
+import com.swp391.koibe.exceptions.InvalidApiPathVariableException;
 import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
+import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Order;
 import com.swp391.koibe.responses.order.OrderListResponse;
 import com.swp391.koibe.responses.order.OrderResponse;
 import com.swp391.koibe.services.order.OrderService;
+import com.swp391.koibe.utils.DTOConverter;
 import com.swp391.koibe.utils.MessageKeys;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -20,6 +23,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +38,7 @@ public class OrderController {
     private final OrderService orderService;
     private final LocalizationUtils localizationUtils;
 
+    @PostMapping("")
     public ResponseEntity<?> createOrder(
         @Valid @RequestBody OrderDTO orderDTO,
         BindingResult result
@@ -42,8 +47,8 @@ public class OrderController {
             throw new MethodArgumentNotValidException(result);
         }
         try{
-            Order orderResponse = orderService.createOrder(orderDTO);
-            return ResponseEntity.ok(orderResponse);
+            Order newOrder = orderService.createOrder(orderDTO);
+            return ResponseEntity.ok(DTOConverter.fromOrder(newOrder));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -56,6 +61,11 @@ public class OrderController {
             List<Order> orders = orderService.findByUserId(userId);
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
+
+            if(e instanceof DataNotFoundException){
+                throw e;
+            }
+
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -67,36 +77,60 @@ public class OrderController {
     ) {
         try {
             Order existingOrder = orderService.getOrder(orderId);
-            OrderResponse orderResponse = OrderResponse.fromOrder(existingOrder);
+            OrderResponse orderResponse = DTOConverter.fromOrder(existingOrder);
             return ResponseEntity.ok(orderResponse);
         } catch (Exception e) {
+            if(e instanceof DataNotFoundException){
+                throw e;
+            }
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     //PUT http://localhost:8088/api/v1/orders/2
     public ResponseEntity<?> updateOrder(
         @Valid @PathVariable long id,
-        @Valid @RequestBody OrderDTO orderDTO) {
+        @Valid @RequestBody OrderDTO orderDTO,
+        BindingResult result) {
+
+        if(id <= 0) throw new InvalidApiPathVariableException("Order id must be greater than 0");
+
+        if(result.hasErrors()) throw new MethodArgumentNotValidException(result);
 
         try {
             Order order = orderService.updateOrder(id, orderDTO);
-            return ResponseEntity.ok(order);
+            return ResponseEntity.ok(DTOConverter.fromOrder(order));
         } catch (Exception e) {
+
+            if(e instanceof DataNotFoundException){
+                throw e;
+            }
+
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     public ResponseEntity<?> deleteOrder(@Valid @PathVariable Long id) {
         //xóa mềm => cập nhật trường active = false
-        orderService.deleteOrder(id);
-        String result = localizationUtils.getLocalizedMessage(
-            MessageKeys.DELETE_ORDER_SUCCESSFULLY, id);
-        return ResponseEntity.ok().body(result);
+        if(id <= 0) throw new InvalidApiPathVariableException("Order id must be greater than 0");
+        try{
+            orderService.deleteOrder(id);
+            String result = localizationUtils.getLocalizedMessage(
+                MessageKeys.DELETE_ORDER_SUCCESSFULLY, id);
+            return ResponseEntity.ok().body(result);
+        }catch (Exception e){
+            if(e instanceof DataNotFoundException){
+                throw e;
+            }
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
     }
+
     @GetMapping("/get-orders-by-keyword")
     public ResponseEntity<OrderListResponse> getOrdersByKeyword(
         @RequestParam(defaultValue = "", required = false) String keyword,
@@ -111,7 +145,7 @@ public class OrderController {
         );
         Page<OrderResponse> orderPage = orderService
             .getOrdersByKeyword(keyword, pageRequest)
-            .map(OrderResponse::fromOrder);
+            .map(DTOConverter::fromOrder);
         // Lấy tổng số trang
         int totalPages = orderPage.getTotalPages();
         List<OrderResponse> orderResponses = orderPage.getContent();
