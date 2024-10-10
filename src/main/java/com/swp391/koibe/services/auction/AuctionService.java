@@ -10,6 +10,7 @@ import com.swp391.koibe.models.Auction;
 import com.swp391.koibe.repositories.AuctionKoiRepository;
 import com.swp391.koibe.repositories.AuctionParticipantRepository;
 import com.swp391.koibe.repositories.AuctionRepository;
+import com.swp391.koibe.repositories.UserRepository;
 import com.swp391.koibe.responses.AuctionResponse;
 import com.swp391.koibe.services.auctionparticipant.AuctionParticipantService;
 import com.swp391.koibe.utils.DTOConverter;
@@ -33,6 +34,7 @@ public class AuctionService implements IAuctionService {
     private final AuctionParticipantService auctionParticipantService;
     private final AuctionParticipantRepository auctionParticipantRepository;
     private final AuctionKoiRepository auctionKoiRepository;
+    private final UserRepository userRepository;
 
     @Override
     public Auction createAscendingAuction(AuctionDTO auctionDTO) throws DataAlreadyExistException {
@@ -52,11 +54,15 @@ public class AuctionService implements IAuctionService {
             throw new MalformDataException("Invalid auction status name");
         }
 
+        User existingUser = userRepository.findStaffById(auctionDTO.auctioneerId())
+            .orElseThrow(() -> new DataNotFoundException("Auctioneer not found"));
+
         Auction newAuction = Auction.builder()
                 .title(auctionDTO.title())
                 .startTime(startTime)
                 .endTime(endTime)
                 .status(EAuctionStatus.valueOf(auctionDTO.statusName()))
+                .auctioneer(existingUser)
                 .build();
 
         return auctionRepository.save(newAuction);

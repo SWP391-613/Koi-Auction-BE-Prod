@@ -113,6 +113,7 @@ public class AuctionController {
             response.setStartTime(String.valueOf(newAuction.getStartTime()));
             response.setEndTime(String.valueOf(newAuction.getEndTime()));
             response.setStatus(newAuction.getStatus().getStatus());
+            response.setAuctioneerId(newAuction.getAuctioneer().getId());
             return ResponseEntity.status(201).body(response);
         }
         catch (Exception e) {

@@ -2,6 +2,7 @@ package com.swp391.koibe.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 
@@ -29,5 +30,9 @@ public record AuctionDTO (
 
     @JsonProperty("status")
     @NotBlank(message = "Status name is required")
-    String statusName
+    String statusName,
+
+    @JsonProperty("auctioneer_id")
+    @NotNull(message = "Auctioneer is requied for one Auction")
+    long auctioneerId
 ) {}

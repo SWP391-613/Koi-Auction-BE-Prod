@@ -36,4 +36,7 @@ public class AuctionResponse extends BaseResponse<Auction> {
 
     @JsonProperty("status")
     private String status;
+
+    @JsonProperty("auctioneer_id")
+    private long auctioneerId;
 }

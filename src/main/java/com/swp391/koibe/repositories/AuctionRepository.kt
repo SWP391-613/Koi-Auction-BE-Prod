@@ -12,4 +12,5 @@ interface AuctionRepository : JpaRepository<Auction, Long> {
     fun getAuctionsByEndTimeBefore(endTime: LocalDateTime): Set<Auction>
     fun getAuctionsByStartTimeBeforeAndEndTimeAfter(startTime: LocalDateTime, endTime: LocalDateTime): Set<Auction>
     fun getAuctionsByStatus(status: EAuctionStatus): Set<Auction>
+    fun findByAuctioneerId(auctioneerId: Long): List<Auction>
 }
