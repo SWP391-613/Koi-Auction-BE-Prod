@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import java.time.LocalDateTime
 
 interface AuctionRepository : JpaRepository<Auction, Long> {
-    fun findAllByStatus(status: String): List<Auction>
+    fun findAllByStatus(status: EAuctionStatus): List<Auction>
     fun existsByTitle(title: String): Boolean
     fun getAuctionsByStartTimeAfter(startTime: LocalDateTime): Set<Auction>
     fun getAuctionsByEndTimeBefore(endTime: LocalDateTime): Set<Auction>

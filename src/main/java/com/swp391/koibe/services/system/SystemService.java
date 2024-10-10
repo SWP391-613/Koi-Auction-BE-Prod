@@ -34,7 +34,7 @@ public class SystemService {
     @Scheduled(cron = "0 */10 * * * *")
     public void updateUpcomingAuctionStatus() {
         try {
-            List<Auction> auctions = auctionService.getAuctionByStatus(EAuctionStatus.UPCOMING.name());
+            List<Auction> auctions = auctionService.getAuctionByStatus(EAuctionStatus.UPCOMING);
             for (Auction auction : auctions) {
                 auctionService.updateAuctionStatus(auction.getId(), auction);
             }
@@ -47,7 +47,7 @@ public class SystemService {
     @Scheduled(cron = "0 */10 * * * *")
     public void updateOnGoingAuctionStatus() {
         try {
-            List<Auction> auctions = auctionService.getAuctionByStatus(EAuctionStatus.ONGOING.name());
+            List<Auction> auctions = auctionService.getAuctionByStatus(EAuctionStatus.ONGOING);
             for (Auction auction : auctions) {
                 auctionService.updateAuctionStatus(auction.getId(), auction);
                 updateAuctionKoiStatus(auction);
@@ -93,7 +93,7 @@ public class SystemService {
     @Scheduled(cron = "0 0 * * * *")
     public void updateDescendingAuctionPrice() {
         try {
-            List<Auction> auctions = auctionService.getAuctionByStatus(EAuctionStatus.ONGOING.name());
+            List<Auction> auctions = auctionService.getAuctionByStatus(EAuctionStatus.ONGOING);
             for (Auction auction : auctions) {
                 List<AuctionKoi> auctionKois = auctionKoiService.getAuctionKoiByAuctionIdV2(auction.getId()).stream().
                         filter(auctionKoi -> auctionKoi.getBidMethod().equals(EBidMethod.DESCENDING_BID)).

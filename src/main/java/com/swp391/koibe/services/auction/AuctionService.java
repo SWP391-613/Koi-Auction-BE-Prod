@@ -2,12 +2,16 @@ package com.swp391.koibe.services.auction;
 
 import com.swp391.koibe.dtos.AuctionDTO;
 import com.swp391.koibe.enums.EAuctionStatus;
+import com.swp391.koibe.exceptions.DeleteException;
 import com.swp391.koibe.exceptions.MalformDataException;
 import com.swp391.koibe.exceptions.base.DataAlreadyExistException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Auction;
+import com.swp391.koibe.repositories.AuctionKoiRepository;
+import com.swp391.koibe.repositories.AuctionParticipantRepository;
 import com.swp391.koibe.repositories.AuctionRepository;
 import com.swp391.koibe.responses.AuctionResponse;
+import com.swp391.koibe.services.auctionparticipant.AuctionParticipantService;
 import com.swp391.koibe.utils.DTOConverter;
 import com.swp391.koibe.utils.DateTimeUtils;
 
@@ -26,6 +30,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuctionService implements IAuctionService {
     private final AuctionRepository auctionRepository;
+    private final AuctionParticipantService auctionParticipantService;
+    private final AuctionParticipantRepository auctionParticipantRepository;
+    private final AuctionKoiRepository auctionKoiRepository;
 
     @Override
     public Auction createAscendingAuction(AuctionDTO auctionDTO) throws DataAlreadyExistException {
@@ -121,6 +128,18 @@ public class AuctionService implements IAuctionService {
     public void delete(long id) {
         Auction auction = auctionRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Auction not found"));
+
+        //check if auction has joined participants
+        if(!auctionParticipantRepository.getAuctionParticipantsByAuctionId(id).isEmpty()) {
+            throw new DeleteException("Cannot delete auction with joined participants");
+        }
+
+        //check if auction has joined koi
+         if(!auctionKoiRepository.getAuctionKoiByAuctionId(id).isEmpty()) {
+             throw new DeleteException("Cannot delete auction with joined koi");
+         }
+
+         //only delete in case auction has no joined participants, koi added
         auctionRepository.delete(auction);
     }
 
@@ -130,12 +149,12 @@ public class AuctionService implements IAuctionService {
     }
 
     @Override
-    public List<Auction> getAuctionByStatus(String status) {
-        return auctionRepository.findAllByStatus(EAuctionStatus.valueOf(status).name());
+    public List<Auction> getAuctionByStatus(EAuctionStatus status) {
+        return auctionRepository.findAllByStatus(status);
     }
 
     @Override
-    public Auction updateAuctionStatus(long auctionId, Auction auction) throws DataNotFoundException {
+    public void updateAuctionStatus(long auctionId, Auction auction) throws DataNotFoundException {
         Auction auctionToUpdate = auctionRepository.findById(auctionId)
                 .orElseThrow(() -> new DataNotFoundException("Auction not found"));
 
@@ -151,7 +170,7 @@ public class AuctionService implements IAuctionService {
             auctionToUpdate.setStatus(EAuctionStatus.ENDED);
         }
 
-        return auctionRepository.save(auctionToUpdate);
+        auctionRepository.save(auctionToUpdate);
     }
     public Set<Auction> getAuctionOnCondition(String condition) {
 //        return switch (condition) {

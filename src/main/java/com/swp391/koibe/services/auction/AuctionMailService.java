@@ -67,6 +67,7 @@ public class AuctionMailService implements IAuctionMailService {
         backoff = @Backoff(delay = 2000)       // 2 seconds delay between retries
     )
     // Scheduled method to notify all users about upcoming auctions
+    // ****** : minute, hour, day of month, month, day of week
     @Scheduled(cron = "0 0 7 * * MON,WED,FRI") // Every Monday, Wednesday, and Friday at 7:00 AM
     @Override
     public void notifyUsersAboutUpcomingAuctions() throws MessagingException {

@@ -35,9 +35,9 @@ public interface IAuctionService {
 
         List<Auction> getAllAuctions();
 
-        List<Auction> getAuctionByStatus(String status);
+        List<Auction> getAuctionByStatus(EAuctionStatus status);
 
-        Auction updateAuctionStatus(long auctionId, Auction auction) throws DataNotFoundException;
+        void updateAuctionStatus(long auctionId, Auction auction) throws DataNotFoundException;
         Set<Auction> getAuctionOnCondition(String condition);
         Set<Auction> getAuctionOnStatus(EAuctionStatus status);
 }

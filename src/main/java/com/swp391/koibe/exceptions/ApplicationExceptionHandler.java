@@ -100,4 +100,13 @@ public class ApplicationExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(DeleteException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public BaseResponse<Object> handleDeleteException(DeleteException e) {
+        return ExceptionResponse.builder()
+            .message(localizationUtils.getLocalizedMessage("exception.delete_error"))
+            .reason(e.getMessage())
+            .build();
+    }
+
 }
