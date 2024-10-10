@@ -7,6 +7,7 @@ import com.swp391.koibe.exceptions.MalformDataException;
 import com.swp391.koibe.exceptions.base.DataAlreadyExistException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Auction;
+import com.swp391.koibe.models.User;
 import com.swp391.koibe.repositories.AuctionKoiRepository;
 import com.swp391.koibe.repositories.AuctionParticipantRepository;
 import com.swp391.koibe.repositories.AuctionRepository;
@@ -51,11 +52,11 @@ public class AuctionService implements IAuctionService {
                 .anyMatch(status -> status.name().equals(auctionDTO.statusName()));
 
         if (!isValidStatus) {
-            throw new MalformDataException("Invalid auction status name");
+            throw new MalformDataException("Invalid auction status name must be UPCOMING, ONGOING or ENDED");
         }
 
         User existingUser = userRepository.findStaffById(auctionDTO.auctioneerId())
-            .orElseThrow(() -> new DataNotFoundException("Auctioneer not found"));
+            .orElseThrow(() -> new MalformDataException("Auctioneer not found"));
 
         Auction newAuction = Auction.builder()
                 .title(auctionDTO.title())

@@ -109,4 +109,13 @@ public class ApplicationExceptionHandler {
             .build();
     }
 
+    @ExceptionHandler(MalformDataException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public BaseResponse<Object> handleMalformDataException(MalformDataException e) {
+        return ExceptionResponse.builder()
+            .message(localizationUtils.getLocalizedMessage("exception.malformed_data"))
+            .reason(e.getMessage())
+            .build();
+    }
+
 }

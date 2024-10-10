@@ -4,6 +4,7 @@ import com.github.javafaker.Faker;
 import com.swp391.koibe.dtos.AuctionDTO;
 import com.swp391.koibe.enums.EAuctionStatus;
 import com.swp391.koibe.exceptions.GenerateDataException;
+import com.swp391.koibe.exceptions.MalformDataException;
 import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Auction;
@@ -117,6 +118,9 @@ public class AuctionController {
             return ResponseEntity.status(201).body(response);
         }
         catch (Exception e) {
+            if(e instanceof MalformDataException){
+                throw e;
+            }
             log.error("Error creating auction: " + e.getMessage());
             response.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(response);
