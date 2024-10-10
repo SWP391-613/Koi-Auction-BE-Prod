@@ -60,6 +60,7 @@ public class DTOConverter {
             .startTime(String.valueOf(auction.getStartTime()))
             .endTime(String.valueOf(auction.getEndTime()))
             .status(auction.getStatus() != null ? auction.getStatus().getStatus() : null)
+            .auctioneerId(auction.getAuctioneer().getId())
             .build();
     }
 

@@ -123,10 +123,15 @@ public class AuctionService implements IAuctionService {
 
         //can update the auction to any status
 
+        User existingUser = userRepository.findStaffById(auctionDTO.auctioneerId())
+            .orElseThrow(() -> new MalformDataException("Auctioneer not found"));
+
+
         auction.setTitle(auctionDTO.title());
         auction.setStartTime(startTime);
         auction.setEndTime(endTime);
         auction.setStatus(EAuctionStatus.valueOf(auctionDTO.statusName()));
+        auction.setAuctioneer(existingUser);
 
         return auctionRepository.save(auction);
     }
