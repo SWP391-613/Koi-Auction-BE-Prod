@@ -200,4 +200,12 @@ public class AuctionService implements IAuctionService {
     public Set<Auction> getAuctionOnStatus(EAuctionStatus status) {
         return auctionRepository.getAuctionsByStatus(status);
     }
+
+    @Override
+    public List<Auction> getAuctionByAuctioneerId(long auctioneerId)
+        throws DataNotFoundException {
+        userRepository.findStaffById(auctioneerId).orElseThrow(() -> new DataNotFoundException("Auctioneer not found"));
+
+        return auctionRepository.findAuctionByAuctioneerId(auctioneerId);
+    }
 }

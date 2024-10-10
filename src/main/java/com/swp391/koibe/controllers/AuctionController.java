@@ -11,8 +11,10 @@ import com.swp391.koibe.models.Auction;
 import com.swp391.koibe.responses.AuctionResponse;
 import com.swp391.koibe.services.auction.IAuctionMailService;
 import com.swp391.koibe.services.auction.IAuctionService;
+import com.swp391.koibe.utils.DTOConverter;
 import jakarta.validation.Valid;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -83,6 +85,32 @@ public class AuctionController {
             throw new DataNotFoundException();
         }
     }
+
+    @GetMapping("/staff")
+    public ResponseEntity<?> getAuctionHandledByStaff(
+        @RequestParam long id
+    ){
+        if(id <= 0){
+            throw new MalformDataException("Invalid staff id, staff id must greater than 0");
+        }
+        try{
+            //convert to List<AuctionResponse>
+            List<AuctionResponse> auctionDTOs = auctionService
+                .getAuctionByAuctioneerId(id)
+                .stream()
+                .map(DTOConverter::convertToAuctionDTO)
+                .collect(Collectors.toList());
+
+            return ResponseEntity.ok(auctionDTOs);
+        }catch (Exception e){
+            log.error("Error getting auction handled by staff: " + e.getMessage());
+            if(e instanceof DataNotFoundException){
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<AuctionResponse> getAuctionById(@PathVariable long id) {
