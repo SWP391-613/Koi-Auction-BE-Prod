@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface IAuctionKoiService {
     AuctionKoi createAuctionKoi(AuctionKoiDTO auctionKoiDTO) throws DataNotFoundException;
+    AuctionKoi createAuctionKoiV2(AuctionKoi auctionKoi) throws DataNotFoundException;
     AuctionKoi getAuctionKoiById(long id) throws DataNotFoundException;
     AuctionKoiResponse getAuctionKoiResponeById(long id) throws DataNotFoundException;
     List<AuctionKoiResponse> getAuctionKoiByAuctionId(long id);

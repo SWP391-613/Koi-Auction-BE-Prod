@@ -48,7 +48,7 @@ public class Koi extends BaseEntity{
     //koi properties
 
     @Column(name = "base_price") // Negotiated with Koi Breeder
-    private Float price;
+    private Long price;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")

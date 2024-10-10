@@ -35,6 +35,7 @@ public class OrderService implements IOrderService{
     private final KoiRepository koiRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final ModelMapper modelMapper;
+    private final IOrderMailService orderMailService;
 
     @Override
     @Transactional
@@ -86,8 +87,8 @@ public class OrderService implements IOrderService{
             orderDetail.setKoi(koi);
             orderDetail.setNumberOfProducts(quantity);
             // Các trường khác của OrderDetail nếu cần
-            orderDetail.setPrice(koi.getPrice());
-            orderDetail.setTotalMoney(koi.getPrice() * quantity); // Tính tổng tiền
+            orderDetail.setPrice((float)koi.getPrice());
+            orderDetail.setTotalMoney((float)koi.getPrice() * quantity); // Tính tổng tiền
 
             // Thêm OrderDetail vào danh sách
             orderDetails.add(orderDetail);

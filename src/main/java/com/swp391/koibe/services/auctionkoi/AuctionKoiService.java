@@ -94,6 +94,11 @@ public class AuctionKoiService implements IAuctionKoiService {
     }
 
     @Override
+    public AuctionKoi createAuctionKoiV2(AuctionKoi auctionKoi) throws DataNotFoundException {
+        return auctionKoiRepository.save(auctionKoi);
+    }
+
+    @Override
     public AuctionKoi getAuctionKoiById(long id) throws DataNotFoundException {
         return auctionKoiRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Auction Koi not found"));

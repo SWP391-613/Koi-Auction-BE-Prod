@@ -14,7 +14,7 @@ public record KoiDTO(
     String name,
 
     @NotNull(message = "Koi price is required")
-    @JsonProperty("price") float price,
+    @JsonProperty("price") long price,
 
     @NotBlank(message = "Koi status is required")
     @Pattern(regexp = "UNVERIFIED|VERIFIED|REJECTED|PENDING|SOLD", message = "Status must be either UNVERIFIED, VERIFIED, REJECTED, PENDING, SOLD")

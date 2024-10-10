@@ -12,7 +12,9 @@ import com.swp391.koibe.responses.BidResponse;
 import com.swp391.koibe.services.Biddable;
 import com.swp391.koibe.services.auctionkoi.IAuctionKoiService;
 import com.swp391.koibe.services.auctionparticipant.IAuctionParticipantService;
+import com.swp391.koibe.services.order.IOrderMailService;
 import com.swp391.koibe.services.order.IOrderService;
+import com.swp391.koibe.services.orderdetail.IOrderDetailService;
 import com.swp391.koibe.services.orderdetail.OrderDetailService;
 import com.swp391.koibe.services.token.ITokenService;
 import com.swp391.koibe.services.user.IUserService;
@@ -24,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -44,7 +47,10 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
     private final IAuctionParticipantService auctionParticipantService;
 
     private final IOrderService orderService;
-    private final OrderDetailService orderDetailService;
+
+    private final IOrderDetailService orderDetailService;
+
+    private final IOrderMailService orderMailService;
 
     @Override
     public Bid createBidHistory(Bid bid) throws DataNotFoundException {
@@ -232,6 +238,10 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
                 .bidTime(bid.getBidTime().toString())
                 .build();
 
+        if (auctionKoi.isSold()) {
+            createOrderForAuctionKoi(auctionKoi, bidder);
+        }
+
         return bidResponse;
     }
 
@@ -287,12 +297,14 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
                 .email(bidder.getEmail())
                 .status(OrderStatus.PENDING)
                 .address(bidder.getAddress())
-                .phoneNumber(bidder.getPhoneNumber())
+                .phoneNumber(bidder.getPhoneNumber() == null ? "" : bidder.getPhoneNumber())
                 .totalMoney(499.99F)
                 .shippingMethod("Standard")
                 .shippingAddress(bidder.getAddress())
                 .shippingDate(LocalDate.now())
                 .paymentMethod("Cash")
+                .orderDate(LocalDate.now())
+                .active(true)
                 .build();
 
         OrderDetail orderDetail = OrderDetail.builder()
@@ -306,5 +318,8 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
         order.setOrderDetails(List.of(orderDetail));
         orderService.createOrder(order);
         orderDetailService.createOrderDetail(orderDetail);
+        // send email to bidder
+        Context context = new Context();
+        orderMailService.sendOrderCreatedEmailToUser(order, "Order Created Successfully", "orderCreated", context);
     }
 }
