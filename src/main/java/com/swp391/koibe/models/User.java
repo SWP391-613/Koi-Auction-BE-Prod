@@ -1,5 +1,7 @@
 package com.swp391.koibe.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.swp391.koibe.enums.UserStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -39,46 +41,60 @@ public class User extends BaseEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @JsonProperty("id")
     private Long id;
 
     @Column(name="first_name", length = 100)
+    @JsonProperty("first_name")
     private String firstName;
 
     @Column(name="last_name", length = 100)
+    @JsonProperty("last_name")
     private String lastName;
 
     @Column(name="phone_number", length = 20)
+    @JsonProperty("phone_number")
     private String phoneNumber;
 
     @Column(name="email",nullable = false, length = 100)
+    @JsonProperty("email")
     private String email;
 
     @Column(name="address", length = 200)
+    @JsonProperty("address")
     private String address;
 
     @Column(name="password", length = 200)
+    @JsonProperty("password")
     private String password;
 
     @Transient //do not save to database, check if needed
+    @JsonIgnore
     private String confirmPassword;
 
     @Column(name="is_active", columnDefinition = "TINYINT(1) DEFAULT 1")
+    @JsonProperty("is_active")
     private boolean isActive;
 
     @Column(name="is_subscription", columnDefinition = "TINYINT(1) DEFAULT 0")
+    @JsonProperty("is_subscription")
     private boolean isSubscription;
 
     @Enumerated(EnumType.STRING)
     @Column(name="status")
+    @JsonProperty("status")
     private UserStatus status;
 
     @Column(name="date_of_birth")
+    @JsonProperty("date_of_birth")
     private Date dob;
 
     @Column(name="avatar_url")
+    @JsonProperty("avatar_url")
     private String avatarUrl;
 
     @Column(name="google_account_id", columnDefinition = "INT(11)")
+    @JsonProperty("google_account_id")
     private int googleAccountId;
 
     @ManyToOne
@@ -86,6 +102,7 @@ public class User extends BaseEntity implements UserDetails {
     private Role role;
 
     @Column(name="account_balance", columnDefinition = "BIGINT(20) DEFAULT 0")
+    @JsonProperty("account_balance")
     private long accountBalance;
 
 //    @ManyToOne

@@ -138,4 +138,13 @@ public class ApplicationExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(PermissionDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public BaseResponse<Object> handlePermissionDeniedException(PermissionDeniedException e) {
+        return ExceptionResponse.builder()
+            .message(localizationUtils.getLocalizedMessage("exception.permission_denied"))
+            .reason(e.getMessage())
+            .build();
+    }
+
 }

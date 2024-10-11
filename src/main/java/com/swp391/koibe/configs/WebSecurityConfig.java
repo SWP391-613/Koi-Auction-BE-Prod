@@ -131,6 +131,8 @@ public class WebSecurityConfig {
                     //StaffController: all route need to verify JWT Token
                     .requestMatchers(GET,
                                      String.format("%s/staffs**", apiPrefix)).hasAnyRole(Role.MANAGER)
+                    .requestMatchers(POST,
+                                    String.format("%s/staffs**", apiPrefix)).hasAnyRole(Role.MANAGER)
                     .requestMatchers(PUT,
                                     String.format("%s/staffs**", apiPrefix)).hasAnyRole(Role.MANAGER, Role.STAFF)
                     .requestMatchers(DELETE,

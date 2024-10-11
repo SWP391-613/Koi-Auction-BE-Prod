@@ -16,7 +16,7 @@ public class DTOConverter {
             .phoneNumber(user.getPhoneNumber())
             .email(user.getEmail())
             .address(user.getAddress())
-            //.password(user.getPassword())
+            .password(user.getPassword())
             .isActive(user.isActive() ? 1 : 0)
             .isSubscription(user.isSubscription() ? 1 : 0)
             .statusName(user.getStatus() != null ? user.getStatus().getStatus() : null)
