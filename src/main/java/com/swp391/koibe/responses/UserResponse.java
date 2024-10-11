@@ -25,7 +25,7 @@ public class UserResponse {
     @JsonProperty("phone_number")
     private String phoneNumber;
 
-    @JsonProperty("emails")
+    @JsonProperty("email")
     private String email;
 
     @JsonProperty("address")

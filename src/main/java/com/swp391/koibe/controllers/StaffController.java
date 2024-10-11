@@ -2,6 +2,7 @@ package com.swp391.koibe.controllers;
 
 import com.swp391.koibe.models.User;
 import com.swp391.koibe.responses.UserResponse;
+import com.swp391.koibe.responses.pagination.UserPaginationResponse;
 import com.swp391.koibe.services.user.staff.IStaffService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,14 +23,19 @@ public class StaffController {
     private final IStaffService staffService;
 
     @GetMapping("")
-    public ResponseEntity<List<UserResponse>> getAllStaffs(
+    public ResponseEntity<UserPaginationResponse> getAllStaffs(
         @RequestParam("page") int page,
         @RequestParam("limit") int limit
     ) {
         try {
             PageRequest pageRequest = PageRequest.of(page, limit);
             Page<UserResponse> staffs = staffService.getAllStaffs(pageRequest);
-            return ResponseEntity.ok(staffs.getContent());
+
+            UserPaginationResponse response = new UserPaginationResponse();
+            response.setItem(staffs.getContent());
+            response.setTotalPage(staffs.getTotalPages());
+            response.setTotalItem(staffs.getTotalElements());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
         }

@@ -43,7 +43,7 @@ public class BreederController {
 
             // Create a UserPaginationResponse object and set its properties
             UserPaginationResponse response = new UserPaginationResponse();
-            response.setItems(breeders.getContent()); // Set the list of UserResponse
+            response.setItem(breeders.getContent()); // Set the list of UserResponse
             response.setTotalPage(breeders.getTotalPages()); // Set the total pages
             response.setTotalItem(breeders.getTotalElements()); // Set the total items
 //            response.setPerPage(limit); // Set the current page
@@ -85,7 +85,7 @@ public class BreederController {
         try {
             PageRequest pageRequest = PageRequest.of(page, limit);
             Page<KoiResponse> koiList = breederService.getKoisByBreederID(breeder_id, pageRequest);
-            response.setItems(koiList.getContent());
+            response.setItem(koiList.getContent());
             response.setTotalPage(koiList.getTotalPages());
             response.setTotalItem(koiList.getTotalElements());
             return ResponseEntity.ok(response);

@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 @Data
 public class KoiPaginationResponse extends BasePaginationResponse {
 
-    @JsonProperty("items")
-    private List<KoiResponse> items;
+    @JsonProperty("item")
+    private List<KoiResponse> item;
 
 }

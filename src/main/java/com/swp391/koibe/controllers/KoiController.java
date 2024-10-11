@@ -28,6 +28,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -88,7 +89,7 @@ public class KoiController {
     //pagination kois
     @GetMapping("") //kois/?page=0&limit=10
     public ResponseEntity<KoiPaginationResponse> getAllKois(
-        @RequestParam("page") int page,
+        @RequestParam(defaultValue = "0") int page,
         @RequestParam("limit") int limit
     ) {
 
@@ -97,7 +98,7 @@ public class KoiController {
         try{
             PageRequest pageRequest = PageRequest.of(page, limit);
             Page<KoiResponse> kois = koiService.getAllKois(pageRequest);
-            response.setItems(kois.getContent());
+            response.setItem(kois.getContent());
             response.setTotalPage(kois.getTotalPages());
             response.setTotalItem(kois.getTotalElements());
             return ResponseEntity.ok(response);
@@ -117,6 +118,7 @@ public class KoiController {
 
     //upload koi image
     @PostMapping(value = "")
+    @PreAuthorize("hasRole('ROLE_BREEDER')")
     public ResponseEntity<?> createProduct(
         @Valid @RequestBody KoiDTO koiDTO,
         //@ModelAttribute("files") List<MultipartFile> files,
@@ -139,6 +141,7 @@ public class KoiController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_BREEDER', 'ROLE_MANAGER', 'ROLE_STAFF')")
     public ResponseEntity<KoiResponse> updateProduct(
         @PathVariable("id") Long koiId,
         @Valid @RequestBody KoiDTO koiDTO,
@@ -159,6 +162,7 @@ public class KoiController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_BREEDER', 'ROLE_MANAGER', 'ROLE_STAFF')")
     public ResponseEntity<?> deleteProduct(@PathVariable("id") Long koiId) {
         try {
             koiService.deleteKoi(koiId);
@@ -169,6 +173,7 @@ public class KoiController {
     }
 
     @PostMapping(value = "uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ROLE_BREEDER')")
     public ResponseEntity<?> uploadImages(
         @PathVariable("id") Long koiId,
         @ModelAttribute("files") List<MultipartFile> files

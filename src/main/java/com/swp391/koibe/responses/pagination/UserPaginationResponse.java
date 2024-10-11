@@ -17,5 +17,5 @@ import java.util.List;
 public class UserPaginationResponse extends BasePaginationResponse {
 
     @JsonProperty("item")
-    private List<UserResponse> items; // List of users
+    private List<UserResponse> item; // List of users
 }
