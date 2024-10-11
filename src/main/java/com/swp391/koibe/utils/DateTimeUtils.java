@@ -1,8 +1,11 @@
 package com.swp391.koibe.utils;
 
 import com.swp391.koibe.exceptions.MalformDataException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 public class DateTimeUtils {
 
@@ -40,6 +43,16 @@ public class DateTimeUtils {
         if (startTime.plusDays(2).isAfter(endTime)) {
             throw new MalformDataException("Auction range must last at least 2 days");
         }
+    }
+
+    public static Date convertFromString (String date) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            return formatter.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

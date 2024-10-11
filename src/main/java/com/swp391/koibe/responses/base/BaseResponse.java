@@ -9,13 +9,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.http.ResponseEntity;
 
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class BaseResponse<T> {
+public class BaseResponse<T>  {
 
     protected String message;
     protected String reason;

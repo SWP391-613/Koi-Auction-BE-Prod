@@ -8,6 +8,7 @@ import com.swp391.koibe.responses.base.BaseResponse;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -15,7 +16,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.context.request.WebRequest;
 
+@Slf4j
 @RestControllerAdvice
 @RequiredArgsConstructor
 public class ApplicationExceptionHandler {
@@ -52,6 +56,9 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public BaseResponse<Object> handleException(Exception e) {
+
+        log.error("Internal server error: ", e);
+
         return ExceptionResponse.builder()
             .message(localizationUtils.getLocalizedMessage("exception.internal_server_error"))
             .reason(e.getMessage())
@@ -116,6 +123,19 @@ public class ApplicationExceptionHandler {
             .message(localizationUtils.getLocalizedMessage("exception.malformed_data"))
             .reason(e.getMessage())
             .build();
+    }
+
+    @ExceptionHandler(JwtAuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public ResponseEntity<Object> handleJwtAuthenticationException(JwtAuthenticationException ex, WebRequest request) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", System.currentTimeMillis());
+        body.put("status", HttpStatus.UNAUTHORIZED.value());
+        body.put("error", "Unauthorized");
+        body.put("message", ex.getMessage());
+        body.put("path", ((ServletWebRequest) request).getRequest().getRequestURI());
+        return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
     }
 
 }

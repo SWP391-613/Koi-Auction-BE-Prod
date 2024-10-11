@@ -1,6 +1,7 @@
 package com.swp391.koibe.filters;
 
 import com.swp391.koibe.components.JwtTokenUtils;
+import com.swp391.koibe.exceptions.JwtAuthenticationException;
 import com.swp391.koibe.models.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,10 +31,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final JwtTokenUtils jwtTokenUtil;
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
+    protected void doFilterInternal(
+        @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain)
-            throws ServletException, IOException {
+            throws ServletException, IOException, JwtAuthenticationException {
         try {
             if (isBypassToken(request)) {
                 filterChain.doFilter(request, response); // enable bypass
@@ -86,11 +88,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/categories", apiPrefix), "PUT"), //add security later
                 Pair.of(String.format("%s/categories", apiPrefix), "DELETE"), //add security later
 
-                //StaffController
-                Pair.of(String.format("%s/staffs", apiPrefix), "GET"),
-                Pair.of(String.format("%s/staffs", apiPrefix), "POST"),
-                Pair.of(String.format("%s/staffs", apiPrefix), "PUT"),
-                Pair.of(String.format("%s/staffs", apiPrefix), "DELETE"),
+                //StaffController: all route need to be protected
 
                 //ManagerController
                 Pair.of(String.format("%s/managers", apiPrefix), "GET"),

@@ -128,6 +128,13 @@ public class WebSecurityConfig {
                     .requestMatchers(DELETE,
                                         String.format("%s/kois**", apiPrefix)).hasAnyRole(Role.BREEDER, Role.MANAGER, Role.STAFF)
 
+                    //StaffController: all route need to verify JWT Token
+                    .requestMatchers(GET,
+                                     String.format("%s/staffs**", apiPrefix)).hasAnyRole(Role.MANAGER)
+                    .requestMatchers(PUT,
+                                    String.format("%s/staffs**", apiPrefix)).hasAnyRole(Role.MANAGER, Role.STAFF)
+                    .requestMatchers(DELETE,
+                                    String.format("%s/staffs**", apiPrefix)).hasAnyRole(Role.MANAGER)
 
                     .anyRequest().authenticated();
 
