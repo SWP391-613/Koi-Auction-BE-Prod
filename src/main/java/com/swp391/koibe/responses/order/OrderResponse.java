@@ -1,5 +1,6 @@
 package com.swp391.koibe.responses.order;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.swp391.koibe.models.Order;
 import com.swp391.koibe.models.OrderDetail;
@@ -62,6 +63,10 @@ public class OrderResponse {
     @JsonProperty("payment_method")
     private String paymentMethod;
 
+    @JsonProperty("tracking_number")
+    private String trackingNumber;
+
     @JsonProperty("order_details")
+    @JsonIgnore
     private List<OrderDetail> orderDetails;
 }

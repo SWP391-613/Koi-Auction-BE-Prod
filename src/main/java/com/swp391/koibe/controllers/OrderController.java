@@ -58,7 +58,7 @@ public class OrderController {
     //GET http://localhost:4000/api/v1/orders/user/4
     public ResponseEntity<?> getOrders(@Valid @PathVariable("user_id") Long userId) {
         try {
-            List<Order> orders = orderService.findByUserId(userId);
+            List<OrderResponse> orders = orderService.findByUserId(userId);
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
 

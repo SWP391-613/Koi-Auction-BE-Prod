@@ -18,6 +18,9 @@ import com.swp391.koibe.repositories.UserRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.swp391.koibe.responses.order.OrderResponse;
+import com.swp391.koibe.utils.DTOConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -169,13 +172,15 @@ public class OrderService implements IOrderService{
         orderRepository.save(order);
     }
     @Override
-    public List<Order> findByUserId(Long userId) {
+    public List<OrderResponse> findByUserId(Long userId) {
         List<Order> orders = orderRepository.findByUserId(userId);
-
+        List<OrderResponse> list = new ArrayList<>();
         if(orders.isEmpty())
             throw new DataNotFoundException("Cannot find order with user id: " + userId);
-
-        return orders;
+        for (Order order : orders) {
+            list.add(DTOConverter.fromOrder(order));
+        }
+        return list;
     }
 
     @Override
