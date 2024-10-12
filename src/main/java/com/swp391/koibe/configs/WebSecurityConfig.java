@@ -114,9 +114,18 @@ public class WebSecurityConfig {
                                      String.format("%s/orders**", apiPrefix)).permitAll()
 
                     .requestMatchers(GET,
-                                     String.format("%s/orders-details**", apiPrefix)).permitAll()
+                                     String.format("%s/orders_details**", apiPrefix)).permitAll()
                     .requestMatchers(POST,
-                                     String.format("%s/orders-details**", apiPrefix)).permitAll()
+                                     String.format("%s/orders_details**", apiPrefix))
+                                    .hasAnyRole(Role.BREEDER, Role.MANAGER, Role.STAFF)
+                    .requestMatchers(PUT,
+                                     String.format("%s/orders_details**", apiPrefix))
+                    .hasAnyRole(Role.BREEDER, Role.MANAGER, Role.STAFF)
+
+                    .requestMatchers(DELETE,
+                                     String.format("%s/orders_details**", apiPrefix))
+                    .hasAnyRole(Role.BREEDER, Role.MANAGER, Role.STAFF)
+
 
                     .requestMatchers(GET,
                                      String.format("%s/kois**", apiPrefix)).permitAll()

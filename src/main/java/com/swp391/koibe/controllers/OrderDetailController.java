@@ -34,7 +34,7 @@ public class OrderDetailController {
 
     //Thêm mới 1 order detail
     @PostMapping("")
-    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_MEMBER')")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_BREEDER', 'ROLE_STAFF')")
     public ResponseEntity<?> createOrderDetail(
         @Valid @RequestBody OrderDetailDTO orderDetailDTO) {
         try {
@@ -65,8 +65,8 @@ public class OrderDetailController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_BREEDER', 'ROLE_STAFF')")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") })
-    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_MEMBER')")
     public ResponseEntity<?> updateOrderDetail(
         @Valid @PathVariable("id") Long id,
         @RequestBody OrderDetailDTO orderDetailDTO) {
@@ -80,7 +80,7 @@ public class OrderDetailController {
 
     @DeleteMapping("/{id}")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") })
-    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_MEMBER')")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_BREEDER', 'ROLE_STAFF')")
     public ResponseEntity<?> deleteOrderDetail(
         @Valid @PathVariable("id") Long id) {
         orderDetailService.deleteById(id);

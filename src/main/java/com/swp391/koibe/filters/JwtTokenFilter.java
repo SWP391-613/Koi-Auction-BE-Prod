@@ -132,7 +132,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
                 //OrderDetail
                 Pair.of(String.format("%s/orders_details", apiPrefix), "GET"),
-                Pair.of(String.format("%s/orders_details", apiPrefix), "POST"),
 
                 //Swagger
                 Pair.of("/api-docs","GET"),
