@@ -1,13 +1,10 @@
 package com.swp391.koibe.responses;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.swp391.koibe.models.Koi;
 import com.swp391.koibe.responses.base.BaseResponse;
-import java.util.Date;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -31,10 +28,10 @@ public class KoiResponse extends BaseResponse<Koi> {
     private String sex;
 
     @JsonProperty("length")
-    private int length;
+    private Integer length;
 
     @JsonProperty("age")
-    private int age;
+    private Integer age;
 
     @JsonProperty("base_price")
     private Long price;
@@ -43,7 +40,7 @@ public class KoiResponse extends BaseResponse<Koi> {
     private String statusName;
 
     @JsonProperty("is_display")
-    private int idDisplay;
+    private Integer idDisplay;
 
     @JsonProperty("thumbnail")
     private String thumbnail;
@@ -52,9 +49,9 @@ public class KoiResponse extends BaseResponse<Koi> {
     private String description;
 
     @JsonProperty("owner_id")
-    private long ownerId;
+    private Long ownerId;
 
     @JsonProperty("category_id")
-    private int categoryId;
+    private Integer categoryId;
 
 }

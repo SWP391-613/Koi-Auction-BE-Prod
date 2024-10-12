@@ -1,6 +1,6 @@
 package com.swp391.koibe.services.user.breeder;
 
-import com.swp391.koibe.dtos.KoiDTO;
+import com.swp391.koibe.dtos.koi.KoiDTO;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.User;
 import com.swp391.koibe.responses.KoiResponse;

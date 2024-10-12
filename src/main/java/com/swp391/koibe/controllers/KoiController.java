@@ -1,15 +1,19 @@
 package com.swp391.koibe.controllers;
 
 import com.swp391.koibe.constants.ErrorMessage;
-import com.swp391.koibe.dtos.KoiDTO;
 import com.swp391.koibe.dtos.KoiImageDTO;
+import com.swp391.koibe.dtos.koi.KoiDTO;
+import com.swp391.koibe.dtos.koi.UpdateKoiDTO;
 import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.models.Koi;
 import com.swp391.koibe.models.KoiImage;
+import com.swp391.koibe.models.User;
 import com.swp391.koibe.repositories.KoiRepository;
 import com.swp391.koibe.responses.KoiResponse;
 import com.swp391.koibe.responses.pagination.KoiPaginationResponse;
 import com.swp391.koibe.services.koi.IKoiService;
+import com.swp391.koibe.services.user.IUserService;
+import com.swp391.koibe.utils.DTOConverter;
 import jakarta.validation.Valid;
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +35,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -39,6 +42,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,6 +56,7 @@ public class KoiController {
 
     private final IKoiService<KoiResponse> koiService;
     private final KoiRepository koiRepository;
+    private final IUserService userService;
 
 //    @PostMapping("/generateFakeKois")
 //    private ResponseEntity<String> generateFakeKois() {
@@ -116,13 +121,13 @@ public class KoiController {
         }
     }
 
-    //upload koi image
     @PostMapping(value = "")
     @PreAuthorize("hasRole('ROLE_BREEDER')")
-    public ResponseEntity<?> createProduct(
+    public ResponseEntity<KoiResponse> createNewKoi(
         @Valid @RequestBody KoiDTO koiDTO,
         //@ModelAttribute("files") List<MultipartFile> files,
         //@RequestPart("file") MultipartFile file,
+        @RequestHeader("Authorization") String authorizationHeader,
         BindingResult result
     ) {
 
@@ -130,13 +135,19 @@ public class KoiController {
             throw new MethodArgumentNotValidException(result);
         }
 
+        KoiResponse response = new KoiResponse();
+
         try {
+            String extractedToken = authorizationHeader.substring(7); // Loại bỏ "Bearer " từ chuỗi token
+            User breeder = userService.getUserDetailsFromToken(extractedToken);
+
             //need to save the product first to get the product id, get the id and add the image
-            Koi newProduct = koiService.createKoi(koiDTO);
-//            productService.createProduct(koiDTO);
-            return ResponseEntity.ok(newProduct);
+            Koi newKoi = koiService.createKoi(koiDTO, breeder.getId());
+            return ResponseEntity.ok(DTOConverter.convertToKoiDTO(newKoi));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.setMessage("Error creating new koi");
+            response.setReason(e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
 
@@ -144,7 +155,7 @@ public class KoiController {
     @PreAuthorize("hasAnyRole('ROLE_BREEDER', 'ROLE_MANAGER', 'ROLE_STAFF')")
     public ResponseEntity<KoiResponse> updateProduct(
         @PathVariable("id") Long koiId,
-        @Valid @RequestBody KoiDTO koiDTO,
+        @Valid @RequestBody UpdateKoiDTO updateKoiDTO,
         BindingResult result
     ) {
 
@@ -153,7 +164,7 @@ public class KoiController {
         }
         KoiResponse updatedKoi = new KoiResponse();
         try {
-            updatedKoi = koiService.updateKoi(koiId, koiDTO);
+            updatedKoi = koiService.updateKoi(koiId, updateKoiDTO);
             return ResponseEntity.ok(updatedKoi);
         } catch (Exception e) {
             updatedKoi.setMessage(e.getMessage());

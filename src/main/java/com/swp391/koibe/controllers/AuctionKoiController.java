@@ -1,16 +1,11 @@
 package com.swp391.koibe.controllers;
 
-import com.swp391.koibe.dtos.KoiDTO;
 import com.swp391.koibe.dtos.auctionkoi.AuctionKoiDTO;
 import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
-import com.swp391.koibe.enums.EBidMethod;
-import com.swp391.koibe.enums.EKoiStatus;
 import com.swp391.koibe.exceptions.GenerateDataException;
 import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
-import com.swp391.koibe.models.Auction;
 import com.swp391.koibe.models.AuctionKoi;
-import com.swp391.koibe.models.Koi;
 import com.swp391.koibe.responses.AuctionKoiResponse;
 import com.swp391.koibe.services.auction.IAuctionService;
 import com.swp391.koibe.services.auctionkoi.IAuctionKoiService;

@@ -1,8 +1,9 @@
 package com.swp391.koibe.services.koi;
 
 import com.swp391.koibe.constants.ErrorMessage;
-import com.swp391.koibe.dtos.KoiDTO;
+import com.swp391.koibe.dtos.koi.KoiDTO;
 import com.swp391.koibe.dtos.KoiImageDTO;
+import com.swp391.koibe.dtos.koi.UpdateKoiDTO;
 import com.swp391.koibe.enums.EKoiStatus;
 import com.swp391.koibe.exceptions.InvalidParamException;
 import com.swp391.koibe.exceptions.base.DataAlreadyExistException;
@@ -35,15 +36,21 @@ public class KoiService implements IKoiService<KoiResponse> {
     private final KoiImageRepository koiImageRepository;
 
     @Override
-    public Koi createKoi(KoiDTO koiDTO) throws DataNotFoundException {
+    public Koi createKoi(KoiDTO koiDTO, long breederId) throws Exception {
+        //breeder cannot create other breeder's koi
+        if(breederId != koiDTO.ownerId()){
+            throw new InvalidParamException(ErrorMessage.BREEDER_CANNOT_CREATE_OTHER_BREEDER_KOI);
+        }
+
         // check if koi already existed
         if (koiRepository.existsByName(koiDTO.name())) {
             throw new DataAlreadyExistException("Koi already existed: " + koiDTO.name());
         }
 
-        User existedUser = userRepository.findById(koiDTO.ownerId())
+        //breeder create their own koi
+        User existedUser = userRepository.findBreederById(koiDTO.ownerId())
             .orElseThrow(() ->
-                             new DataNotFoundException("User not found: " + koiDTO.ownerId()));
+                             new DataNotFoundException("Breeder not found: " + koiDTO.ownerId()));
 
         Category existedCategory = categoryRepository.findById(koiDTO.categoryId())
             .orElseThrow(() ->
@@ -52,13 +59,13 @@ public class KoiService implements IKoiService<KoiResponse> {
         Koi newKoi = Koi.builder()
             .name(koiDTO.name())
             .price(koiDTO.price())
-            .status(EKoiStatus.valueOf(koiDTO.trackingStatus()))
-            .isDisplay(koiDTO.isDisplay())
+            .status(EKoiStatus.UNVERIFIED) //default when create a new koi, breeder need to wait staff verify
+            .isDisplay(0) //default when create a new koi, breeder need to wait staff verify then turn to 1
             .thumbnail(koiDTO.thumbnail())
             .sex(koiDTO.sex())
             .length(koiDTO.length())
             .age(koiDTO.age())
-            .description(koiDTO.description())
+            .description(koiDTO.description() == null ? "Not provided" : koiDTO.description())
             .owner(existedUser)
             .category(existedCategory)
             .build();
@@ -81,7 +88,7 @@ public class KoiService implements IKoiService<KoiResponse> {
     }
 
     @Override
-    public KoiResponse updateKoi(long id, KoiDTO koiDTO) {
+    public KoiResponse updateKoi(long id, UpdateKoiDTO koiDTO) {
         //find if koi exist
         Koi existingKoi = koiRepository.findById(id)
             .orElseThrow(() -> new DataNotFoundException("Koi not found: " + id));

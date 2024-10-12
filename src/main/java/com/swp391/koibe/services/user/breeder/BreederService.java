@@ -1,6 +1,6 @@
 package com.swp391.koibe.services.user.breeder;
 
-import com.swp391.koibe.dtos.KoiDTO;
+import com.swp391.koibe.dtos.koi.KoiDTO;
 import com.swp391.koibe.enums.EKoiStatus;
 import com.swp391.koibe.exceptions.BreederNotFoundException;
 import com.swp391.koibe.exceptions.MalformDataException;
@@ -16,6 +16,7 @@ import com.swp391.koibe.responses.UserResponse;
 import com.swp391.koibe.utils.DTOConverter;
 import com.swp391.koibe.utils.FilterUtils;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -65,41 +66,35 @@ public class BreederService implements IBreederService {
     @Override
     public KoiResponse createKoi(Integer categoryId, KoiDTO koiDTO, long breederId) {
 
-        Optional<User> existingBreeder = userRepository.findById(breederId);
+        User existingBreeder = userRepository.findBreederById(koiDTO.ownerId())
+            .orElseThrow(() ->
+                             new BreederNotFoundException("Breeder not found: " + koiDTO.ownerId()));
+
         Optional<Category> existingCategory = categoryRepository.findById(categoryId);
-        if (existingBreeder.isEmpty()) {
-            throw new BreederNotFoundException("Breeder not found");
-        }
-
-        if(existingBreeder.get().getRole().getId() != 3){
-            throw new BreederNotFoundException("Breeder not found");
-        }
-
         if (existingCategory.isEmpty()) {
             throw new DataNotFoundException("Category not found");
         }
 
         if (koiDTO.ownerId() != breederId) {
-            throw new MalformDataException("Owner id not match");
+            throw new MalformDataException("Owner id not match with current breederId");
         }
 
-        if (koiDTO.categoryId() != categoryId) {
+        if (!Objects.equals(koiDTO.categoryId(), categoryId)) {
             throw new MalformDataException("Category id not match");
         }
 
         Koi newKoi = Koi.builder()
             .name(koiDTO.name())
             .price(koiDTO.price())
-            .status(EKoiStatus.valueOf(koiDTO.trackingStatus()))
-            .owner(userRepository.findById(breederId).get())
-            .isDisplay(koiDTO.isDisplay())
+            .status(EKoiStatus.UNVERIFIED)
+            .isDisplay(0)
             .thumbnail(koiDTO.thumbnail())
             .sex(koiDTO.sex())
             .length(koiDTO.length())
             .age(koiDTO.age())
-            .description(koiDTO.description())
+            .description(koiDTO.description() == null ? "Not provided" : koiDTO.description())
             .category(existingCategory.get())
-            .owner(existingBreeder.get())
+            .owner(existingBreeder)
             .build();
 
         return DTOConverter.convertToKoiDTO(koiRepository.save(newKoi));

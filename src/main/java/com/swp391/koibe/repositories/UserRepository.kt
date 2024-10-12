@@ -16,4 +16,6 @@ interface UserRepository : JpaRepository<User, Long> {
     fun findByRoleId(roleId: Long): List<User>
     @Query("SELECT u FROM User u WHERE u.id = :id AND u.role.id = 2")
     fun findStaffById(id: Long): Optional<User>
+    @Query("SELECT u FROM User u WHERE u.id = :id AND u.role.id = 3")
+    fun findBreederById(id: Long): Optional<User>
 }

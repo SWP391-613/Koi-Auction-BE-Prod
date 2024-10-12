@@ -1,4 +1,4 @@
-package com.swp391.koibe.dtos;
+package com.swp391.koibe.dtos.koi;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Max;
@@ -8,13 +8,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 
-public record KoiDTO(
+public record UpdateKoiDTO(
     @JsonProperty("name")
     @NotBlank(message = "Koi name is required")
     String name,
 
     @NotNull(message = "Koi price is required")
-    @JsonProperty("price") long price,
+    @JsonProperty("base_price") long price,
 
     @NotBlank(message = "Koi status is required")
     @Pattern(regexp = "UNVERIFIED|VERIFIED|REJECTED|PENDING|SOLD", message = "Status must be either UNVERIFIED, VERIFIED, REJECTED, PENDING, SOLD")
