@@ -166,23 +166,26 @@ public class AuctionService implements IAuctionService {
     }
 
     @Override
-    public void updateAuctionStatus(long auctionId, Auction auction) throws DataNotFoundException {
+    public boolean updateAuctionStatus(long auctionId, Auction auction) throws DataNotFoundException {
         Auction auctionToUpdate = auctionRepository.findById(auctionId)
                 .orElseThrow(() -> new DataNotFoundException("Auction not found"));
-
+        boolean isUpdated = false;
         if (auctionToUpdate.getStatus().equals((EAuctionStatus.UPCOMING))) {
             if (auctionToUpdate.getStartTime().isBefore(LocalDateTime.now()) &&
                     auctionToUpdate.getEndTime().isAfter(LocalDateTime.now())) {
                 auctionToUpdate.setStatus(EAuctionStatus.ONGOING);
+                isUpdated = true;
             }
         }
 
         if (auctionToUpdate.getEndTime().isBefore(LocalDateTime.now()) &&
                 auctionToUpdate.getStatus().equals(EAuctionStatus.ONGOING)) {
             auctionToUpdate.setStatus(EAuctionStatus.ENDED);
+            isUpdated = true;
         }
 
         auctionRepository.save(auctionToUpdate);
+        return isUpdated;
     }
     public Set<Auction> getAuctionOnCondition(String condition) {
 //        return switch (condition) {

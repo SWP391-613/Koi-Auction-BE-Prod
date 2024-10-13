@@ -1,6 +1,8 @@
 package com.swp391.koibe.services.payment;
 
 import com.swp391.koibe.configs.VNPayConfig;
+import com.swp391.koibe.models.Payment;
+import com.swp391.koibe.repositories.PaymentRepository;
 import com.swp391.koibe.services.user.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,26 +16,55 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class PaymentService implements IPaymentService {
+
+    private final PaymentRepository paymentRepository;
     private final IUserService userService;
 
     @Override
-    public Map<String, String> createPayment(Map<String, String> requestParams, String ipAddress) throws UnsupportedEncodingException {
+    public Map<String, String> createDepositPayment(Map<String, String> requestParams, String ipAddress)
+            throws UnsupportedEncodingException {
         long amount = Long.parseLong(requestParams.get("amount")) * 100;
         String userId = requestParams.get("userId");
         String vnp_TxnRef = VNPayConfig.getRandomNumber(8);
         String vnp_IpAddr = ipAddress;
-        String vnp_TmnCode = VNPayConfig.vnp_TmnCode;
 
-        // ... (copy the vnp_Params setup from the original controller)
+        Map<String, String> vnp_Params = createBaseVnpParams(amount, vnp_TxnRef, vnp_IpAddr);
+        vnp_Params.put("vnp_OrderInfo", "Deposit to account:" + userId);
+
+        String paymentUrl = createPaymentUrl(vnp_Params);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("paymentUrl", paymentUrl);
+        return response;
+    }
+
+    @Override
+    public Map<String, String> createOrderPayment(Map<String, String> requestParams, String ipAddress)
+            throws UnsupportedEncodingException {
+        long amount = Long.parseLong(requestParams.get("amount")) * 100;
+        String orderId = requestParams.get("orderId");
+        String vnp_TxnRef = VNPayConfig.getRandomNumber(8);
+        String vnp_IpAddr = ipAddress;
+
+        Map<String, String> vnp_Params = createBaseVnpParams(amount, vnp_TxnRef, vnp_IpAddr);
+        vnp_Params.put("vnp_OrderInfo", "Payment for order:" + orderId);
+
+        String paymentUrl = createPaymentUrl(vnp_Params);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("paymentUrl", paymentUrl);
+        return response;
+    }
+
+    private Map<String, String> createBaseVnpParams(long amount, String vnp_TxnRef, String vnp_IpAddr) {
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", "2.1.0");
         vnp_Params.put("vnp_Command", "pay");
-        vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
+        vnp_Params.put("vnp_TmnCode", VNPayConfig.vnp_TmnCode);
         vnp_Params.put("vnp_Amount", String.valueOf(amount));
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_BankCode", "NCB");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
-        vnp_Params.put("vnp_OrderInfo", "Deposit to account:" + userId);
         vnp_Params.put("vnp_OrderType", "other");
         vnp_Params.put("vnp_Locale", "vn");
         vnp_Params.put("vnp_ReturnUrl", VNPayConfig.vnp_Returnurl);
@@ -48,6 +79,10 @@ public class PaymentService implements IPaymentService {
         String vnp_ExpireDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
+        return vnp_Params;
+    }
+
+    private String createPaymentUrl(Map<String, String> vnp_Params) throws UnsupportedEncodingException {
         List fieldNames = new ArrayList(vnp_Params.keySet());
         Collections.sort(fieldNames);
         StringBuilder hashData = new StringBuilder();
@@ -72,11 +107,7 @@ public class PaymentService implements IPaymentService {
         String queryUrl = query.toString();
         String vnp_SecureHash = VNPayConfig.hmacSHA512(VNPayConfig.vnp_HashSecret, hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
-        String paymentUrl = VNPayConfig.vnp_PayUrl + "?" + queryUrl;
-
-        Map<String, String> response = new HashMap<>();
-        response.put("paymentUrl", paymentUrl);
-        return response;
+        return VNPayConfig.vnp_PayUrl + "?" + queryUrl;
     }
 
     @Override
@@ -98,6 +129,7 @@ public class PaymentService implements IPaymentService {
                     result.put("message", "Deposit successful");
                     result.put("userId", userId);
                     result.put("amount", amount);
+                    result.put("paymentType", "deposit");
                 } catch (Exception e) {
                     result.put("success", false);
                     result.put("message", "Error updating balance");
@@ -105,6 +137,7 @@ public class PaymentService implements IPaymentService {
             } else {
                 result.put("message", "Order payment successful");
                 result.put("amount", amount);
+                result.put("paymentType", "order");
             }
         } else {
             result.put("message", "Payment failed");
@@ -113,4 +146,14 @@ public class PaymentService implements IPaymentService {
 
         return result;
     }
+
+//    @Override
+//    public Payment createPayment(Payment payment) {
+//        return null;
+//    }
+//
+//    @Override
+//    public Payment getPaymentByOrderID(Long id) {
+//        Payment payment = paymentRepository.findByOrderId(id);
+//    }
 }

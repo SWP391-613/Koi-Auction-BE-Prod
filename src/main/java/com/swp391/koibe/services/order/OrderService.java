@@ -162,6 +162,26 @@ public class OrderService implements IOrderService{
 
     @Override
     @Transactional
+    public Order updateOrderByUser(Long id, OrderDTO orderDTO)
+            throws DataNotFoundException {
+        Order order = orderRepository.findById(id).orElseThrow(() ->
+                new DataNotFoundException("Cannot find order with id: " + id));
+        User existingUser = userRepository.findById(
+                orderDTO.getUserId()).orElseThrow(() ->
+                new DataNotFoundException("Cannot find user with id: " + id));
+
+        // Tạo một luồng bảng ánh xạ riêng để kiểm soát việc ánh xạ
+        modelMapper.typeMap(OrderDTO.class, Order.class)
+                .addMappings(mapper -> mapper.skip(Order::setId));
+        // Cập nhật các trường của đơn hàng từ orderDTO
+        modelMapper.map(orderDTO, order);
+        order.setUser(existingUser);
+        order.setStatus(OrderStatus.PROCESSING);
+        return orderRepository.save(order);
+    }
+
+    @Override
+    @Transactional
     public void deleteOrder(Long id) {
         Order order = orderRepository
             .findById(id)
@@ -169,8 +189,10 @@ public class OrderService implements IOrderService{
 
         //no hard-delete, => please soft-delete
         order.setActive(false);
+        order.setStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
     }
+
     @Override
     public List<OrderResponse> findByUserId(Long userId) {
         List<Order> orders = orderRepository.findByUserId(userId);

@@ -298,7 +298,7 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
                 .status(OrderStatus.PENDING)
                 .address(bidder.getAddress())
                 .phoneNumber(bidder.getPhoneNumber() == null ? "" : bidder.getPhoneNumber())
-                .totalMoney(499.99F)
+                .totalMoney(500_000F)
                 .shippingMethod("Standard")
                 .shippingAddress(bidder.getAddress())
                 .shippingDate(LocalDate.now())

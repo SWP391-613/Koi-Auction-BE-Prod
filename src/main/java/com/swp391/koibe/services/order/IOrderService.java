@@ -14,6 +14,7 @@ public interface IOrderService {
     Order createOrder(Order order) throws Exception;
     Order getOrder(Long id);
     Order updateOrder(Long id, OrderDTO orderDTO) throws DataNotFoundException;
+    Order updateOrderByUser(Long id, OrderDTO orderDTO) throws DataNotFoundException;
     void deleteOrder(Long id);
     List<OrderResponse> findByUserId(Long userId);
     Page<Order> getOrdersByKeyword(String keyword, Pageable pageable);

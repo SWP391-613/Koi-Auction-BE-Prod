@@ -126,6 +126,9 @@ public class WebSecurityConfig {
                             .requestMatchers(POST,
                                     String.format("%s/orders**", apiPrefix))
                             .permitAll()
+                            .requestMatchers(PUT,
+                                    String.format("%s/orders**", apiPrefix))
+                            .permitAll()
 
                             .requestMatchers(GET,
                                     String.format("%s/orders_details**", apiPrefix))

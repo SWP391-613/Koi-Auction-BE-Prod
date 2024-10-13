@@ -21,11 +21,19 @@ public class PaymentController {
 
     private final IPaymentService paymentService;
 
-    @PostMapping("vnpay/create_payment")
-    public ResponseEntity<?> createPayment(@RequestBody Map<String, String> requestParams,
-                                           HttpServletRequest request) throws UnsupportedEncodingException {
+    @PostMapping("vnpay/create_deposit")
+    public ResponseEntity<?> createDepositPayment(@RequestBody Map<String, String> requestParams,
+            HttpServletRequest request) throws UnsupportedEncodingException {
         String vnp_IpAddr = VNPayConfig.getIpAddress(request);
-        Map<String, String> response = paymentService.createPayment(requestParams, vnp_IpAddr);
+        Map<String, String> response = paymentService.createDepositPayment(requestParams, vnp_IpAddr);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("vnpay/create_order_payment")
+    public ResponseEntity<?> createOrderPayment(@RequestBody Map<String, String> requestParams,
+            HttpServletRequest request) throws UnsupportedEncodingException {
+        String vnp_IpAddr = VNPayConfig.getIpAddress(request);
+        Map<String, String> response = paymentService.createOrderPayment(requestParams, vnp_IpAddr);
         return ResponseEntity.ok(response);
     }
 
@@ -33,7 +41,7 @@ public class PaymentController {
     public ResponseEntity<?> handleVNPayReturn(@RequestParam Map<String, String> requestParams) {
         Map<String, Object> result = paymentService.handlePaymentReturn(requestParams);
 
-        String frontendUrl = "http://localhost:3000/payments/vnpay-payment-return"; // Update this to your frontend URL
+        String frontendUrl = "http://localhost:3000/payments/vnpay-payment-return";
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(frontendUrl);
 
         for (Map.Entry<String, Object> entry : result.entrySet()) {
@@ -45,4 +53,9 @@ public class PaymentController {
                 .location(URI.create(redirectUrl))
                 .build();
     }
+
+//    @GetMapping("/order/{order_id}")
+//    public ResponseEntity<?> getPaymentByOrderID(@PathVariable Long order_id) {
+//        return ResponseEntity.ok(paymentService.getPaymentByOrderID(order_id));
+//    }
 }
