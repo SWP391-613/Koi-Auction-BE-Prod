@@ -35,10 +35,6 @@ public class MailController {
     public ResponseEntity<MailResponse> sendOtp(@RequestParam String toEmail) throws MessagingException {
         User user = (User) request.getAttribute("validatedEmail");
 
-        if(user.getStatus() == UserStatus.VERIFIED){
-            return new ResponseEntity<>(new MailResponse("Email already verified"), HttpStatus.BAD_REQUEST);
-        }
-
         String name = user.getFirstName();
         Context context = new Context();
         String otp = OTPUtils.generateOTP();

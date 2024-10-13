@@ -12,7 +12,7 @@ object OTPUtils {
         JOptionPane.showMessageDialog(
             null,
             "We've send OTP verification to your email, please provide to authenticate!",
-            "Snake Game",
+            "Koi Auction",
             JOptionPane.INFORMATION_MESSAGE
         )
     }
