@@ -13,6 +13,7 @@ import com.swp391.koibe.services.user.IUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +33,7 @@ public class SystemService {
 
     //every 10 minutes
     @Scheduled(cron = "0 */10 * * * *")
+    @Async
     public void updateUpcomingAuctionStatus() {
         try {
             List<Auction> auctions = auctionService.getAuctionByStatus(EAuctionStatus.UPCOMING);
@@ -45,6 +47,7 @@ public class SystemService {
 
     //every 10 minutes
     @Scheduled(cron = "0 */10 * * * *")
+    @Async
     public void updateOnGoingAuctionStatus() {
         try {
             List<Auction> auctions = auctionService.getAuctionByStatus(EAuctionStatus.ONGOING);

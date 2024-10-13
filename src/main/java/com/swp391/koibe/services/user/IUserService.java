@@ -14,27 +14,37 @@ import org.springframework.transaction.annotation.Transactional;
 public interface IUserService {
 
     User createUser(UserRegisterDTO userRegisterDTO) throws Exception;
+
     String login(String email, String password) throws Exception;
+
     String loginOrRegisterGoogle(String email, String name, String googleId, String avatarUrl) throws Exception;
+
     User getUserById(long id) throws DataNotFoundException;
+
     User getUserByEmail(String email) throws DataNotFoundException;
+
     List<User> getAllUsers();
+
     Page<User> findAll(String keyword, Pageable pageable) throws Exception;
+
     void resetPassword(Long userId, String newPassword)
-        throws InvalidPasswordException, DataNotFoundException ;
+            throws InvalidPasswordException, DataNotFoundException;
+
     void blockOrEnable(Long userId, Boolean active) throws DataNotFoundException;
 
     @Transactional
     User updateUser(Long userId, UpdateUserDTO updatedUserDTO) throws Exception;
+
     @Transactional
-    User updateUserBalance (Long userId, Long payment) throws Exception;
+    User updateUserBalance(Long userId, Long payment) throws Exception;
 
     void updateAccountBalance(Long userId, Long payment) throws Exception;
 
-    //Token
+    // Token
     User getUserDetailsFromToken(String token) throws Exception;
 
-    //Otp
+    // Otp
     void verifyOtp(Long userId, String otp) throws Exception;
+
     void bannedUser(Long userId) throws DataNotFoundException;
 }

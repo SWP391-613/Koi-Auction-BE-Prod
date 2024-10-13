@@ -8,12 +8,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class VNPayConfig {
+    public static String vnp_Version = "2.0.0";
+    public static String vnp_Command = "pay";
+    public static String vnp_OrderType = "billpayment";
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_Returnurl = "/vnpay-payment-return";
+    public static String vnp_Returnurl = "http://localhost:4000/api/v1/payment/vnpay/payment_return";
     public static String vnp_TmnCode = "XM1B4C8V"; // kiểm tra email sau
     public static String vnp_HashSecret = "JC3DPNWE1FO1PE8441MVDMCB77N16S71"; // khi đăng ký Test
     public static String vnp_apiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
-
 
     public static String hashAllFields(Map fields) {
         List fieldNames = new ArrayList(fields.keySet());
@@ -32,7 +34,7 @@ public class VNPayConfig {
                 sb.append("&");
             }
         }
-        return hmacSHA512(vnp_HashSecret,sb.toString());
+        return hmacSHA512(vnp_HashSecret, sb.toString());
     }
 
     public static String hmacSHA512(final String key, final String data) {
@@ -81,4 +83,3 @@ public class VNPayConfig {
         return sb.toString();
     }
 }
-

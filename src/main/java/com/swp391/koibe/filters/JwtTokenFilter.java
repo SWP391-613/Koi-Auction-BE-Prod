@@ -32,7 +32,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-        @NonNull HttpServletRequest request,
+            @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain)
             throws ServletException, IOException, JwtAuthenticationException {
@@ -61,6 +61,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 }
             }
             filterChain.doFilter(request, response); // enable bypass
+
+            if (request.getRequestURI().contains("/api/v1/payment/vnpay/payment_return")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
         } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
         }
@@ -69,40 +74,40 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private boolean isBypassToken(@NonNull HttpServletRequest request) {
         final List<Pair<String, String>> bypassTokens = Arrays.asList(
-                //RoleController
+                // RoleController
                 Pair.of(String.format("%s/roles", apiPrefix), "GET"),
                 Pair.of(String.format("%s/roles", apiPrefix), "POST"),
                 Pair.of(String.format("%s/roles", apiPrefix), "PUT"),
                 Pair.of(String.format("%s/roles", apiPrefix), "DELETE"),
 
-                //KoiController
+                // KoiController
                 Pair.of(String.format("%s/kois", apiPrefix), "GET"),
 
-                //KoiImageController
+                // KoiImageController
                 Pair.of(String.format("%s/koiimage", apiPrefix), "GET"),
 
-                //CategoryController
+                // CategoryController
                 Pair.of(String.format("%s/categories", apiPrefix), "GET"),
-                Pair.of(String.format("%s/categories", apiPrefix), "POST"), //add security later
-                Pair.of(String.format("%s/categories", apiPrefix), "GET"), //add security later
-                Pair.of(String.format("%s/categories", apiPrefix), "PUT"), //add security later
-                Pair.of(String.format("%s/categories", apiPrefix), "DELETE"), //add security later
+                Pair.of(String.format("%s/categories", apiPrefix), "POST"), // add security later
+                Pair.of(String.format("%s/categories", apiPrefix), "GET"), // add security later
+                Pair.of(String.format("%s/categories", apiPrefix), "PUT"), // add security later
+                Pair.of(String.format("%s/categories", apiPrefix), "DELETE"), // add security later
 
-                //StaffController: all route need to be protected
+                // StaffController: all route need to be protected
 
-                //ManagerController
+                // ManagerController
                 Pair.of(String.format("%s/managers", apiPrefix), "GET"),
                 Pair.of(String.format("%s/managers", apiPrefix), "POST"),
                 Pair.of(String.format("%s/managers", apiPrefix), "PUT"),
                 Pair.of(String.format("%s/managers", apiPrefix), "DELETE"),
 
-                //UserController
+                // UserController
                 Pair.of(String.format("%s/users/register", apiPrefix), "POST"),
                 Pair.of(String.format("%s/users/login", apiPrefix), "POST"),
                 Pair.of(String.format("%s/users/details", apiPrefix), "PUT"),
                 Pair.of(String.format("%s/users/block", apiPrefix), "PUT"),
 
-                //Verify OTP
+                // Verify OTP
                 Pair.of(String.format("%s/users/verify", apiPrefix), "PUT"),
                 Pair.of(String.format("%s/users/verify", apiPrefix), "POST"),
 
@@ -111,7 +116,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/members", apiPrefix), "GET"),
                 Pair.of(String.format("%s/breeders", apiPrefix), "GET"),
 
-                //Otp
+                // Otp
                 Pair.of(String.format("%s/otp/send", apiPrefix), "GET"),
 
                 Pair.of(String.format("%s/auction-participant", apiPrefix), "GET"),
@@ -119,69 +124,74 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/auction-participant", apiPrefix), "PUT"),
                 Pair.of(String.format("%s/auction-participant", apiPrefix), "DELETE"),
 
-                //Send mail (considering to choose which method, does this email need a table to
+                // Send mail (considering to choose which method, does this email need a table
+                // to
                 // store)
                 Pair.of(String.format("%s/auction-mail", apiPrefix), "GET"),
                 Pair.of(String.format("%s/auction-mail", apiPrefix), "POST"),
                 Pair.of(String.format("%s/auction-mail", apiPrefix), "PUT"),
                 Pair.of(String.format("%s/auction-mail", apiPrefix), "DELETE"),
 
-                //Order
+                // Order
                 Pair.of(String.format("%s/orders", apiPrefix), "GET"),
                 Pair.of(String.format("%s/orders", apiPrefix), "POST"),
 
-                //OrderDetail
+                // OrderDetail
                 Pair.of(String.format("%s/orders_details", apiPrefix), "GET"),
 
-                //Swagger
-                Pair.of("/api-docs","GET"),
-                Pair.of("/swagger-resources","GET"),
-                Pair.of("/configuration/ui","GET"),
-                Pair.of("/configuration/security","GET"),
-                Pair.of("/swagger-ui","GET"),
+                // Swagger
+                Pair.of("/api-docs", "GET"),
+                Pair.of("/swagger-resources", "GET"),
+                Pair.of("/configuration/ui", "GET"),
+                Pair.of("/configuration/security", "GET"),
+                Pair.of("/swagger-ui", "GET"),
                 Pair.of("/swagger-ui.html", "GET"),
                 Pair.of("/swagger-ui/index.html", "GET"),
 
-                //Actuator
+                // Actuator
                 Pair.of(String.format("%s/healthcheck/health", apiPrefix), "GET"),
                 Pair.of(String.format("%s/actuator", apiPrefix), "GET"),
 
-                //Prometheus
+                // Prometheus
                 Pair.of("/actuator/prometheus", "GET"),
 
-                //Auction
-                 Pair.of(String.format("%s/auctions", apiPrefix), "GET"),
-                 Pair.of(String.format("%s/auctions", apiPrefix), "POST"),
-                 Pair.of(String.format("%s/auctions", apiPrefix), "PUT"),
-                 Pair.of(String.format("%s/auctions", apiPrefix), "DELETE"),
+                // Auction
+                Pair.of(String.format("%s/auctions", apiPrefix), "GET"),
+                Pair.of(String.format("%s/auctions", apiPrefix), "POST"),
+                Pair.of(String.format("%s/auctions", apiPrefix), "PUT"),
+                Pair.of(String.format("%s/auctions", apiPrefix), "DELETE"),
 
-                //AuctionKoi
-                 Pair.of(String.format("%s/auctionkois", apiPrefix), "GET"),
-                 Pair.of(String.format("%s/auctionkois", apiPrefix), "POST"),
-                 Pair.of(String.format("%s/auctionkois", apiPrefix), "PUT"),
-                 Pair.of(String.format("%s/auctionkois", apiPrefix), "DELETE"),
+                // AuctionKoi
+                Pair.of(String.format("%s/auctionkois", apiPrefix), "GET"),
+                Pair.of(String.format("%s/auctionkois", apiPrefix), "POST"),
+                Pair.of(String.format("%s/auctionkois", apiPrefix), "PUT"),
+                Pair.of(String.format("%s/auctionkois", apiPrefix), "DELETE"),
 
-                //AuctionKoiDetail
+                // AuctionKoiDetail
                 Pair.of(String.format("%s/bidding", apiPrefix), "GET"),
                 Pair.of(String.format("%s/bidding", apiPrefix), "POST"),
                 Pair.of(String.format("%s/bidding", apiPrefix), "PUT"),
                 Pair.of(String.format("%s/bidding", apiPrefix), "DELETE"),
 
-                //AuctionKoiWebsocket
+                // AuctionKoiWebsocket
                 Pair.of(String.format("%s/auction-websocket", apiPrefix), "GET"),
                 Pair.of(String.format("%s/auction-websocket", apiPrefix), "POST"),
                 Pair.of("/topic", "GET"),
-                Pair.of("/topic", "POST")
+                Pair.of("/topic", "POST"),
+
+                // 3rd payment
+                Pair.of(String.format("%s/payment", apiPrefix), "GET"),
+                Pair.of(String.format("%s/payment", apiPrefix), "POST")
 
         // Pair.of(String.format("%s/products/test/view", apiPrefix), "GET")
         );
-//        for (Pair<String, String> bypassToken : bypassTokens) {
-//            if (request.getServletPath().contains(bypassToken.getFirst()) &&
-//                    request.getMethod().equals(bypassToken.getSecond())) {
-//                return true;
-//            }
-//        }
-//        return false;
+        // for (Pair<String, String> bypassToken : bypassTokens) {
+        // if (request.getServletPath().contains(bypassToken.getFirst()) &&
+        // request.getMethod().equals(bypassToken.getSecond())) {
+        // return true;
+        // }
+        // }
+        // return false;
 
         String servletPath = request.getServletPath();
         String method = request.getMethod();
