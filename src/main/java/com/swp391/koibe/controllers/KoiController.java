@@ -4,6 +4,8 @@ import com.swp391.koibe.constants.ErrorMessage;
 import com.swp391.koibe.dtos.KoiImageDTO;
 import com.swp391.koibe.dtos.koi.KoiDTO;
 import com.swp391.koibe.dtos.koi.UpdateKoiDTO;
+import com.swp391.koibe.dtos.koi.UpdateKoiStatusDTO;
+import com.swp391.koibe.enums.EKoiStatus;
 import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.models.Koi;
 import com.swp391.koibe.models.KoiImage;
@@ -24,6 +26,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -121,6 +124,14 @@ public class KoiController {
         }
     }
 
+    @GetMapping("/status")
+    public ResponseEntity<Set<KoiResponse>> getKoiListByStatus(
+        @RequestParam String status
+    ){
+        EKoiStatus eKoiStatus = EKoiStatus.valueOf(status.toUpperCase());
+        return ResponseEntity.ok(koiService.getKoiByStatus(eKoiStatus));
+    }
+
     @PostMapping(value = "")
     @PreAuthorize("hasRole('ROLE_BREEDER')")
     public ResponseEntity<KoiResponse> createNewKoi(
@@ -148,6 +159,25 @@ public class KoiController {
             response.setMessage("Error creating new koi");
             response.setReason(e.getMessage());
             return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PutMapping("/status/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_STAFF')")
+    public ResponseEntity<String> updateKoiStatus(
+        @PathVariable("id") Long koiId,
+        @Valid @RequestBody UpdateKoiStatusDTO updateKoiStatusDTO,
+        BindingResult result
+    ) {
+
+        if(result.hasErrors()){
+            throw new MethodArgumentNotValidException(result);
+        }
+        try {
+            koiService.updateKoiStatus(koiId, updateKoiStatusDTO);
+            return ResponseEntity.ok().body("Koi status updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error updating koi status: " + e.getMessage());
         }
     }
 

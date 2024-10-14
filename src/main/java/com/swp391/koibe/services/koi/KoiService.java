@@ -4,6 +4,7 @@ import com.swp391.koibe.constants.ErrorMessage;
 import com.swp391.koibe.dtos.koi.KoiDTO;
 import com.swp391.koibe.dtos.KoiImageDTO;
 import com.swp391.koibe.dtos.koi.UpdateKoiDTO;
+import com.swp391.koibe.dtos.koi.UpdateKoiStatusDTO;
 import com.swp391.koibe.enums.EKoiStatus;
 import com.swp391.koibe.exceptions.InvalidParamException;
 import com.swp391.koibe.exceptions.base.DataAlreadyExistException;
@@ -19,6 +20,8 @@ import com.swp391.koibe.repositories.UserRepository;
 import com.swp391.koibe.responses.KoiResponse;
 import com.swp391.koibe.utils.DTOConverter;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -154,4 +157,22 @@ public class KoiService implements IKoiService<KoiResponse> {
         }
         return koiImageRepository.save(newKoiImage);
     }
+
+    @Override
+    public Set<KoiResponse> getKoiByStatus(EKoiStatus status) {
+        return getAllKois().stream()
+            .filter(koi -> koi.getStatus() == status)
+            .map(DTOConverter::convertToKoiDTO)
+            .collect(Collectors.toSet());
+    }
+
+    @Override
+    public void updateKoiStatus(long id, UpdateKoiStatusDTO updateKoiStatusDTO) {
+        //find if koi exist
+        Koi existingKoi = koiRepository.findById(id)
+            .orElseThrow(() -> new DataNotFoundException("Koi not found: " + id));
+        existingKoi.setStatus(EKoiStatus.valueOf(updateKoiStatusDTO.trackingStatus()));
+        koiRepository.save(existingKoi);
+    }
+
 }
