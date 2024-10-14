@@ -45,11 +45,6 @@ public class KoiService implements IKoiService<KoiResponse> {
             throw new InvalidParamException(ErrorMessage.BREEDER_CANNOT_CREATE_OTHER_BREEDER_KOI);
         }
 
-        // check if koi already existed
-        if (koiRepository.existsByName(koiDTO.name())) {
-            throw new DataAlreadyExistException("Koi already existed: " + koiDTO.name());
-        }
-
         //breeder create their own koi
         User existedUser = userRepository.findBreederById(koiDTO.ownerId())
             .orElseThrow(() ->

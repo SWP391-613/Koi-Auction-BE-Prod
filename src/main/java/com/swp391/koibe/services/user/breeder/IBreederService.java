@@ -1,6 +1,7 @@
 package com.swp391.koibe.services.user.breeder;
 
 import com.swp391.koibe.dtos.koi.KoiDTO;
+import com.swp391.koibe.enums.EKoiStatus;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.User;
 import com.swp391.koibe.responses.KoiResponse;
@@ -21,4 +22,5 @@ public interface IBreederService {
     void deleteKoi(long koiId, long breederId);
     List<KoiResponse> getKoisByBreederID(long breederId);
     Page<KoiResponse> getKoisByBreederID(long breederId, Pageable pageable);
+    Page<KoiResponse> getKoisByBreederIdAndStatus(long breederId, EKoiStatus koiStatus, Pageable pageable);
 }

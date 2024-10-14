@@ -1,6 +1,7 @@
 package com.swp391.koibe.controllers;
 
 import com.swp391.koibe.dtos.koi.KoiDTO;
+import com.swp391.koibe.enums.EKoiStatus;
 import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.models.User;
 import com.swp391.koibe.responses.KoiResponse;
@@ -94,6 +95,27 @@ public class BreederController {
         }
     }
 
+    @GetMapping("/kois/status")
+    public ResponseEntity<KoiPaginationResponse> getKoisByBreederIdAndStatus(
+        @RequestParam("breeder_id") long breeder_id,
+        @RequestParam("status") String koi_status,
+        @RequestParam("page") int page,
+        @RequestParam("limit") int limit) {
+
+        KoiPaginationResponse response = new KoiPaginationResponse();
+
+        PageRequest pageRequest = PageRequest.of(page, limit);
+        Page<KoiResponse> koiList = breederService.getKoisByBreederIdAndStatus(
+            breeder_id,
+            EKoiStatus.valueOf(koi_status),
+            pageRequest);
+
+        response.setItem(koiList.getContent());
+        response.setTotalPage(koiList.getTotalPages());
+        response.setTotalItem(koiList.getTotalElements());
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/kois")
     @PreAuthorize("hasRole('ROLE_BREEDER')")
     public ResponseEntity<KoiResponse> createKoi(
@@ -103,7 +125,7 @@ public class BreederController {
         BindingResult result
     ) {
 
-        if(result.hasErrors()){
+        if (result.hasErrors()) {
             throw new MethodArgumentNotValidException(result);
         }
 
