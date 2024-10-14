@@ -15,7 +15,9 @@ public enum EmailCategoriesEnum {
     AUCTION_CLOSED("auctionClosed"),
     AUCTION_UPCOMING("auctionUpcoming"),
     AUCTION_WINNER("auctionWinner"),
-    ORDER_CREATED("orderCreated"),;
+    ORDER_CREATED("orderCreated"),
+    KOI_APPROVED("koiApproved"),
+    KOI_REJECTED("koiRejected"),;
 
     private final String type;
 }

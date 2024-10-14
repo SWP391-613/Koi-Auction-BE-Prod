@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Koi Has Been Approved</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #4CAF50;
+    }
+
+    p {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .koi-info {
+      font-weight: bold;
+      color: #007BFF;
+    }
+
+    .status {
+      font-weight: bold;
+      color: #FF5722;
+    }
+
+    .footer {
+      margin-top: 30px;
+      font-size: 14px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Hello, <span th:text="${name}">Owner Name</span>!</h1>
+
+  <p>Your koi named <span class="koi-info" th:text="${koiName}">Koi Name</span> has been updated.</p>
+
+  <p>The current status of your koi is: <span class="status" th:text="${status}">Status</span>.</p>
+
+  <p>Thank you for taking care of your koi with us!</p>
+
+  <div class="footer">
+    <p>If you have any questions, feel free to contact us at support@koiservice.com.</p>
+  </div>
+</div>
+</body>
+</html>

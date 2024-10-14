@@ -1,13 +1,13 @@
 package com.swp391.koibe.services.koi;
 
 import com.swp391.koibe.constants.ErrorMessage;
-import com.swp391.koibe.dtos.koi.KoiDTO;
 import com.swp391.koibe.dtos.KoiImageDTO;
+import com.swp391.koibe.dtos.koi.KoiDTO;
 import com.swp391.koibe.dtos.koi.UpdateKoiDTO;
 import com.swp391.koibe.dtos.koi.UpdateKoiStatusDTO;
 import com.swp391.koibe.enums.EKoiStatus;
+import com.swp391.koibe.enums.EmailCategoriesEnum;
 import com.swp391.koibe.exceptions.InvalidParamException;
-import com.swp391.koibe.exceptions.base.DataAlreadyExistException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Category;
 import com.swp391.koibe.models.Koi;
@@ -18,7 +18,10 @@ import com.swp391.koibe.repositories.KoiImageRepository;
 import com.swp391.koibe.repositories.KoiRepository;
 import com.swp391.koibe.repositories.UserRepository;
 import com.swp391.koibe.responses.KoiResponse;
+import com.swp391.koibe.services.mail.IMailService;
 import com.swp391.koibe.utils.DTOConverter;
+import jakarta.mail.MessagingException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,8 +29,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.thymeleaf.context.Context;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +39,7 @@ public class KoiService implements IKoiService<KoiResponse> {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final KoiImageRepository koiImageRepository;
+    private final IMailService mailService;
 
     @Override
     public Koi createKoi(KoiDTO koiDTO, long breederId) throws Exception {
@@ -162,12 +165,41 @@ public class KoiService implements IKoiService<KoiResponse> {
     }
 
     @Override
-    public void updateKoiStatus(long id, UpdateKoiStatusDTO updateKoiStatusDTO) {
+    public void updateKoiStatus(long id, UpdateKoiStatusDTO updateKoiStatusDTO)
+        throws MessagingException {
         //find if koi exist
         Koi existingKoi = koiRepository.findById(id)
             .orElseThrow(() -> new DataNotFoundException("Koi not found: " + id));
-        existingKoi.setStatus(EKoiStatus.valueOf(updateKoiStatusDTO.trackingStatus()));
+
+        EKoiStatus eKoiStatus = EKoiStatus.valueOf(updateKoiStatusDTO.trackingStatus());
+        existingKoi.setStatus(eKoiStatus);
         koiRepository.save(existingKoi);
+
+        User owner = existingKoi.getOwner();
+
+        Context context = new Context();
+        context.setVariable("name", owner.getFirstName());
+        context.setVariable("koiName", existingKoi.getName());
+        context.setVariable("status", eKoiStatus);
+
+        String templateName;
+
+        if(eKoiStatus == EKoiStatus.VERIFIED){
+            templateName = "koiApproved";
+        } else if(eKoiStatus == EKoiStatus.REJECTED){
+            templateName = "koiRejected";
+        } else {
+            return;
+        }
+
+        mailService.sendMail(
+            owner.getEmail(),
+            "Your koi has been verified, welcome to AuctionKoi",
+            templateName,
+            context
+        );
+
+
     }
 
 }

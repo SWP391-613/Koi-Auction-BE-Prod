@@ -9,6 +9,7 @@ import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Koi;
 import com.swp391.koibe.models.KoiImage;
 import com.swp391.koibe.responses.KoiResponse;
+import jakarta.mail.MessagingException;
 import java.util.List;
 import java.util.Set;
 import org.springframework.data.domain.Page;
@@ -35,5 +36,5 @@ public interface IKoiService<T> {
 
     Set<KoiResponse> getKoiByStatus(EKoiStatus status);
 
-    void updateKoiStatus(long id, UpdateKoiStatusDTO updateKoiStatusDTO);
+    void updateKoiStatus(long id, UpdateKoiStatusDTO updateKoiStatusDTO) throws MessagingException;
 }
