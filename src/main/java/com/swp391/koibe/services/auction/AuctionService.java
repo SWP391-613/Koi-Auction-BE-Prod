@@ -20,8 +20,10 @@ import com.swp391.koibe.utils.DateTimeUtils;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -159,6 +161,16 @@ public class AuctionService implements IAuctionService {
     @Override
     public List<Auction> getAuctionByStatus(EAuctionStatus status) {
         return auctionRepository.findAllByStatus(status);
+    }
+
+    @Override
+    public Page<AuctionResponse> getAuctionByStatus(EAuctionStatus status, Pageable pageable) {
+        Page<Auction> auctions = auctionRepository.findAll(pageable);
+        List<AuctionResponse> filteredAuctions = auctions.stream()
+            .filter(auction -> auction.getStatus() == status)
+            .map(DTOConverter::convertToAuctionDTO)
+            .collect(Collectors.toList());
+        return new PageImpl<>(filteredAuctions, pageable, filteredAuctions.size());
     }
 
     @Override

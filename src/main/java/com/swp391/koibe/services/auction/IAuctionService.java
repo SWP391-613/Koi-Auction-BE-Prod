@@ -36,6 +36,7 @@ public interface IAuctionService {
         List<Auction> getAllAuctions();
 
         List<Auction> getAuctionByStatus(EAuctionStatus status);
+        Page<AuctionResponse> getAuctionByStatus(EAuctionStatus status, Pageable pageable);
 
         boolean updateAuctionStatus(long auctionId, Auction auction) throws DataNotFoundException;
         Set<Auction> getAuctionOnCondition(String condition);

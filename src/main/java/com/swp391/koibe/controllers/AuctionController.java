@@ -86,6 +86,24 @@ public class AuctionController {
         }
     }
 
+    @GetMapping("/koi_register")
+    public ResponseEntity<List<AuctionResponse>> getAuctionsByStatus(
+        @RequestParam int page,
+        @RequestParam int limit,
+        @RequestParam String status) {
+        try {
+            PageRequest pageRequest = PageRequest.of(page, limit);
+            EAuctionStatus auctionStatus = EAuctionStatus.valueOf(status.toUpperCase());
+            Page<AuctionResponse> auctions = auctionService.getAuctionByStatus(auctionStatus, pageRequest);
+            return ResponseEntity.ok(auctions.getContent());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null); // Handle invalid status value
+        } catch (Exception e) {
+            log.error("Error getting all auctions: " + e.getMessage());
+            throw new DataNotFoundException();
+        }
+    }
+
     @GetMapping("/staff")
     public ResponseEntity<?> getAuctionHandledByStaff(
         @RequestParam long id
