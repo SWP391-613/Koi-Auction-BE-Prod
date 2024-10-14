@@ -47,12 +47,8 @@ public class AuctionService implements IAuctionService {
             throw new MalformDataException("Cannot create ended auction");
         }
 
-        // check if status name is valid
-        boolean isValidStatus = Arrays.stream(EAuctionStatus.values())
-                .anyMatch(status -> status.name().equals(auctionDTO.statusName()));
-
-        if (!isValidStatus) {
-            throw new MalformDataException("Invalid auction status name must be UPCOMING, ONGOING or ENDED");
+        if(auctionDTO.statusName().equals(EAuctionStatus.ONGOING.name())) {
+            throw new MalformDataException("Cannot create ongoing auction");
         }
 
         User existingUser = userRepository.findStaffById(auctionDTO.auctioneerId())

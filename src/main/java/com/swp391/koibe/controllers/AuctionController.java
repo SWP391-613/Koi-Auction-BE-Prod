@@ -137,7 +137,6 @@ public class AuctionController {
         AuctionResponse response = new AuctionResponse();
         try {
             Auction newAuction = auctionService.createAscendingAuction(auctionDTO);
-            response.setId(newAuction.getId());
             response.setTitle(newAuction.getTitle());
             response.setStartTime(String.valueOf(newAuction.getStartTime()));
             response.setEndTime(String.valueOf(newAuction.getEndTime()));
