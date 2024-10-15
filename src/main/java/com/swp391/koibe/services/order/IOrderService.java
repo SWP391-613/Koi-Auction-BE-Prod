@@ -1,6 +1,7 @@
 package com.swp391.koibe.services.order;
 
 import com.swp391.koibe.dtos.OrderDTO;
+import com.swp391.koibe.enums.OrderStatus;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Order;
 import java.util.List;
@@ -15,6 +16,7 @@ public interface IOrderService {
     Order getOrder(Long id);
     Order updateOrder(Long id, OrderDTO orderDTO) throws DataNotFoundException;
     Order updateOrderByUser(Long id, OrderDTO orderDTO) throws DataNotFoundException;
+    Order updateOrderStatus(Long id, OrderStatus orderStatus) throws DataNotFoundException;
     void deleteOrder(Long id);
     List<OrderResponse> findByUserId(Long userId);
     Page<Order> getOrdersByKeyword(String keyword, Pageable pageable);

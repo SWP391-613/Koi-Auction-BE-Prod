@@ -1,16 +1,25 @@
 package com.swp391.koibe.services.payment;
 
 import com.swp391.koibe.configs.VNPayConfig;
+import com.swp391.koibe.dtos.PaymentDTO;
+import com.swp391.koibe.enums.EPaymentStatus;
+import com.swp391.koibe.enums.EPaymentType;
+import com.swp391.koibe.enums.OrderStatus;
 import com.swp391.koibe.models.Payment;
+import com.swp391.koibe.repositories.OrderRepository;
 import com.swp391.koibe.repositories.PaymentRepository;
+import com.swp391.koibe.repositories.UserRepository;
+import com.swp391.koibe.services.order.IOrderService;
 import com.swp391.koibe.services.user.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -19,35 +28,31 @@ public class PaymentService implements IPaymentService {
 
     private final PaymentRepository paymentRepository;
     private final IUserService userService;
+    private final IOrderService orderService;
+    private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
 
     @Override
-    public Map<String, String> createDepositPayment(Map<String, String> requestParams, String ipAddress)
+    public Map<String, String> createDepositPayment(PaymentDTO paymentDTO, String ipAddress)
             throws UnsupportedEncodingException {
-        long amount = Long.parseLong(requestParams.get("amount")) * 100;
-        String userId = requestParams.get("userId");
-        String vnp_TxnRef = VNPayConfig.getRandomNumber(8);
-        String vnp_IpAddr = ipAddress;
-
-        Map<String, String> vnp_Params = createBaseVnpParams(amount, vnp_TxnRef, vnp_IpAddr);
-        vnp_Params.put("vnp_OrderInfo", "Deposit to account:" + userId);
-
-        String paymentUrl = createPaymentUrl(vnp_Params);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("paymentUrl", paymentUrl);
-        return response;
+        return createVNPayPayment(paymentDTO, ipAddress, "Deposit to account:");
     }
 
     @Override
-    public Map<String, String> createOrderPayment(Map<String, String> requestParams, String ipAddress)
+    public Map<String, String> createOrderPayment(PaymentDTO paymentDTO, String ipAddress)
             throws UnsupportedEncodingException {
-        long amount = Long.parseLong(requestParams.get("amount")) * 100;
-        String orderId = requestParams.get("orderId");
-        String vnp_TxnRef = VNPayConfig.getRandomNumber(8);
-        String vnp_IpAddr = ipAddress;
+        return createVNPayPayment(paymentDTO, ipAddress, "Payment for order:");
+    }
 
-        Map<String, String> vnp_Params = createBaseVnpParams(amount, vnp_TxnRef, vnp_IpAddr);
-        vnp_Params.put("vnp_OrderInfo", "Payment for order:" + orderId);
+    private Map<String, String> createVNPayPayment(PaymentDTO paymentDTO, String ipAddress, String orderInfoPrefix)
+            throws UnsupportedEncodingException {
+        long amount = (long) (paymentDTO.getPaymentAmount() * 100);
+        String id = orderInfoPrefix.startsWith("Deposit") ? paymentDTO.getUserId().toString()
+                : paymentDTO.getOrderId().toString();
+        String vnp_TxnRef = VNPayConfig.getRandomNumber(8);
+
+        Map<String, String> vnp_Params = createBaseVnpParams(amount, vnp_TxnRef, ipAddress);
+        vnp_Params.put("vnp_OrderInfo", orderInfoPrefix + id);
 
         String paymentUrl = createPaymentUrl(vnp_Params);
 
@@ -121,24 +126,7 @@ public class PaymentService implements IPaymentService {
         result.put("success", "00".equals(vnp_ResponseCode));
 
         if ("00".equals(vnp_ResponseCode)) {
-            long amount = Long.parseLong(vnp_Amount) / 100;
-            if (vnp_OrderInfo.startsWith("Deposit to account:")) {
-                String userId = vnp_OrderInfo.split(":")[1].trim();
-                try {
-                    userService.updateAccountBalance(Long.parseLong(userId), amount);
-                    result.put("message", "Deposit successful");
-                    result.put("userId", userId);
-                    result.put("amount", amount);
-                    result.put("paymentType", "deposit");
-                } catch (Exception e) {
-                    result.put("success", false);
-                    result.put("message", "Error updating balance");
-                }
-            } else {
-                result.put("message", "Order payment successful");
-                result.put("amount", amount);
-                result.put("paymentType", "order");
-            }
+            processSuccessfulPayment(result, vnp_Amount, vnp_OrderInfo);
         } else {
             result.put("message", "Payment failed");
             result.put("responseCode", vnp_ResponseCode);
@@ -147,13 +135,84 @@ public class PaymentService implements IPaymentService {
         return result;
     }
 
-//    @Override
-//    public Payment createPayment(Payment payment) {
-//        return null;
-//    }
-//
-//    @Override
-//    public Payment getPaymentByOrderID(Long id) {
-//        Payment payment = paymentRepository.findByOrderId(id);
-//    }
+    private void processSuccessfulPayment(Map<String, Object> result, String vnp_Amount, String vnp_OrderInfo) {
+        long amount = Long.parseLong(vnp_Amount) / 100;
+        float amountFloat = Float.parseFloat(vnp_Amount) / 100;
+        Payment payment = createPaymentObject(amountFloat, vnp_OrderInfo);
+
+        if (vnp_OrderInfo.startsWith("Deposit to account:")) {
+            processDepositPayment(result, amount, payment);
+        } else {
+            processOrderPayment(result, amount, payment);
+        }
+    }
+
+    private Payment createPaymentObject(float amount, String orderInfo) {
+        return Payment.builder()
+                .paymentAmount(amount)
+                .paymentMethod("VNPAY")
+                .paymentDate(LocalDateTime.now())
+                .paymentType(orderInfo.startsWith("Deposit") ? EPaymentType.DEPOSIT : EPaymentType.ORDER)
+                .paymentStatus(EPaymentStatus.SUCCESS)
+                .build();
+    }
+
+    private void processDepositPayment(Map<String, Object> result, long amount, Payment payment) {
+        String userId = payment.getUser().getId().toString();
+        try {
+            payment.setUser(userRepository.findById(Long.parseLong(userId)).orElse(null));
+            paymentRepository.save(payment);
+            userService.updateAccountBalance(Long.parseLong(userId), amount);
+            result.put("message", "Deposit successful");
+            result.put("userId", userId);
+            result.put("amount", amount);
+            result.put("paymentType", "deposit");
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "Error updating balance");
+        }
+    }
+
+    private void processOrderPayment(Map<String, Object> result, long amount, Payment payment) {
+        result.put("message", "Order payment successful");
+        result.put("amount", amount);
+        result.put("paymentType", "order");
+        String orderId = payment.getOrder().getId().toString();
+        payment.setOrder(orderRepository.getById(Long.parseLong(orderId)));
+        paymentRepository.save(payment);
+    }
+
+    @Override
+    public Payment createPayment(PaymentDTO paymentDTO) {
+        Payment payment = Payment.builder()
+                .paymentAmount(paymentDTO.getPaymentAmount())
+                .paymentMethod(paymentDTO.getPaymentMethod())
+                .paymentType(EPaymentType.valueOf(paymentDTO.getPaymentType()))
+                .order(paymentDTO.getOrderId() != null ? orderRepository.getById(paymentDTO.getOrderId()) : null)
+                .user(userRepository.findById(paymentDTO.getUserId()).orElse(null))
+                .paymentStatus(EPaymentStatus.valueOf(paymentDTO.getPaymentStatus()))
+                .paymentDate(LocalDateTime.now())
+                .build();
+        return paymentRepository.save(payment);
+    }
+
+    @Override
+    public Payment getPaymentByOrderID(Long id) {
+        return paymentRepository.findByOrderId(id);
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> createPaymentAndUpdateOrder(PaymentDTO paymentDTO) throws Exception {
+        paymentDTO.setPaymentStatus(EPaymentStatus.PENDING.toString());
+        Payment payment = createPayment(paymentDTO);
+        if (payment == null) {
+            throw new Exception("Failed to create payment");
+        }
+        orderService.updateOrderStatus(paymentDTO.getOrderId(), OrderStatus.PROCESSING);
+        Map<String, Object> response = new HashMap<>();
+        response.put("payment", payment);
+        response.put("orderStatus", OrderStatus.PROCESSING);
+        return response;
+    }
 }

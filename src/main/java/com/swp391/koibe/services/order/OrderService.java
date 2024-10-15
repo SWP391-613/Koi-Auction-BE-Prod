@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.swp391.koibe.responses.order.OrderResponse;
+import com.swp391.koibe.services.payment.PaymentService;
 import com.swp391.koibe.utils.DTOConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -208,5 +209,14 @@ public class OrderService implements IOrderService{
     @Override
     public Page<Order> getOrdersByKeyword(String keyword, Pageable pageable) {
         return orderRepository.findByKeyword(keyword, pageable);
+    }
+
+    @Override
+    @Transactional
+    public Order updateOrderStatus(Long id, OrderStatus orderStatus) throws DataNotFoundException {
+        Order order = orderRepository.findById(id).orElseThrow(() ->
+                new DataNotFoundException("Cannot find order with id: " + id));
+        order.setStatus(orderStatus);
+        return orderRepository.save(order);
     }
 }
