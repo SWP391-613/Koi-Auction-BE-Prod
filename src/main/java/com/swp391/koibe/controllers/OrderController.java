@@ -2,10 +2,12 @@ package com.swp391.koibe.controllers;
 
 import com.swp391.koibe.components.LocalizationUtils;
 import com.swp391.koibe.dtos.OrderDTO;
+import com.swp391.koibe.dtos.PaymentDTO;
 import com.swp391.koibe.exceptions.InvalidApiPathVariableException;
 import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Order;
+import com.swp391.koibe.models.Payment;
 import com.swp391.koibe.responses.order.OrderListResponse;
 import com.swp391.koibe.responses.order.OrderResponse;
 import com.swp391.koibe.services.order.IOrderService;
@@ -44,8 +46,7 @@ public class OrderController {
     @PostMapping("")
     public ResponseEntity<?> createOrder(
             @Valid @RequestBody OrderDTO orderDTO,
-            BindingResult result
-    ) {
+            BindingResult result) {
         if (result.hasErrors()) {
             throw new MethodArgumentNotValidException(result);
         }
@@ -73,11 +74,10 @@ public class OrderController {
         }
     }
 
-    //GET http://localhost:8088/api/v1/orders/2
+    // GET http://localhost:8088/api/v1/orders/2
     @GetMapping("/{id}")
     public ResponseEntity<?> getOrder(
-            @Valid @PathVariable("id") Long orderId
-    ) {
+            @Valid @PathVariable("id") Long orderId) {
         try {
             Order existingOrder = orderService.getOrder(orderId);
             OrderResponse orderResponse = DTOConverter.fromOrder(existingOrder);
@@ -92,15 +92,17 @@ public class OrderController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER')")
-    //PUT http://localhost:8088/api/v1/orders/2
+    // PUT http://localhost:8088/api/v1/orders/2
     public ResponseEntity<?> updateOrder(
             @Valid @PathVariable long id,
             @Valid @RequestBody OrderDTO orderDTO,
             BindingResult result) {
 
-        if (id <= 0) throw new InvalidApiPathVariableException("Order id must be greater than 0");
+        if (id <= 0)
+            throw new InvalidApiPathVariableException("Order id must be greater than 0");
 
-        if (result.hasErrors()) throw new MethodArgumentNotValidException(result);
+        if (result.hasErrors())
+            throw new MethodArgumentNotValidException(result);
 
         try {
             Order order;
@@ -124,8 +126,9 @@ public class OrderController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_MANAGER')")
     public ResponseEntity<?> deleteOrder(@Valid @PathVariable Long id) {
-        //xóa mềm => cập nhật trường active = false
-        if (id <= 0) throw new InvalidApiPathVariableException("Order id must be greater than 0");
+        // xóa mềm => cập nhật trường active = false
+        if (id <= 0)
+            throw new InvalidApiPathVariableException("Order id must be greater than 0");
         try {
             orderService.deleteOrder(id);
             String result = localizationUtils.getLocalizedMessage(
@@ -144,14 +147,12 @@ public class OrderController {
     public ResponseEntity<OrderListResponse> getOrdersByKeyword(
             @RequestParam(defaultValue = "", required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int limit
-    ) {
+            @RequestParam(defaultValue = "10") int limit) {
         // Tạo Pageable từ thông tin trang và giới hạn
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
-                //Sort.by("createdAt").descending()
-                Sort.by("id").ascending()
-        );
+                // Sort.by("createdAt").descending()
+                Sort.by("id").ascending());
         Page<OrderResponse> orderPage = orderService
                 .getOrdersByKeyword(keyword, pageRequest)
                 .map(DTOConverter::fromOrder);

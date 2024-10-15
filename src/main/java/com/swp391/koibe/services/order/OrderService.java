@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.swp391.koibe.responses.order.OrderResponse;
-import com.swp391.koibe.services.payment.PaymentService;
 import com.swp391.koibe.utils.DTOConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class OrderService implements IOrderService{
+public class OrderService implements IOrderService {
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
     private final KoiRepository koiRepository;
@@ -44,12 +43,12 @@ public class OrderService implements IOrderService{
     @Override
     @Transactional
     public Order createOrder(OrderDTO orderDTO) throws Exception {
-        //tìm xem user'id có tồn tại ko
+        // tìm xem user'id có tồn tại ko
         User user = userRepository
                 .findById(orderDTO.getUserId())
-                .orElseThrow(() -> new DataNotFoundException("Cannot find user with id: "+orderDTO.getUserId()));
-        //convert orderDTO => Order
-        //dùng thư viện Model Mapper
+                .orElseThrow(() -> new DataNotFoundException("Cannot find user with id: " + orderDTO.getUserId()));
+        // convert orderDTO => Order
+        // dùng thư viện Model Mapper
         // Tạo một luồng bảng ánh xạ riêng để kiểm soát việc ánh xạ
         modelMapper.typeMap(OrderDTO.class, Order.class)
                 .addMappings(mapper -> mapper.skip(Order::setId));
@@ -58,20 +57,21 @@ public class OrderService implements IOrderService{
         Order order = new Order();
         modelMapper.map(orderDTO, order);
         order.setUser(user);
-        order.setOrderDate(LocalDate.now());//lấy thời điểm hiện tại
+        order.setOrderDate(LocalDate.now());// lấy thời điểm hiện tại
         order.setStatus(OrderStatus.PENDING);
 
-        //Kiểm tra shipping date phải >= ngày hôm nay
+        // Kiểm tra shipping date phải >= ngày hôm nay
         LocalDate shippingDate = orderDTO.getShippingDate() == null
-                ? LocalDate.now() : orderDTO.getShippingDate();
+                ? LocalDate.now()
+                : orderDTO.getShippingDate();
         if (shippingDate.isBefore(LocalDate.now())) {
             throw new MalformDataException("Shipping Date must be at least today !");
         }
         order.setShippingDate(shippingDate);
-        order.setActive(true);//đoạn này nên set sẵn trong sql
-        //EAV-Entity-Attribute-Value model
+        order.setActive(true);// đoạn này nên set sẵn trong sql
+        // EAV-Entity-Attribute-Value model
         order.setTotalMoney(orderDTO.getTotalMoney());
-//        orderRepository.save(order);
+        // orderRepository.save(order);
         // Tạo danh sách các đối tượng OrderDetail từ cartItems
         List<OrderDetail> orderDetails = new ArrayList<>();
         for (CartItemDTO cartItemDTO : orderDTO.getCartItems()) {
@@ -83,7 +83,7 @@ public class OrderService implements IOrderService{
             Long koiId = cartItemDTO.koiId();
             int quantity = cartItemDTO.quantity();
 
-            // Tìm thông tin sản phẩm từ cơ sở dữ liệu (hoặc sử dụng cache nếu cần)
+            // Tìm thông tin sản phẩm t�� cơ sở dữ liệu (hoặc sử dụng cache nếu cần)
             Koi koi = koiRepository.findById(koiId)
                     .orElseThrow(() -> new DataNotFoundException("Koi not found with id: " + koiId));
 
@@ -91,8 +91,8 @@ public class OrderService implements IOrderService{
             orderDetail.setKoi(koi);
             orderDetail.setNumberOfProducts(quantity);
             // Các trường khác của OrderDetail nếu cần
-            orderDetail.setPrice((float)koi.getPrice());
-            orderDetail.setTotalMoney((float)koi.getPrice() * quantity); // Tính tổng tiền
+            orderDetail.setPrice((float) koi.getPrice());
+            orderDetail.setTotalMoney((float) koi.getPrice() * quantity); // Tính tổng tiền
 
             // Thêm OrderDetail vào danh sách
             orderDetails.add(orderDetail);
@@ -125,7 +125,7 @@ public class OrderService implements IOrderService{
 
         // Set the order for each order detail
         for (OrderDetailDTO orderDetailDTO : orderWithDetailsDTO.orderDetailDTOS()) {
-            //orderDetail.setOrder(OrderDetail);
+            // orderDetail.setOrder(OrderDetail);
         }
 
         // Save or update the order details
@@ -136,21 +136,20 @@ public class OrderService implements IOrderService{
 
         return savedOrder;
     }
+
     @Override
     public Order getOrder(Long id) {
-        return orderRepository.findById(id).orElseThrow(() ->
-                new DataNotFoundException("Cannot find order with id: " + id));
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + id));
     }
 
     @Override
     @Transactional
-    public Order updateOrder(Long id, OrderDTO orderDTO)
-            throws DataNotFoundException {
-        Order order = orderRepository.findById(id).orElseThrow(() ->
-                new DataNotFoundException("Cannot find order with id: " + id));
+    public Order updateOrder(Long id, OrderDTO orderDTO) throws DataNotFoundException {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + id));
         User existingUser = userRepository.findById(
-                orderDTO.getUserId()).orElseThrow(() ->
-                new DataNotFoundException("Cannot find user with id: " + id));
+                orderDTO.getUserId()).orElseThrow(() -> new DataNotFoundException("Cannot find user with id: " + id));
 
         // Tạo một luồng bảng ánh xạ riêng để kiểm soát việc ánh xạ
         modelMapper.typeMap(OrderDTO.class, Order.class)
@@ -165,11 +164,10 @@ public class OrderService implements IOrderService{
     @Transactional
     public Order updateOrderByUser(Long id, OrderDTO orderDTO)
             throws DataNotFoundException {
-        Order order = orderRepository.findById(id).orElseThrow(() ->
-                new DataNotFoundException("Cannot find order with id: " + id));
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + id));
         User existingUser = userRepository.findById(
-                orderDTO.getUserId()).orElseThrow(() ->
-                new DataNotFoundException("Cannot find user with id: " + id));
+                orderDTO.getUserId()).orElseThrow(() -> new DataNotFoundException("Cannot find user with id: " + id));
 
         // Tạo một luồng bảng ánh xạ riêng để kiểm soát việc ánh xạ
         modelMapper.typeMap(OrderDTO.class, Order.class)
@@ -177,7 +175,6 @@ public class OrderService implements IOrderService{
         // Cập nhật các trường của đơn hàng từ orderDTO
         modelMapper.map(orderDTO, order);
         order.setUser(existingUser);
-        order.setStatus(OrderStatus.PROCESSING);
         return orderRepository.save(order);
     }
 
@@ -185,10 +182,10 @@ public class OrderService implements IOrderService{
     @Transactional
     public void deleteOrder(Long id) {
         Order order = orderRepository
-            .findById(id)
-            .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + id));
+                .findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + id));
 
-        //no hard-delete, => please soft-delete
+        // no hard-delete, => please soft-delete
         order.setActive(false);
         order.setStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
@@ -198,7 +195,7 @@ public class OrderService implements IOrderService{
     public List<OrderResponse> findByUserId(Long userId) {
         List<Order> orders = orderRepository.findByUserId(userId);
         List<OrderResponse> list = new ArrayList<>();
-        if(orders.isEmpty())
+        if (orders.isEmpty())
             throw new DataNotFoundException("Cannot find order with user id: " + userId);
         for (Order order : orders) {
             list.add(DTOConverter.fromOrder(order));
@@ -214,8 +211,8 @@ public class OrderService implements IOrderService{
     @Override
     @Transactional
     public Order updateOrderStatus(Long id, OrderStatus orderStatus) throws DataNotFoundException {
-        Order order = orderRepository.findById(id).orElseThrow(() ->
-                new DataNotFoundException("Cannot find order with id: " + id));
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + id));
         order.setStatus(orderStatus);
         return orderRepository.save(order);
     }

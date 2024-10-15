@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Fetch;
 
 @Entity
 @Table(name = "payments")
@@ -38,11 +39,11 @@ public class Payment {
     @Column(name = "payment_status", nullable = false)
     private EPaymentStatus paymentStatus; // e.g., SUCCESS, PENDING, REFUNDED
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id")
     private Order order;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

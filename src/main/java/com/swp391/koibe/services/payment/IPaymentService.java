@@ -5,6 +5,7 @@ import com.swp391.koibe.models.Payment;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.Optional;
 
 public interface IPaymentService {
         Map<String, String> createDepositPayment(PaymentDTO paymentDTO, String ipAddress)
@@ -17,7 +18,7 @@ public interface IPaymentService {
 
         Payment createPayment(PaymentDTO payment);
 
-        Payment getPaymentByOrderID(Long id);
+        Optional<Payment> getPaymentByOrderID(Long id);
 
         Map<String, Object> createPaymentAndUpdateOrder(PaymentDTO paymentDTO) throws Exception;
 
