@@ -5,12 +5,14 @@ import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.AuctionKoi;
 import com.swp391.koibe.responses.AuctionKoiResponse;
+import jakarta.mail.MessagingException;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface IAuctionKoiService {
-    AuctionKoi createAuctionKoi(AuctionKoiDTO auctionKoiDTO) throws DataNotFoundException;
+    AuctionKoi createAuctionKoi(AuctionKoiDTO auctionKoiDTO)
+        throws DataNotFoundException, MessagingException;
     AuctionKoi createAuctionKoiV2(AuctionKoi auctionKoi) throws DataNotFoundException;
     AuctionKoi getAuctionKoiById(long id) throws DataNotFoundException;
     AuctionKoiResponse getAuctionKoiResponeById(long id) throws DataNotFoundException;

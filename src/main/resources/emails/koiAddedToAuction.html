@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Koi Added To Auction - Auction Koi</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #333;
+    }
+    p {
+      color: #555;
+    }
+    .footer {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Koi Added to Auction</h1>
+  <p>Dear <strong th:text="${name}">User</strong>,</p>
+  <p>We are excited to inform you that the koi named <strong th:text="${koiName}">Koi Name</strong> has been successfully added to the auction!</p>
+  <p>Thank you for participating in our auction.</p>
+  <p>Best regards,</p>
+  <p>The Auction Koi Team</p>
+  <div class="footer">
+    <p>This is an automated message, please do not reply.</p>
+  </div>
+</div>
+</body>
+</html>

@@ -4,18 +4,21 @@ import com.swp391.koibe.dtos.auctionkoi.AuctionKoiDTO;
 import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
 import com.swp391.koibe.enums.EAuctionStatus;
 import com.swp391.koibe.enums.EBidMethod;
+import com.swp391.koibe.enums.EmailCategoriesEnum;
 import com.swp391.koibe.exceptions.MalformDataException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Auction;
 import com.swp391.koibe.models.AuctionKoi;
 import com.swp391.koibe.models.Koi;
+import com.swp391.koibe.models.User;
 import com.swp391.koibe.repositories.AuctionKoiRepository;
 import com.swp391.koibe.repositories.AuctionRepository;
 import com.swp391.koibe.repositories.KoiRepository;
 import com.swp391.koibe.responses.AuctionKoiResponse;
-import com.swp391.koibe.services.auction.AuctionService;
+import com.swp391.koibe.services.auction.IAuctionService;
+import com.swp391.koibe.services.mail.IMailService;
 import com.swp391.koibe.utils.DTOConverter;
-import java.time.LocalDateTime;
+import jakarta.mail.MessagingException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -23,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
 
 @Service
 @RequiredArgsConstructor
@@ -31,10 +35,12 @@ public class AuctionKoiService implements IAuctionKoiService {
     private final AuctionKoiRepository auctionKoiRepository;
     private final AuctionRepository auctionRepository;
     private final KoiRepository koiRepository;
-    private final AuctionService auctionService;
+    private final IAuctionService auctionService;
+    private final IMailService mailService;
 
     @Override
-    public AuctionKoi createAuctionKoi(AuctionKoiDTO auctionKoiDTO) throws DataNotFoundException {
+    public AuctionKoi createAuctionKoi(AuctionKoiDTO auctionKoiDTO)
+        throws DataNotFoundException, MessagingException {
 
         //check if the auction is already include this koi
         List<AuctionKoi> auctionKois = auctionKoiRepository.getAuctionKoiByAuctionId(auctionKoiDTO.auctionId());
@@ -89,6 +95,19 @@ public class AuctionKoiService implements IAuctionKoiService {
                 .auction(auctionService.findAuctionById(auctionKoiDTO.auctionId()))
                 .koi(existingKoi.get())
                 .build();
+
+        User owner = existingKoi.get().getOwner();
+
+        Context context = new Context();
+        context.setVariable("name", owner.getFirstName());
+        context.setVariable("koiName", existingKoi.get().getName());
+
+        mailService.sendMail(
+            owner.getEmail(),
+            "Your koi has been added to an auction",
+            EmailCategoriesEnum.KOI_ADDED_TO_AUCTION.getType(),
+            context
+        );
 
         return auctionKoiRepository.save(newAuctionKoi);
     }
