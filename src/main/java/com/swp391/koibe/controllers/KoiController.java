@@ -125,11 +125,19 @@ public class KoiController {
     }
 
     @GetMapping("/status")
-    public ResponseEntity<Set<KoiResponse>> getKoiListByStatus(
+    public ResponseEntity<KoiPaginationResponse> getKoiListByStatus(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int limit,
         @RequestParam String status
     ){
+        KoiPaginationResponse response = new KoiPaginationResponse();
         EKoiStatus eKoiStatus = EKoiStatus.valueOf(status.toUpperCase());
-        return ResponseEntity.ok(koiService.getKoiByStatus(eKoiStatus));
+        PageRequest pageRequest = PageRequest.of(page, limit);
+        Page<KoiResponse> kois = koiService.getKoiByStatus(pageRequest, eKoiStatus);
+        response.setItem(kois.getContent());
+        response.setTotalPage(kois.getTotalPages());
+        response.setTotalItem(kois.getTotalElements());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping(value = "")

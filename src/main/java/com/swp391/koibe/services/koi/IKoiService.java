@@ -34,7 +34,7 @@ public interface IKoiService<T> {
     KoiImage createKoiImage(Long koiId, KoiImageDTO koiImageDTO)
         throws Exception;
 
-    Set<KoiResponse> getKoiByStatus(EKoiStatus status);
+    Page<KoiResponse> getKoiByStatus(Pageable pageable,EKoiStatus status);
 
     void updateKoiStatus(long id, UpdateKoiStatusDTO updateKoiStatusDTO) throws MessagingException;
 }

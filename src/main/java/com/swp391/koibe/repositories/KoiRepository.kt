@@ -10,4 +10,5 @@ interface KoiRepository : JpaRepository<Koi, Long> {
     fun existsByName(name: String): Boolean
     fun findByOwnerId(ownerId: Long, pageable: Pageable): Page<Koi>
     fun findByOwnerIdAndStatus(owner_id: Long, status: EKoiStatus, pageable: Pageable): Page<Koi>
+    fun findByStatus(status: EKoiStatus, pageable: Pageable): Page<Koi>
 }

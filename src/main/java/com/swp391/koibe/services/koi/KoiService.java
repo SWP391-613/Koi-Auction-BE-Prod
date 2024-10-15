@@ -157,11 +157,10 @@ public class KoiService implements IKoiService<KoiResponse> {
     }
 
     @Override
-    public Set<KoiResponse> getKoiByStatus(EKoiStatus status) {
-        return getAllKois().stream()
-            .filter(koi -> koi.getStatus() == status)
-            .map(DTOConverter::convertToKoiDTO)
-            .collect(Collectors.toSet());
+    public Page<KoiResponse> getKoiByStatus(Pageable pageable, EKoiStatus status) {
+        return koiRepository
+            .findByStatus(status, pageable)
+            .map(DTOConverter::convertToKoiDTO);
     }
 
     @Override

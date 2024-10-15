@@ -149,6 +149,10 @@ public class AuctionService implements IAuctionService {
              throw new DeleteException("Cannot delete auction with joined koi");
          }
 
+         if(auction.getStatus().equals(EAuctionStatus.ONGOING)){
+             throw new DeleteException("Cannot delete ongoing auction");
+         }
+
          //only delete in case auction has no joined participants, koi added
         auctionRepository.delete(auction);
     }

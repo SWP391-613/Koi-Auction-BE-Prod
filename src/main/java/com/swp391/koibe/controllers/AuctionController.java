@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -143,6 +144,7 @@ public class AuctionController {
     }
 
     @PostMapping("")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER')")
     public ResponseEntity<AuctionResponse> createAuction(
         @Valid @RequestBody AuctionDTO auctionDTO,
         BindingResult result
@@ -173,6 +175,7 @@ public class AuctionController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
     public ResponseEntity<AuctionResponse> updateAuction(
         @PathVariable long id,
         @Valid @RequestBody AuctionDTO auctionDTO,
@@ -202,6 +205,7 @@ public class AuctionController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     public ResponseEntity<AuctionResponse> deleteAuction(@PathVariable long id) {
         AuctionResponse response = new AuctionResponse();
         try {
