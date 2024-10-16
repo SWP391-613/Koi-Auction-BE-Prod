@@ -178,25 +178,23 @@ public class AuctionService implements IAuctionService {
     }
 
     @Override
-    public boolean updateAuctionStatus(long auctionId, Auction auction) throws DataNotFoundException {
-        Auction auctionToUpdate = auctionRepository.findById(auctionId)
-                .orElseThrow(() -> new DataNotFoundException("Auction not found"));
+    public boolean updateAuctionStatus(Auction auction) throws DataNotFoundException {
         boolean isUpdated = false;
-        if (auctionToUpdate.getStatus().equals((EAuctionStatus.UPCOMING))) {
-            if (auctionToUpdate.getStartTime().isBefore(LocalDateTime.now()) &&
-                    auctionToUpdate.getEndTime().isAfter(LocalDateTime.now())) {
-                auctionToUpdate.setStatus(EAuctionStatus.ONGOING);
+        if (auction.getStatus().equals((EAuctionStatus.UPCOMING))) {
+            if (auction.getStartTime().isBefore(LocalDateTime.now()) &&
+                    auction.getEndTime().isAfter(LocalDateTime.now())) {
+                auction.setStatus(EAuctionStatus.ONGOING);
                 isUpdated = true;
             }
         }
 
-        if (auctionToUpdate.getEndTime().isBefore(LocalDateTime.now()) &&
-                auctionToUpdate.getStatus().equals(EAuctionStatus.ONGOING)) {
-            auctionToUpdate.setStatus(EAuctionStatus.ENDED);
+        if (auction.getEndTime().isBefore(LocalDateTime.now()) &&
+                auction.getStatus().equals(EAuctionStatus.ONGOING)) {
+            auction.setStatus(EAuctionStatus.ENDED);
             isUpdated = true;
         }
 
-        auctionRepository.save(auctionToUpdate);
+        auctionRepository.save(auction);
         return isUpdated;
     }
     public Set<Auction> getAuctionOnCondition(String condition) {

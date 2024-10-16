@@ -209,6 +209,11 @@ public class OrderService implements IOrderService {
     }
 
     @Override
+    public List<Order> getOrdersByStatus(OrderStatus orderStatus) throws DataNotFoundException {
+        return orderRepository.findByStatus(orderStatus);
+    }
+
+    @Override
     @Transactional
     public Order updateOrderStatus(Long id, OrderStatus orderStatus) throws DataNotFoundException {
         Order order = orderRepository.findById(id)

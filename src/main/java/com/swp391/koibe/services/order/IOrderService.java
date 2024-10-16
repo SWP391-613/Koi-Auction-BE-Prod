@@ -20,4 +20,5 @@ public interface IOrderService {
     void deleteOrder(Long id);
     List<OrderResponse> findByUserId(Long userId);
     Page<Order> getOrdersByKeyword(String keyword, Pageable pageable);
+    List<Order> getOrdersByStatus(OrderStatus orderStatus) throws DataNotFoundException;
 }
