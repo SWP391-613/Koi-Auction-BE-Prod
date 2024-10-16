@@ -1,35 +1,37 @@
 package com.swp391.koibe.controllers;
 
-import com.swp391.koibe.constants.EmailSubject;
-import com.swp391.koibe.enums.EmailCategoriesEnum;
-import com.swp391.koibe.models.Otp;
+import com.swp391.koibe.dtos.UpdatePasswordDTO;
+import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.models.User;
-import com.swp391.koibe.repositories.UserRepository;
 import com.swp391.koibe.responses.ForgotPasswordResponse;
-import com.swp391.koibe.services.mail.IMailService;
-import com.swp391.koibe.services.otp.IOtpService;
-import com.swp391.koibe.utils.OTPUtils;
+import com.swp391.koibe.services.forgotpassword.IForgotPasswordService;
+import com.swp391.koibe.services.user.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.thymeleaf.context.Context;
 
+@Slf4j
 @RequestMapping(path = "${api.prefix}/forgot-password")
 @RestController
 @RequiredArgsConstructor
 public class ForgotPasswordController {
 
     private final HttpServletRequest request;
-    private final IMailService mailService;
-    private final IOtpService otpService;
+private final IForgotPasswordService forgotPasswordService;
+    private final UserService userService;
 
     @GetMapping("")
     public ResponseEntity<ForgotPasswordResponse> forgotPassword(
@@ -37,29 +39,39 @@ public class ForgotPasswordController {
     ) throws MessagingException {
         User user = (User) request.getAttribute("validatedEmail"); //get from aop
 
-        Context context = new Context();
-        String otp = OTPUtils.generateOTP();
-        context.setVariable("name", user.getFirstName());
-        context.setVariable("otp", otp);
+        try{
+            forgotPasswordService.sendEmailOtp(user);
 
-        mailService.sendMail(user.getEmail(),
-                             EmailSubject.subjectForgotPassword(user.getFirstName()),
-                             EmailCategoriesEnum.FORGOT_PASSWORD.getType(),
-                             context);
+            ForgotPasswordResponse response =
+                new ForgotPasswordResponse("Forgot password email sent successfully to " + user.getEmail());
+            return ResponseEntity.ok(response);
+        }catch (Exception e){
+            if(e instanceof MessagingException){
+                log.error("Error sending email", e.getCause());
+                throw e;
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ForgotPasswordResponse("Internal server error"));
+        }
+    }
 
-        Otp otpEntity = Otp.builder()
-            .email(user.getEmail())
-            .otp(otp)
-            .expiredAt(LocalDateTime.now().plusMinutes(5))
-            .isUsed(false)
-            .isExpired(false)
-            .build();
+    @PutMapping("")
+    public ResponseEntity<?> updatePassword(
+        @Valid @RequestBody UpdatePasswordDTO updatePasswordDTO,
+        BindingResult result
+    ){
+        if(result.hasErrors()){
+            throw new MethodArgumentNotValidException(result);
+        }
 
-        otpService.createOtp(otpEntity);
+        try{
+            userService.updatePassword(updatePasswordDTO);
+            return ResponseEntity.ok("Password updated successfully");
+        }catch (Exception e){
+            log.error("Error updating password", e.getCause());
+            return ResponseEntity.badRequest().body("Error updating password");
+        }
 
-        ForgotPasswordResponse response = new ForgotPasswordResponse("Forgot password email sent "
-                                                                         + "successfully");
-        return new ResponseEntity<>(response, HttpStatus.OK);
+
     }
 
 }

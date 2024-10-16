@@ -2,6 +2,7 @@ package com.swp391.koibe.services.user;
 
 import com.swp391.koibe.components.JwtTokenUtils;
 import com.swp391.koibe.components.LocalizationUtils;
+import com.swp391.koibe.dtos.UpdatePasswordDTO;
 import com.swp391.koibe.dtos.UpdateUserDTO;
 import com.swp391.koibe.dtos.UserRegisterDTO;
 import com.swp391.koibe.enums.EmailCategoriesEnum;
@@ -193,7 +194,8 @@ public class UserService implements IUserService {
     @Override
     public User getUserById(long id) throws DataNotFoundException {
         return userRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("User not found: " + id));
+                .orElseThrow(() -> new DataNotFoundException(
+                    localizationUtils.getLocalizedMessage(MessageKeys.USER_NOT_FOUND)));
     }
 
     @Override
@@ -348,8 +350,9 @@ public class UserService implements IUserService {
         }
     }
 
+    @Transactional
     @Override
-    public void verifyOtp(Long userId, String otp) throws Exception {
+    public void verifyOtpToVerifyUser(Long userId, String otp) throws Exception {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException(
                         localizationUtils.getLocalizedMessage(MessageKeys.USER_NOT_FOUND)
@@ -365,10 +368,7 @@ public class UserService implements IUserService {
             throw new DataNotFoundException("User is banned");
         }
 
-        Otp otpEntity = otpService.getOtpByEmailOtp(
-                        user.getEmail(),
-                        otp)
-                .orElseThrow(() -> new DataNotFoundException("OTP not found"));
+        Otp otpEntity = getOtpByEmailOtp(user.getEmail(), otp);
 
         //check the otp is expired or not
         if (otpEntity.getExpiredAt().isBefore(LocalDateTime.now())) {
@@ -379,14 +379,39 @@ public class UserService implements IUserService {
             );
         }
 
-        if (otpEntity.getOtp().equals(String.valueOf(otp))) {
-            otpEntity.setUsed(true);
+        if (!otpEntity.getOtp().equals(String.valueOf(otp))) throw new DataNotFoundException("Invalid OTP");
+
+        otpEntity.setUsed(true);
+        otpService.disableOtp(otpEntity.getId());
+        user.setStatus(UserStatus.VERIFIED);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    @Override
+    public void verifyOtpIsCorrect(Long userId, String otp) throws Exception {
+        User user = getUserById(userId);
+
+        Otp otpEntity = getOtpByEmailOtp(user.getEmail(), otp);
+
+        //check the otp is expired or not
+        if (otpEntity.getExpiredAt().isBefore(LocalDateTime.now())) {
+            otpEntity.setExpired(true);
             otpService.disableOtp(otpEntity.getId());
-            user.setStatus(UserStatus.VERIFIED);
-            userRepository.save(user);
-        } else {
-            throw new DataNotFoundException("Invalid OTP");
+            throw new DataNotFoundException(
+                localizationUtils.getLocalizedMessage(MessageKeys.OTP_EXPIRED)
+            );
         }
+
+        if (!otpEntity.getOtp().equals(String.valueOf(otp))) throw new DataNotFoundException("Invalid OTP");
+
+        otpEntity.setUsed(true);
+        otpService.disableOtp(otpEntity.getId());
+    }
+
+    private Otp getOtpByEmailOtp(String email, String otp) {
+        return otpService.getOtpByEmailOtp(email, otp)
+            .orElseThrow(() -> new DataNotFoundException("OTP not found"));
     }
 
     @Override
@@ -401,14 +426,24 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Page<User> findAll(String keyword, Pageable pageable) throws Exception {
-        return null;
+    @Transactional
+    public void updatePassword(UpdatePasswordDTO updatePasswordDTO) throws Exception {
+        User existingUser = userRepository.findByEmail(updatePasswordDTO.email())
+                .orElseThrow(() -> new DataNotFoundException(
+                        localizationUtils.getLocalizedMessage(MessageKeys.USER_NOT_FOUND)
+                ));
+
+        if(existingUser.getRole().getId() == 4){
+            throw new PermissionDeniedException("Cannot change password for this account");
+        }
+
+        existingUser.setPassword(passwordEncoder.encode(updatePasswordDTO.newPassword()));
+        userRepository.save(existingUser);
     }
 
     @Override
-    public void resetPassword(Long userId, String newPassword)
-            throws InvalidPasswordException, DataNotFoundException {
-
+    public Page<User> findAll(String keyword, Pageable pageable) throws Exception {
+        return null;
     }
 
     @Override

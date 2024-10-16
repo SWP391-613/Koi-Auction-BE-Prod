@@ -218,7 +218,7 @@ public class UserController {
         try {
             String extractedToken = authorizationHeader.substring(7);
             User user = userService.getUserDetailsFromToken(extractedToken);
-            userService.verifyOtp(user.getId(), String.valueOf(otp));
+            userService.verifyOtpToVerifyUser(user.getId(), String.valueOf(otp));
             otpResponse.setMessage(localizationUtils.getLocalizedMessage(MessageKeys.VERIFY_USER_SUCCESSFULLY));
             return ResponseEntity.ok().body(otpResponse);
         } catch (Exception e){
@@ -245,7 +245,7 @@ public class UserController {
         OtpResponse otpResponse = new OtpResponse();
         try {
             User user = userService.getUserByEmail(verifyUserDTO.email());
-            userService.verifyOtp(user.getId(), verifyUserDTO.otp());
+            userService.verifyOtpToVerifyUser(user.getId(), verifyUserDTO.otp());
             otpResponse.setMessage(localizationUtils.getLocalizedMessage(MessageKeys.VERIFY_USER_SUCCESSFULLY));
             return ResponseEntity.ok().body(otpResponse);
         } catch (Exception e){

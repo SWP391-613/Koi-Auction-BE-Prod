@@ -15,6 +15,8 @@ object MessageKeys {
     const val VERIFY_USER_FAILED: String = "user.verify.verify_failed"
     const val USER_ALREADY_VERIFIED: String = "user.verify.user_already_verified"
     const val OTP_EXPIRED: String = "user.verify.otp_expired"
+    const val OTP_IS_CORRECT: String = "user.verify.otp_is_correct"
+    const val OTP_IS_INCORRECT: String = "user.verify.otp_is_incorrect"
 
     const val INSERT_CATEGORY_SUCCESSFULLY: String = "category.create_category.create_successfully"
     const val DELETE_CATEGORY_SUCCESSFULLY: String = "category.delete_category.delete_successfully"

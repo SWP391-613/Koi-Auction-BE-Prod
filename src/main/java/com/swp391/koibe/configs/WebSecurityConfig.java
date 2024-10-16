@@ -201,9 +201,13 @@ public class WebSecurityConfig {
 
                     //forgot-password
                     .requestMatchers(GET, String.format("%s/forgot-password**", apiPrefix)).permitAll()
-
+                    .requestMatchers(PUT, String.format("%s/forgot-password**", apiPrefix)).permitAll()
 //                            .requestMatchers(GET, "/api/v1/payment/vnpay/payment_return")
 //                            .permitAll()
+
+                    //OtpController
+                    .requestMatchers(GET, String.format("%s/otp/send", apiPrefix)).permitAll()
+                    .requestMatchers(POST, String.format("%s/otp/verify", apiPrefix)).permitAll()
 
                     .anyRequest().authenticated();
 
