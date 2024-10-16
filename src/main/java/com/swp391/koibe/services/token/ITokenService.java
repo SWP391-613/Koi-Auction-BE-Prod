@@ -12,4 +12,5 @@ public interface ITokenService {
     Token refreshToken(String refreshToken, User user) throws Exception;
     void deleteToken(String token, User user) throws DataNotFoundException;
     Token findUserByToken(String token) throws DataNotFoundException;
+    void setTokenExpired();
 }

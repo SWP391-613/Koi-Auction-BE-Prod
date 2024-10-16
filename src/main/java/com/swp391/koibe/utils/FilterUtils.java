@@ -1,7 +1,10 @@
 package com.swp391.koibe.utils;
 
+import com.swp391.koibe.models.Bid;
 import com.swp391.koibe.models.User;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FilterUtils {
 
@@ -55,6 +58,18 @@ public class FilterUtils {
             .filter(staff -> staff.getId() == staffId)
             .findFirst()
             .orElse(null);
+    }
+
+    public static Map<Long, Long> filterBiddersExceptWinner(
+        Long winnerBidderId,
+        List<Bid> bids,
+        Map<Long, Long> userBids){
+        for (Bid bid : bids) {
+            if (!bid.getBidder().getId().equals(winnerBidderId)) {
+                userBids.put(bid.getBidder().getId(), 0L);
+            }
+        }
+        return userBids;
     }
 
 }

@@ -69,6 +69,13 @@ public class TokenService implements ITokenService{
         return tokenRepository.findByToken(token);
     }
 
+    @Override
+    @Transactional
+    public void setTokenExpired() {
+        LocalDateTime now = LocalDateTime.now();
+        tokenRepository.updateExpiredTokens(now);
+    }
+
     @Transactional
     @Override
     public Token addToken(User user,String token, boolean isMobileDevice) {

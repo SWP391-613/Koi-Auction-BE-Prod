@@ -33,6 +33,7 @@ public class PaymentService implements IPaymentService {
     private final IOrderService orderService;
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final VNPayConfig VNPayConfig;
 
     @Override
     public Map<String, String> createDepositPayment(PaymentDTO paymentDTO, String ipAddress)
@@ -67,14 +68,14 @@ public class PaymentService implements IPaymentService {
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", "2.1.0");
         vnp_Params.put("vnp_Command", "pay");
-        vnp_Params.put("vnp_TmnCode", VNPayConfig.vnp_TmnCode);
+        vnp_Params.put("vnp_TmnCode", VNPayConfig.getVnp_TmnCode());
         vnp_Params.put("vnp_Amount", String.valueOf(amount));
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_BankCode", "NCB");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
         vnp_Params.put("vnp_OrderType", "other");
         vnp_Params.put("vnp_Locale", "vn");
-        vnp_Params.put("vnp_ReturnUrl", VNPayConfig.vnp_Returnurl);
+        vnp_Params.put("vnp_ReturnUrl", VNPayConfig.getVnp_Returnurl());
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
@@ -112,9 +113,9 @@ public class PaymentService implements IPaymentService {
             }
         }
         String queryUrl = query.toString();
-        String vnp_SecureHash = VNPayConfig.hmacSHA512(VNPayConfig.vnp_HashSecret, hashData.toString());
+        String vnp_SecureHash = VNPayConfig.hmacSHA512(VNPayConfig.getVnp_HashSecret(), hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
-        return VNPayConfig.vnp_PayUrl + "?" + queryUrl;
+        return VNPayConfig.getVnp_PayUrl() + "?" + queryUrl;
     }
 
     @Override

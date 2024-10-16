@@ -6,18 +6,27 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
+@ConfigurationProperties(prefix = "vnpay.api")
+@Getter
+@Setter
 public class VNPayConfig {
-    public static String vnp_Version = "2.0.0";
-    public static String vnp_Command = "pay";
-    public static String vnp_OrderType = "billpayment";
-    public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_Returnurl = "http://localhost:4000/api/v1/payment/vnpay/payment_return";
-    public static String vnp_TmnCode = "XM1B4C8V"; // kiểm tra email sau
-    public static String vnp_HashSecret = "JC3DPNWE1FO1PE8441MVDMCB77N16S71"; // khi đăng ký Test
-    public static String vnp_apiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
 
-    public static String hashAllFields(Map fields) {
+    private String vnp_Version;
+    private String vnp_Command;
+    private String vnp_OrderType;
+    private String vnp_PayUrl;
+    private String vnp_Returnurl;
+    private String vnp_TmnCode; // kiểm tra email sau
+    private String vnp_HashSecret; // khi đăng ký Test
+    private String vnp_apiUrl;
+
+    public String hashAllFields(Map fields) {
         List fieldNames = new ArrayList(fields.keySet());
         Collections.sort(fieldNames);
         StringBuilder sb = new StringBuilder();
@@ -34,7 +43,7 @@ public class VNPayConfig {
                 sb.append("&");
             }
         }
-        return hmacSHA512(vnp_HashSecret, sb.toString());
+        return hmacSHA512(getVnp_HashSecret(), sb.toString());
     }
 
     public static String hmacSHA512(final String key, final String data) {

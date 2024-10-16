@@ -6,6 +6,7 @@ import com.swp391.koibe.models.User;
 import com.swp391.koibe.responses.UserResponse;
 import com.swp391.koibe.services.mail.IMailService;
 import com.swp391.koibe.services.user.UserService;
+import com.swp391.koibe.utils.FilterUtils;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.retry.annotation.Backoff;
@@ -37,14 +38,14 @@ public class BiddingHistoryEmailService implements IBiddingHistoryEmailService {
         if (winnerBidderId != null) {
             List<Bid> bids = biddingHistoryService.getBidsByAuctionKoiId(auctionKoi.getId());
             Map<Long, Long> userBids = new HashMap<>();
-            // get list of bidders except the winner
-            for (Bid bid : bids) {
-                if (!bid.getBidder().getId().equals(winnerBidderId)) {
-                    userBids.put(bid.getBidder().getId(), 0L);
-                }
-            }
             // iterate through the Map userBids
-            for (Map.Entry<Long, Long> entry : userBids.entrySet()) {
+            for (Map.Entry<Long, Long> entry :
+                FilterUtils.filterBiddersExceptWinner(
+                    winnerBidderId,
+                    bids,
+                    userBids
+                ).entrySet())
+            {
                 Long bidedAmount = biddingHistoryService.getBidderLatestBid(entry.getKey(), auctionKoi.getId()).getBidAmount();
                 try {
                     User user = userService.getUserById(entry.getKey());

@@ -15,7 +15,9 @@ import com.swp391.koibe.services.biddinghistory.IBiddingHistoryEmailService;
 import com.swp391.koibe.services.biddinghistory.IBiddingHistoryService;
 import com.swp391.koibe.services.order.IOrderService;
 import com.swp391.koibe.services.otp.IOtpService;
+import com.swp391.koibe.services.token.TokenService;
 import com.swp391.koibe.services.user.IUserService;
+import com.swp391.koibe.utils.FilterUtils;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +46,7 @@ public class SystemService {
     private final IAuctionMailService auctionMailService;
     private final IBiddingHistoryEmailService biddingHistoryEmailService;
     private final IOtpService otpService;
+    private final TokenService tokenService;
 
     //every 10 minutes
     @Scheduled(cron = "0 */10 * * * *")
@@ -98,14 +101,14 @@ public class SystemService {
         if (winnerBidderId != null) {
             List<Bid> bids = biddingHistoryService.getBidsByAuctionKoiId(auctionKoi.getId());
             Map<Long, Long> userBids = new HashMap<>();
-            // get list of bidders except the winner
-            for (Bid bid : bids) {
-                if (!bid.getBidder().getId().equals(winnerBidderId)) {
-                    userBids.put(bid.getBidder().getId(), 0L);
-                }
-            }
             // iterate through the Map userBids
-            for (Map.Entry<Long, Long> entry : userBids.entrySet()) {
+            for (Map.Entry<Long, Long> entry :
+                FilterUtils.filterBiddersExceptWinner(
+                    winnerBidderId,
+                    bids,
+                    userBids
+                ).entrySet())
+            {
                 Long bidedAmount = biddingHistoryService.getBidderLatestBid(entry.getKey(), auctionKoi.getId()).getBidAmount();
                 try {
                     userService.updateAccountBalance(entry.getKey(), bidedAmount);
@@ -162,6 +165,18 @@ public class SystemService {
         } catch (Exception e) {
             // Log the exception and handle error
             log.error("Error auto setting OTP expired", e.getCause());
+        }
+    }
+
+    //validate the token every 15days
+    @Scheduled(cron = "0 0 0 1/15 * ?")
+    @Async
+    public void setTokenExpired() {
+        try {
+            tokenService.setTokenExpired();
+        } catch (Exception e) {
+            // Log the exception and handle error
+            log.error("Error auto setting Token expired", e.getCause());
         }
     }
 
