@@ -83,6 +83,12 @@ public class AuctionKoiService implements IAuctionKoiService {
 
         }
 
+        Long currentBidValue = auctionKoiDTO.currentBid() != null ? auctionKoiDTO.currentBid() : 0L;
+
+        if(auctionKoiDTO.bidMethod().equals("DESCENDING_BID")){
+            currentBidValue = validCeilPrice;
+        }
+
         // save auction koi
         AuctionKoi newAuctionKoi = AuctionKoi.builder()
                 .basePrice(auctionKoiDTO.basePrice())
@@ -90,7 +96,7 @@ public class AuctionKoiService implements IAuctionKoiService {
                 .bidMethod(EBidMethod.valueOf(auctionKoiDTO.bidMethod()))
                 .ceilPrice(validCeilPrice)
                 .isSold(false) // default is false when add new koi to auction (if sold, update later)
-                .currentBid(auctionKoiDTO.currentBid() != null ? auctionKoiDTO.currentBid() : 0L)
+                .currentBid(currentBidValue)
                 .currentBidderId(auctionKoiDTO.currentBidderId() != null ? auctionKoiDTO.currentBidderId() : 0L)
                 .auction(auctionService.findAuctionById(auctionKoiDTO.auctionId()))
                 .koi(existingKoi.get())
