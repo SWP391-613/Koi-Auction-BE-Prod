@@ -35,6 +35,9 @@ public class AuctionKoiResponse {
     @JsonProperty("current_bidder_id")
     private Long currentBidderId;
 
+    @JsonProperty("revoked")
+    private int revoked;
+
     @JsonProperty("is_sold")
     private boolean isSold;
 

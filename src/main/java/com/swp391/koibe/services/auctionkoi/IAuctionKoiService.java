@@ -28,4 +28,5 @@ public interface IAuctionKoiService {
     void updateAuctionKoiStatus(long auctionKoiId, AuctionKoi auctionKoi);
     List<AuctionKoi> getAuctionKoiByAuctionIdV2(long id);
     void updateDescendAuctionKoiPrice(long auctionKoiId, AuctionKoi auctionKoi);
+    AuctionKoi revokeKoiInAuction(long koiId, long auctionId);
 }

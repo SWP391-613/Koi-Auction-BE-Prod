@@ -145,7 +145,7 @@ public class AuctionService implements IAuctionService {
         }
 
         //check if auction has joined koi
-         if(!auctionKoiRepository.getAuctionKoiByAuctionId(id).isEmpty()) {
+         if(!auctionKoiRepository.findAuctionKoiByAuctionId(id).isEmpty()) {
              throw new DeleteException("Cannot delete auction with joined koi");
          }
 

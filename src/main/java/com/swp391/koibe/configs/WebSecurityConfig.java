@@ -135,6 +135,15 @@ public class WebSecurityConfig {
                     .hasAnyRole(Role.MANAGER)
                     //******************************8
 
+                    //AuctionKoiController******************
+                    .requestMatchers(GET,
+                                     String.format("%s/auctionkois**", apiPrefix))
+                    .permitAll()
+                    .requestMatchers(DELETE,
+                                     String.format("%s/auctionkois**", apiPrefix))
+                    .hasAnyRole(Role.BREEDER, Role.MANAGER, Role.STAFF)
+
+
                     .requestMatchers(GET,
                                      String.format("%s/orders**", apiPrefix))
                     .permitAll()

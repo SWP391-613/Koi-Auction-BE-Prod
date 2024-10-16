@@ -3,6 +3,7 @@ package com.swp391.koibe.controllers;
 import com.swp391.koibe.dtos.auctionkoi.AuctionKoiDTO;
 import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
 import com.swp391.koibe.exceptions.GenerateDataException;
+import com.swp391.koibe.exceptions.KoiRevokeException;
 import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.AuctionKoi;
@@ -13,16 +14,25 @@ import com.swp391.koibe.services.biddinghistory.IBiddingHistoryService;
 import com.swp391.koibe.services.koi.IKoiService;
 import com.swp391.koibe.services.redis.auctionkoi.AuctionKoiRedisService;
 import com.swp391.koibe.services.user.IUserService;
+import com.swp391.koibe.utils.DTOConverter;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -202,6 +212,7 @@ public class AuctionKoiController {
             response.setBidMethod(String.valueOf(newAuctionKoi.getBidMethod()));
             response.setCurrentBid(newAuctionKoi.getCurrentBid());
             response.setCurrentBidderId(newAuctionKoi.getCurrentBidderId());
+            response.setRevoked(newAuctionKoi.getRevoked());
             response.setSold(newAuctionKoi.isSold());
             response.setKoiId(newAuctionKoi.getKoi().getId());
             response.setAuctionId(newAuctionKoi.getAuction().getId());
@@ -209,7 +220,7 @@ public class AuctionKoiController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error creating auctionkoi: " + e.getMessage());
-            throw new GenerateDataException("Error creating auctionkoi: " + e.getMessage());
+            throw new GenerateDataException(e.getMessage());
         }
     }
 
@@ -228,6 +239,21 @@ public class AuctionKoiController {
         } catch (Exception e) {
             log.error("Error updating auctionkoi: " + e.getMessage());
             throw new GenerateDataException("Error updating auctionkoi: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/kois/{koi_id}/auctions/{auction_id}")
+    @PreAuthorize("hasAnyRole('ROLE_BREEDER', 'ROLE_MANAGER', 'ROLE_STAFF')")
+    public ResponseEntity<AuctionKoiResponse> revokeKoiInAuction(
+        @PathVariable Long koi_id,
+        @PathVariable Long auction_id
+    ){
+        try {
+            AuctionKoi updatedAuctionKoi = auctionKoiService.revokeKoiInAuction(koi_id, auction_id);
+            return ResponseEntity.ok(DTOConverter.convertToAuctionKoiDTO(updatedAuctionKoi));
+        } catch (Exception e) {
+            log.error("Error revoking koi in auction: " + e.getMessage());
+            throw new KoiRevokeException(e.getMessage());
         }
     }
 

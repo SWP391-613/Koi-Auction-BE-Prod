@@ -58,6 +58,9 @@ public class AuctionKoi {
     @Column(name = "current_bidder_id") // Nullable since no bidder initially
     private Long currentBidderId; // Track the highest bidder
 
+    @Column(name = "revoked", nullable = false, columnDefinition = "int default 0")
+    private int revoked; // Track if the item has been revoked
+
     @ManyToOne
     @JoinColumn(name = "auction_id")
     private Auction auction;

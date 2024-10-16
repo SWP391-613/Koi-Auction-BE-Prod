@@ -147,4 +147,13 @@ public class ApplicationExceptionHandler {
             .build();
     }
 
+    @ExceptionHandler(KoiRevokeException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public BaseResponse<Object> handleKoiRevokeException(KoiRevokeException e) {
+        return ExceptionResponse.builder()
+            .message(localizationUtils.getLocalizedMessage("exception.koi_revoke"))
+            .reason(e.getMessage())
+            .build();
+    }
+
 }

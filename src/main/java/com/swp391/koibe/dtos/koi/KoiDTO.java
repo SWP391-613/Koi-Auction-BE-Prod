@@ -1,6 +1,5 @@
 package com.swp391.koibe.dtos.koi;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -15,6 +14,8 @@ public record KoiDTO(
     String name,
 
     @NotNull(message = "Koi base_price is required when create a new koi")
+    @Min(value = 300, message = "Minimum koi price is $300")
+    @Max(value = 2000000, message = "Maximum koi price is $2M ")
     @JsonProperty("base_price") Long price,
 
     @NotBlank(message = "Koi thumbnail is required when create a new koi")

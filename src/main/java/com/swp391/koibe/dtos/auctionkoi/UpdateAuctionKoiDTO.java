@@ -38,5 +38,7 @@ public record UpdateAuctionKoiDTO (
     @Positive(message = "Current bidder ID must be positive")
     @JsonProperty("current_bidder_id") Long currentBidderId,
 
-    @JsonProperty("is_sold") boolean isSold
+    @JsonProperty("is_sold") boolean isSold,
+
+    @JsonProperty("revoked") int revoked
 ) {}

@@ -45,5 +45,7 @@ public record AuctionKoiDTO(
     @NotNull(message = "Koi ID is required")
     @JsonProperty("koi_id") Long koiId,
 
-    @JsonProperty("ceil_price") Long ceilPrice
+    @JsonProperty("ceil_price") Long ceilPrice,
+
+    @JsonProperty("revoked") int revoked
 ) {}
