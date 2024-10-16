@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -152,6 +153,15 @@ public class ApplicationExceptionHandler {
     public BaseResponse<Object> handleKoiRevokeException(KoiRevokeException e) {
         return ExceptionResponse.builder()
             .message(localizationUtils.getLocalizedMessage("exception.koi_revoke"))
+            .reason(e.getMessage())
+            .build();
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public BaseResponse<Object> handleBadCredentialsException(BadCredentialsException e) {
+        return ExceptionResponse.builder()
+            .message(localizationUtils.getLocalizedMessage("exception.bad_credentials"))
             .reason(e.getMessage())
             .build();
     }

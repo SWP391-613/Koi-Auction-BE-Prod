@@ -22,7 +22,7 @@ public class LocalizationConfig {
    @Bean
    public LocaleResolver customLocaleResolver() {
        SessionLocaleResolver slr = new SessionLocaleResolver();
-       slr.setDefaultLocale(Locale.forLanguageTag("vi"));
+       slr.setDefaultLocale(Locale.forLanguageTag("en"));
        return slr;
    }
 

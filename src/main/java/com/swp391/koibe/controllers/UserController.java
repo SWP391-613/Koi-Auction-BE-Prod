@@ -31,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -59,31 +60,28 @@ public class UserController {
     public ResponseEntity<LoginResponse> login(
         @RequestBody @Valid UserLoginDTO userLoginDTO,
         BindingResult result,
-        HttpServletRequest request) {
+        HttpServletRequest request) throws Exception {
 
-        if(result.hasErrors()){
+        if (result.hasErrors()) {
             throw new MethodArgumentNotValidException(result);
         }
 
-        try {
-            String token = userService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword());
-            String userAgent = request.getHeader("User-Agent");
-            User userDetail = userService.getUserDetailsFromToken(token);
-            Token jwtToken = tokenService.addToken(userDetail, token, isMobileDevice(userAgent));
-            log.info("User logged in successfully");
-            return ResponseEntity.ok(LoginResponse.builder()
-                                         .message(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY))
-                                         .token(jwtToken.getToken())
-                                         .tokenType(jwtToken.getTokenType())
-                                         .refreshToken(jwtToken.getRefreshToken())
-                                         .username(userDetail.getUsername())
-                                         .roles(userDetail.getAuthorities().stream().map(item -> item.getAuthority()).toList())
-                                         .id(userDetail.getId())
-                                         .build());
-        } catch (Exception e) {
-            return ResponseUtils.loginFailed(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_FAILED, e.getMessage()));
-        }
-
+        String token = userService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword());
+        String userAgent = request.getHeader("User-Agent");
+        User userDetail = userService.getUserDetailsFromToken(token);
+        Token jwtToken = tokenService.addToken(userDetail, token, isMobileDevice(userAgent));
+        log.info("User logged in successfully");
+        return ResponseEntity.ok(LoginResponse.builder()
+                                     .message(localizationUtils.getLocalizedMessage(
+                                         MessageKeys.LOGIN_SUCCESSFULLY))
+                                     .token(jwtToken.getToken())
+                                     .tokenType(jwtToken.getTokenType())
+                                     .refreshToken(jwtToken.getRefreshToken())
+                                     .username(userDetail.getUsername())
+                                     .roles(userDetail.getAuthorities().stream()
+                                                .map(GrantedAuthority::getAuthority).toList())
+                                     .id(userDetail.getId())
+                                     .build());
     }
 
     private boolean isMobileDevice(String userAgent) {
@@ -99,7 +97,8 @@ public class UserController {
         @RequestHeader("Authorization") String authorizationHeader
     ) {
         try {
-            String extractedToken = authorizationHeader.substring(7); // Loại bỏ "Bearer " từ chuỗi token
+            String extractedToken = authorizationHeader.substring(
+                7); // Loại bỏ "Bearer " từ chuỗi token
             User user = userService.getUserDetailsFromToken(extractedToken);
             return ResponseEntity.ok(DTOConverter.convertToUserDTO(user));
         } catch (Exception e) {
@@ -115,7 +114,9 @@ public class UserController {
         @PathVariable long payment
     ) {
 
-        if (payment <= 0) throw new MalformDataException("Payment must be greater than 0.");
+        if (payment <= 0) {
+            throw new MalformDataException("Payment must be greater than 0.");
+        }
 
         try {
             userService.updateAccountBalance(userId, payment);
@@ -149,13 +150,15 @@ public class UserController {
         }
 
         if (!userRegisterDTO.password().equals(userRegisterDTO.confirmPassword())) {
-            registerResponse.setMessage(localizationUtils.getLocalizedMessage(MessageKeys.PASSWORD_NOT_MATCH));
+            registerResponse.setMessage(
+                localizationUtils.getLocalizedMessage(MessageKeys.PASSWORD_NOT_MATCH));
             return ResponseEntity.badRequest().body(registerResponse);
         }
 
         try {
             User user = userService.createUser(userRegisterDTO);
-            registerResponse.setMessage(localizationUtils.getLocalizedMessage(MessageKeys.REGISTER_SUCCESSFULLY));
+            registerResponse.setMessage(
+                localizationUtils.getLocalizedMessage(MessageKeys.REGISTER_SUCCESSFULLY));
             registerResponse.setUserResponse(DTOConverter.convertToUserDTO(user));
             log.info("New user registered successfully");
             return ResponseEntity.ok(registerResponse);
@@ -171,13 +174,13 @@ public class UserController {
         @Valid @RequestBody UpdateUserDTO updatedUserDTO,
         @RequestHeader("Authorization") String authorizationHeader,
         BindingResult result
-    ){
+    ) {
         if (result.hasErrors()) {
             throw new MethodArgumentNotValidException(result);
         }
 
         UpdateUserResponse updateUserResponse = new UpdateUserResponse();
-        try{
+        try {
             String extractedToken = authorizationHeader.substring(7);
             User user = userService.getUserDetailsFromToken(extractedToken);
             // Ensure that the user making the request matches the user being updated
@@ -185,10 +188,11 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
             User updatedUser = userService.updateUser(userId, updatedUserDTO);
-            updateUserResponse.setMessage(localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_USER_SUCCESSFULLY));
+            updateUserResponse.setMessage(
+                localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_USER_SUCCESSFULLY));
             updateUserResponse.setUserResponse(DTOConverter.convertToUserDTO(updatedUser));
             return ResponseEntity.ok(updateUserResponse);
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
@@ -200,7 +204,8 @@ public class UserController {
     ) {
         try {
             userService.blockOrEnable(userId, active > 0);
-            String message = active > 0 ? "Successfully enabled the user." : "Successfully blocked the user.";
+            String message =
+                active > 0 ? "Successfully enabled the user." : "Successfully blocked the user.";
             return ResponseEntity.ok().body(message);
         } catch (DataNotFoundException e) {
             return ResponseEntity.badRequest().body("User not found.");
@@ -219,10 +224,12 @@ public class UserController {
             String extractedToken = authorizationHeader.substring(7);
             User user = userService.getUserDetailsFromToken(extractedToken);
             userService.verifyOtpToVerifyUser(user.getId(), String.valueOf(otp));
-            otpResponse.setMessage(localizationUtils.getLocalizedMessage(MessageKeys.VERIFY_USER_SUCCESSFULLY));
+            otpResponse.setMessage(
+                localizationUtils.getLocalizedMessage(MessageKeys.VERIFY_USER_SUCCESSFULLY));
             return ResponseEntity.ok().body(otpResponse);
-        } catch (Exception e){
-            otpResponse.setMessage(localizationUtils.getLocalizedMessage(MessageKeys.VERIFY_USER_FAILED));
+        } catch (Exception e) {
+            otpResponse.setMessage(
+                localizationUtils.getLocalizedMessage(MessageKeys.VERIFY_USER_FAILED));
             otpResponse.setReason(e.getMessage());
             return ResponseEntity.badRequest().body(otpResponse);
         }
@@ -238,7 +245,7 @@ public class UserController {
         @Valid @RequestBody VerifyUserDTO verifyUserDTO,
         BindingResult result
     ) {
-        if(result.hasErrors()){
+        if (result.hasErrors()) {
             throw new MethodArgumentNotValidException(result);
         }
 
@@ -246,10 +253,12 @@ public class UserController {
         try {
             User user = userService.getUserByEmail(verifyUserDTO.email());
             userService.verifyOtpToVerifyUser(user.getId(), verifyUserDTO.otp());
-            otpResponse.setMessage(localizationUtils.getLocalizedMessage(MessageKeys.VERIFY_USER_SUCCESSFULLY));
+            otpResponse.setMessage(
+                localizationUtils.getLocalizedMessage(MessageKeys.VERIFY_USER_SUCCESSFULLY));
             return ResponseEntity.ok().body(otpResponse);
-        } catch (Exception e){
-            otpResponse.setMessage(localizationUtils.getLocalizedMessage(MessageKeys.VERIFY_USER_FAILED));
+        } catch (Exception e) {
+            otpResponse.setMessage(
+                localizationUtils.getLocalizedMessage(MessageKeys.VERIFY_USER_FAILED));
             otpResponse.setReason(e.getMessage());
             return ResponseEntity.badRequest().body(otpResponse);
         }
@@ -268,10 +277,12 @@ public class UserController {
             String extractedToken = authorizationHeader.substring(7);
             User user = userService.getUserDetailsFromToken(extractedToken);
             tokenService.deleteToken(extractedToken, user); //revoke token
-            logoutResponse.setMessage(localizationUtils.getLocalizedMessage(MessageKeys.LOGOUT_SUCCESSFULLY));
+            logoutResponse.setMessage(
+                localizationUtils.getLocalizedMessage(MessageKeys.LOGOUT_SUCCESSFULLY));
             return ResponseEntity.ok().body(logoutResponse);
         } catch (Exception e) {
-            logoutResponse.setMessage(localizationUtils.getLocalizedMessage(MessageKeys.LOGOUT_FAILED));
+            logoutResponse.setMessage(
+                localizationUtils.getLocalizedMessage(MessageKeys.LOGOUT_FAILED));
             logoutResponse.setReason(e.getMessage());
             return ResponseEntity.badRequest().body(logoutResponse);
         }
