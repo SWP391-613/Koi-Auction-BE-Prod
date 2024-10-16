@@ -199,6 +199,9 @@ public class WebSecurityConfig {
                     .requestMatchers(GET, String.format("%s/payment**", apiPrefix))
                     .hasAnyRole(Role.MEMBER, Role.BREEDER)
 
+                    //forgot-password
+                    .requestMatchers(GET, String.format("%s/forgot-password**", apiPrefix)).permitAll()
+
 //                            .requestMatchers(GET, "/api/v1/payment/vnpay/payment_return")
 //                            .permitAll()
 

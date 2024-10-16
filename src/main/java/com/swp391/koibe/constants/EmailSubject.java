@@ -8,6 +8,12 @@ public class EmailSubject {
             """.formatted(name);
     }
 
+    public static String subjectForgotPassword(String name) {
+        return """
+            Koi Auction  Corporation - Hi %s, we're here to help you get the password back!
+            """.formatted(name);
+    }
+
     public static String subjectRunningApp() {
         return """
             Koi Auction  Corporation - Your app is running, Happy Coding!

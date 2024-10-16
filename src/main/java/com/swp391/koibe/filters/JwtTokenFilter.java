@@ -175,7 +175,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
                 // 3rd payment
                 Pair.of(String.format("%s/payment", apiPrefix), "GET"),
-                Pair.of(String.format("%s/payment", apiPrefix), "POST")
+                Pair.of(String.format("%s/payment", apiPrefix), "POST"),
+
+                //ForgotPassword
+                Pair.of(String.format("%s/forgot-password", apiPrefix), "GET")
 
         // Pair.of(String.format("%s/products/test/view", apiPrefix), "GET")
         );

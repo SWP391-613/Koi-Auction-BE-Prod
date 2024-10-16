@@ -2,9 +2,11 @@ package com.swp391.koibe.services.otp;
 
 import com.swp391.koibe.models.Otp;
 import com.swp391.koibe.repositories.OtpRepository;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +37,14 @@ public class OtpService implements IOtpService{
     @Override
     public Optional<Otp> getOtpByEmailOtp(String email, String otp) {
         return otpRepository.findByEmailAndOtp(email, otp);
+    }
+
+    @Override
+    @Transactional
+    public void setOtpExpired() {
+        LocalDateTime now = LocalDateTime.now();
+        // Update OTPs where expired_at < now and is_expired = 0
+        otpRepository.updateExpiredOtps(now);
     }
 
 }

@@ -11,6 +11,7 @@ import com.swp391.koibe.services.auction.IAuctionService;
 import com.swp391.koibe.services.auctionkoi.IAuctionKoiService;
 import com.swp391.koibe.services.biddinghistory.IBiddingHistoryService;
 import com.swp391.koibe.services.order.IOrderService;
+import com.swp391.koibe.services.otp.IOtpService;
 import com.swp391.koibe.services.user.IUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,7 @@ public class SystemService {
     private final IAuctionKoiService auctionKoiService;
     private final IAuctionService auctionService;
     private final IOrderService orderService;
+    private final IOtpService otpService;
 
     //every 10 minutes
     @Scheduled(cron = "0 */10 * * * *")
@@ -135,4 +137,17 @@ public class SystemService {
         }
 
     }
+
+    //every 5 minutes set the otp is expired
+    @Scheduled(cron = "0 */5 * * * *")
+    @Async
+    public void setOtpExpired() {
+        try {
+            otpService.setOtpExpired();
+        } catch (Exception e) {
+            // Log the exception and handle error
+            log.error("Error auto setting OTP expired", e.getCause());
+        }
+    }
+
 }
