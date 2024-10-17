@@ -62,20 +62,28 @@ jobs:
       - name: Generate Allure Report
         uses: simple-elf/allure-report-action@master
         if: always()
+        run: |
+          echo "To view the Allure report:"
+          echo "1. Go to the Actions tab in the GitHub repository"
+          echo "2. Click on this specific workflow run"
+          echo "3. Scroll down to the Artifacts section"
+          echo "4. Download the 'allure-report' artifact"
+          echo "5. Extract the zip file"
+          echo "6. Open the index.html file in a web browser"
         with:
           allure_results: target/allure-results
           allure_history: allure-history
           keep_reports: 20
 
-      - name: Deploy report to External Repository
-        if: always()
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          personal_token: ${{ secrets.CLASSIC_TOKEN }}
-          external_repository: SWP391-613/Koi-Auction-BE-Prod
-          publish_branch: gh-pages
-          publish_dir: allure-history
-          force_orphan: true
+#      - name: Deploy report to External Repository
+#        if: always()
+#        uses: peaceiris/actions-gh-pages@v3
+#        with:
+#          personal_token: ${{ secrets.CLASSIC_TOKEN }}
+#          external_repository: SWP391-613/Koi-Auction-BE-Prod
+#          publish_branch: gh-pages
+#          publish_dir: allure-history
+#          force_orphan: true
 
       - name: Upload Allure Report as Artifact
         uses: actions/upload-artifact@v4
