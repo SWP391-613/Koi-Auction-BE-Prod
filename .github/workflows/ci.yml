@@ -12,12 +12,12 @@ jobs:
 
     services:
       mysql:
-        image: lcaohoanq/koiauction_on_ci:latest  # Use the MySQL version you need
+        image: lcaohoanq/koiauction_on_ci:latest
         ports:
           - 3306:3306
         env:
           MYSQL_ROOT_PASSWORD: Luucaohoang1604^^
-          MYSQL_DATABASE: koi_company_dev_db #inside contain dataV15.sql
+          MYSQL_DATABASE: koi_company_dev_db
           MYSQL_USER: lcaohoanq
         options: >-
           --health-cmd="mysqladmin ping --silent" 
@@ -44,46 +44,19 @@ jobs:
 
       - name: Run All Tests
         run: mvn -B clean test --file pom.xml
-        continue-on-error: false
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/koi_company_dev_db
           SPRING_DATASOURCE_USERNAME: lcaohoanq
           SPRING_DATASOURCE_PASSWORD: Luucaohoang1604^^
-          SPRING_PROFILES_ACTIVE: dev  # Set the active profile to 'dev'
-
-      - name: Get Allure history
-        uses: actions/checkout@v4
-        if: always()
-        continue-on-error: true
-        with:
-          ref: gh-pages
-          path: gh-pages
+          SPRING_PROFILES_ACTIVE: dev
 
       - name: Generate Allure Report
         uses: simple-elf/allure-report-action@master
         if: always()
-        run: |
-          echo "To view the Allure report:"
-          echo "1. Go to the Actions tab in the GitHub repository"
-          echo "2. Click on this specific workflow run"
-          echo "3. Scroll down to the Artifacts section"
-          echo "4. Download the 'allure-report' artifact"
-          echo "5. Extract the zip file"
-          echo "6. Open the index.html file in a web browser"
         with:
           allure_results: target/allure-results
           allure_history: allure-history
           keep_reports: 20
-
-#      - name: Deploy report to External Repository
-#        if: always()
-#        uses: peaceiris/actions-gh-pages@v3
-#        with:
-#          personal_token: ${{ secrets.CLASSIC_TOKEN }}
-#          external_repository: SWP391-613/Koi-Auction-BE-Prod
-#          publish_branch: gh-pages
-#          publish_dir: allure-history
-#          force_orphan: true
 
       - name: Upload Allure Report as Artifact
         uses: actions/upload-artifact@v4
@@ -91,3 +64,4 @@ jobs:
         with:
           name: allure-report
           path: allure-history/
+
