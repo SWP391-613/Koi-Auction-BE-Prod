@@ -67,11 +67,12 @@ jobs:
           allure_history: allure-history
           keep_reports: 20
 
-      - name: Deploy report to GitHub Pages
+      - name: Deploy report to External Repository
         if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.CLASSIC_TOKEN }}
+          personal_token: ${{ secrets.CLASSIC_TOKEN }}
+          external_repository: SWP391-613/Koi-Auction-BE-Prod
           publish_branch: gh-pages
           publish_dir: allure-history
           force_orphan: true
