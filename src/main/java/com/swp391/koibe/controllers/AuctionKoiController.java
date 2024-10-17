@@ -228,18 +228,14 @@ public class AuctionKoiController {
     public ResponseEntity<AuctionKoiResponse> updateAuctionKoi(
             @PathVariable Long auctionkoi_id,
             @Valid @RequestBody UpdateAuctionKoiDTO updateAuctionKoiDTO,
-            BindingResult result) {
+            BindingResult result)
+    {
         if (result.hasErrors()) {
             throw new MethodArgumentNotValidException(result);
         }
-        try {
-            AuctionKoiResponse updatedAuctionKoi = auctionKoiService.updateAuctionKoi(auctionkoi_id,
-                    updateAuctionKoiDTO);
-            return ResponseEntity.ok(updatedAuctionKoi);
-        } catch (Exception e) {
-            log.error("Error updating auctionkoi: " + e.getMessage());
-            throw new GenerateDataException("Error updating auctionkoi: " + e.getMessage());
-        }
+        AuctionKoiResponse updatedAuctionKoi = auctionKoiService.updateAuctionKoi(auctionkoi_id,
+                                                                                  updateAuctionKoiDTO);
+        return ResponseEntity.ok(updatedAuctionKoi);
     }
 
     @DeleteMapping("/kois/{koi_id}/auctions/{auction_id}")

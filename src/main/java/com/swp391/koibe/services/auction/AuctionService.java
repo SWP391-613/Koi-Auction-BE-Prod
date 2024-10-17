@@ -211,7 +211,7 @@ public class AuctionService implements IAuctionService {
 
     @Override
     public Set<Auction> getAuctionOnStatus(EAuctionStatus status) {
-        return auctionRepository.getAuctionsByStatus(status);
+        return auctionRepository.findAuctionsByStatus(status);
     }
 
     @Override

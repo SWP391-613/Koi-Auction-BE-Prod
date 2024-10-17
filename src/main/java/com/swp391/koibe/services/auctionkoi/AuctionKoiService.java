@@ -22,6 +22,7 @@ import jakarta.mail.MessagingException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +43,17 @@ public class AuctionKoiService implements IAuctionKoiService {
     public AuctionKoi createAuctionKoi(AuctionKoiDTO auctionKoiDTO)
             throws DataNotFoundException, MessagingException {
 
+        // check if the koi is already in another upcoming auction
+        Set<Auction> currentAuctionList = auctionRepository.findAuctionsByStatus(EAuctionStatus.UPCOMING);
+        for (Auction auction : currentAuctionList) {
+            List<AuctionKoi> auctionKoiList = auctionKoiRepository.findAuctionKoiByAuctionId(auction.getId());
+            for (AuctionKoi auctionKoi : auctionKoiList) {
+                if (Objects.equals(auctionKoi.getKoi().getId(), auctionKoiDTO.koiId())) {
+                    throw new MalformDataException("This koi is already in another upcoming auction");
+                }
+            }
+        }
+
         //check if the auction is already include this koi
         List<AuctionKoi> auctionKois = auctionKoiRepository.findAuctionKoiByAuctionId(
             auctionKoiDTO.auctionId());
@@ -61,8 +73,8 @@ public class AuctionKoiService implements IAuctionKoiService {
 
         // check auction status is not ended
         Auction auction = auctionService.findAuctionById(auctionKoiDTO.auctionId());
-        if (auction.getStatus() == EAuctionStatus.ENDED) {
-            throw new MalformDataException("Auction is ended");
+        if (auction.getStatus() == EAuctionStatus.ENDED || auction.getStatus() == EAuctionStatus.ONGOING) {
+            throw new MalformDataException("Auction are not allow to register");
         }
 
         // check if koi exists
