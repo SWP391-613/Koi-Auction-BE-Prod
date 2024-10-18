@@ -181,9 +181,15 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
                 //ForgotPassword
                 Pair.of(String.format("%s/forgot-password", apiPrefix), "GET"),
-                Pair.of(String.format("%s/forgot-password", apiPrefix), "PUT")
+                Pair.of(String.format("%s/forgot-password", apiPrefix), "PUT"),
 
-        // Pair.of(String.format("%s/products/test/view", apiPrefix), "GET")
+                //Feedback
+                Pair.of(String.format("%s/feedback", apiPrefix), "GET"),
+                Pair.of(String.format("%s/feedback", apiPrefix), "POST"),
+                Pair.of(String.format("%s/feedback", apiPrefix), "PUT"),
+                Pair.of(String.format("%s/feedback", apiPrefix), "DELETE")
+
+                // Pair.of(String.format("%s/products/test/view", apiPrefix), "GET")
         );
         // for (Pair<String, String> bypassToken : bypassTokens) {
         // if (request.getServletPath().contains(bypassToken.getFirst()) &&
