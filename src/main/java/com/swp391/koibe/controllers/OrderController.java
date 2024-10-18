@@ -8,6 +8,7 @@ import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Order;
 import com.swp391.koibe.models.Payment;
+import com.swp391.koibe.responses.base.BaseResponse;
 import com.swp391.koibe.responses.order.OrderListResponse;
 import com.swp391.koibe.responses.order.OrderResponse;
 import com.swp391.koibe.services.order.IOrderService;
@@ -54,7 +55,10 @@ public class OrderController {
             Order newOrder = orderService.createOrder(orderDTO);
             return ResponseEntity.ok(DTOConverter.fromOrder(newOrder));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            BaseResponse response = new BaseResponse();
+            response.setMessage(e.getMessage());
+            response.setMessage("Create order failed");
+            return ResponseEntity.badRequest().body(response);
         }
     }
 
@@ -65,12 +69,10 @@ public class OrderController {
             List<OrderResponse> orders = orderService.findByUserId(userId);
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
-
-            if (e instanceof DataNotFoundException) {
-                throw e;
-            }
-
-            return ResponseEntity.badRequest().body(e.getMessage());
+            BaseResponse response = new BaseResponse();
+            response.setMessage(e.getMessage());
+            response.setMessage("Get orders failed");
+            return ResponseEntity.badRequest().body(response);
         }
     }
 
@@ -83,10 +85,10 @@ public class OrderController {
             OrderResponse orderResponse = DTOConverter.fromOrder(existingOrder);
             return ResponseEntity.ok(orderResponse);
         } catch (Exception e) {
-            if (e instanceof DataNotFoundException) {
-                throw e;
-            }
-            return ResponseEntity.badRequest().body(e.getMessage());
+            BaseResponse response = new BaseResponse();
+            response.setMessage(e.getMessage());
+            response.setMessage("Get orders failed" + orderId);
+            return ResponseEntity.badRequest().body(response);
         }
     }
 
@@ -118,8 +120,10 @@ public class OrderController {
             if (e instanceof DataNotFoundException) {
                 throw e;
             }
-
-            return ResponseEntity.badRequest().body(e.getMessage());
+            BaseResponse response = new BaseResponse();
+            response.setMessage(e.getMessage());
+            response.setReason("Update order failed");
+            return ResponseEntity.badRequest().body(response);
         }
     }
 
@@ -138,7 +142,10 @@ public class OrderController {
             if (e instanceof DataNotFoundException) {
                 throw e;
             }
-            return ResponseEntity.badRequest().body(e.getMessage());
+            BaseResponse response = new BaseResponse();
+            response.setMessage(e.getMessage());
+            response.setReason("Delete order failed");
+            return ResponseEntity.badRequest().body(response);
         }
 
     }

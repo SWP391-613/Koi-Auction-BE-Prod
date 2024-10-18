@@ -6,6 +6,7 @@ import com.swp391.koibe.enums.EPaymentStatus;
 import com.swp391.koibe.enums.EPaymentType;
 import com.swp391.koibe.enums.OrderStatus;
 import com.swp391.koibe.exceptions.MalformDataException;
+import com.swp391.koibe.exceptions.base.DataAlreadyExistException;
 import com.swp391.koibe.models.Order;
 import com.swp391.koibe.models.Payment;
 import com.swp391.koibe.repositories.OrderRepository;
@@ -223,7 +224,7 @@ public class PaymentService implements IPaymentService {
     @Transactional
     public Map<String, Object> createPaymentAndUpdateOrder(PaymentDTO paymentDTO) throws Exception {
         if (getPaymentByOrderID(paymentDTO.getOrderId()).isPresent()) {
-            throw new Exception("Payment already exists for order");
+            throw new DataAlreadyExistException("Payment already exists for order");
         }
 
         paymentDTO.setPaymentStatus(EPaymentStatus.PENDING.toString());

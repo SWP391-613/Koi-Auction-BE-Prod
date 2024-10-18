@@ -27,9 +27,16 @@ public class PaymentController {
     public ResponseEntity<?> createDepositPayment(
             @Valid @RequestBody PaymentDTO paymentDTO,
             HttpServletRequest request) throws UnsupportedEncodingException {
-        String vnp_IpAddr = VNPayConfig.getIpAddress(request);
-        Map<String, String> response = paymentService.createDepositPayment(paymentDTO, vnp_IpAddr);
-        return ResponseEntity.ok(response);
+        try {
+            String vnp_IpAddr = VNPayConfig.getIpAddress(request);
+            Map<String, String> response = paymentService.createDepositPayment(paymentDTO, vnp_IpAddr);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            BaseResponse<?> response = new BaseResponse<>();
+            response.setMessage("Failed to create payment");
+            response.setReason(e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @GetMapping("vnpay/payment_return")

@@ -196,7 +196,7 @@ public class OrderService implements IOrderService {
         List<Order> orders = orderRepository.findByUserId(userId);
         List<OrderResponse> list = new ArrayList<>();
         if (orders.isEmpty())
-            throw new DataNotFoundException("Cannot find order with user id: " + userId);
+            return list;
         for (Order order : orders) {
             list.add(DTOConverter.fromOrder(order));
         }
