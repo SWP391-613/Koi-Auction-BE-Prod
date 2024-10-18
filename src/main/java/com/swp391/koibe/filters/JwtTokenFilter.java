@@ -102,6 +102,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/managers", apiPrefix), "DELETE"),
 
                 // UserController
+                Pair.of(String.format("%s/users", apiPrefix), "GET"),
                 Pair.of(String.format("%s/users/register", apiPrefix), "POST"),
                 Pair.of(String.format("%s/users/login", apiPrefix), "POST"),
                 Pair.of(String.format("%s/users/details", apiPrefix), "PUT"),

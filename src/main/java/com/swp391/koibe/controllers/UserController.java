@@ -34,6 +34,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -51,6 +52,13 @@ public class UserController {
     private final IUserService userService;
     private final LocalizationUtils localizationUtils;
     private final TokenService tokenService;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponse> getUserById(
+        @PathVariable Long id
+    ){
+        return ResponseEntity.ok(DTOConverter.convertToUserDTO(userService.getUserById(id)));
+    }
 
     @Timed(
         value = "custom.login.requests",
