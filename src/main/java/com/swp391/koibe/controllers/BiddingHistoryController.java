@@ -89,6 +89,22 @@ public class BiddingHistoryController {
         }
     }
 
+    @GetMapping("/{userId}/{auctionKoiId}")
+    public ResponseEntity<?> getUserHighestBid(
+            @PathVariable Long auctionKoiId,
+            @PathVariable Long userId) throws Exception {
+        try {
+            Bid bidResponse = biddingHistoryService.getBidderLatestBid(userId, auctionKoiId);
+
+            return ResponseEntity.ok(bidResponse);
+        } catch (Exception e) {
+            BaseResponse response = new BaseResponse();
+            response.setReason(BiddingRuleException.class.getSimpleName());
+            response.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
     @GetMapping("/test")
     public ResponseEntity<?> test() {
         try {
