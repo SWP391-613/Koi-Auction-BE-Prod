@@ -438,6 +438,14 @@ public class UserService implements IUserService {
         }
 
         existingUser.setPassword(passwordEncoder.encode(updatePasswordDTO.newPassword()));
+
+        mailService.sendMail(
+                existingUser.getEmail(),
+                "Password updated successfully",
+                EmailCategoriesEnum.RESET_PASSWORD.getType(),
+                new Context()
+        );
+
         userRepository.save(existingUser);
     }
 
