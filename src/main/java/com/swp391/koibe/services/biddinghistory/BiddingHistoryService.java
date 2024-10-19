@@ -262,7 +262,7 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
                 .build();
 
         if (auctionKoi.isSold()) {
-            createOrderForAuctionKoi(auctionKoi, bidder);
+            orderService.createOrderForAuctionKoi(auctionKoi, bidder);
         }
 
         return bidResponse;
@@ -310,39 +310,5 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
                 auctionParticipantService.createAuctionParticipant(auctionParticipant);
             }
         }
-    }
-
-    private void createOrderForAuctionKoi(AuctionKoi auctionKoi, User bidder) throws Exception {
-        Order order = Order.builder()
-                .user(bidder)
-                .firstName(bidder.getFirstName())
-                .lastName(bidder.getLastName())
-                .email(bidder.getEmail())
-                .status(OrderStatus.PENDING)
-                .address(bidder.getAddress())
-                .phoneNumber(bidder.getPhoneNumber() == null ? "" : bidder.getPhoneNumber())
-                .totalMoney(500_000F)
-                .shippingMethod("Standard")
-                .shippingAddress(bidder.getAddress())
-                .shippingDate(LocalDate.now())
-                .paymentMethod("Cash")
-                .orderDate(LocalDate.now())
-                .active(true)
-                .build();
-
-        OrderDetail orderDetail = OrderDetail.builder()
-                .order(order)
-                .koi(auctionKoi.getKoi())
-                .numberOfProducts(1)
-                .price(0F)
-                .totalMoney(0F)
-                .build();
-
-        order.setOrderDetails(List.of(orderDetail));
-        orderService.createOrder(order);
-        orderDetailService.createOrderDetail(orderDetail);
-        // send email to bidder
-        Context context = new Context();
-        orderMailService.sendOrderCreatedEmailToUser(order, "Order Created Successfully", "orderCreated", context);
     }
 }

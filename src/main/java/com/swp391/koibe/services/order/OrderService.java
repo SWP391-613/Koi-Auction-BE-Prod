@@ -7,10 +7,7 @@ import com.swp391.koibe.dtos.OrderWithDetailsDTO;
 import com.swp391.koibe.enums.OrderStatus;
 import com.swp391.koibe.exceptions.MalformDataException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
-import com.swp391.koibe.models.Koi;
-import com.swp391.koibe.models.Order;
-import com.swp391.koibe.models.OrderDetail;
-import com.swp391.koibe.models.User;
+import com.swp391.koibe.models.*;
 import com.swp391.koibe.repositories.KoiRepository;
 import com.swp391.koibe.repositories.OrderDetailRepository;
 import com.swp391.koibe.repositories.OrderRepository;
@@ -20,14 +17,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.swp391.koibe.responses.order.OrderResponse;
+import com.swp391.koibe.services.orderdetail.IOrderDetailService;
 import com.swp391.koibe.utils.DTOConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
 
 @Slf4j
 @Service
@@ -39,6 +39,7 @@ public class OrderService implements IOrderService {
     private final OrderDetailRepository orderDetailRepository;
     private final ModelMapper modelMapper;
     private final IOrderMailService orderMailService;
+    private final IOrderDetailService orderDetailService;
 
     @Override
     @Transactional
@@ -192,7 +193,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public List<OrderResponse> findByUserId(Long userId) {
+    public List<OrderResponse> findByUserId(Long userId, Sort sort) {
         List<Order> orders = orderRepository.findByUserId(userId);
         List<OrderResponse> list = new ArrayList<>();
         if (orders.isEmpty())
@@ -220,5 +221,41 @@ public class OrderService implements IOrderService {
                 .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + id));
         order.setStatus(orderStatus);
         return orderRepository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public void createOrderForAuctionKoi(AuctionKoi auctionKoi, User bidder) throws Exception {
+        Order order = Order.builder()
+                .user(bidder)
+                .firstName(bidder.getFirstName())
+                .lastName(bidder.getLastName())
+                .email(bidder.getEmail())
+                .status(OrderStatus.PENDING)
+                .address(bidder.getAddress())
+                .phoneNumber(bidder.getPhoneNumber() == null ? "" : bidder.getPhoneNumber())
+                .totalMoney(500F)
+                .shippingMethod("Standard")
+                .shippingAddress(bidder.getAddress())
+                .shippingDate(LocalDate.now())
+                .paymentMethod("Cash")
+                .orderDate(LocalDate.now())
+                .active(true)
+                .build();
+
+        OrderDetail orderDetail = OrderDetail.builder()
+                .order(order)
+                .koi(auctionKoi.getKoi())
+                .numberOfProducts(1)
+                .price(0F)
+                .totalMoney(0F)
+                .build();
+
+        order.setOrderDetails(List.of(orderDetail));
+        createOrder(order);
+        orderDetailService.createOrderDetail(orderDetail);
+        // send email to bidder
+        Context context = new Context();
+        orderMailService.sendOrderCreatedEmailToUser(order, "Order Created Successfully", "orderCreated", context);
     }
 }

@@ -48,8 +48,8 @@ public class SystemService {
     private final IOtpService otpService;
     private final TokenService tokenService;
 
-    //every 10 minutes
-    @Scheduled(cron = "0 */10 * * * *")
+    //every 5 minutes
+    @Scheduled(cron = "0 */5 * * * *")
     @Async
     public void updateUpcomingAuctionStatus() {
         try {
@@ -62,8 +62,8 @@ public class SystemService {
         }
     }
 
-    //every 10 minutes
-    @Scheduled(cron = "0 */10 * * * *")
+    //every 5 minutes
+    @Scheduled(cron = "0 */5 * * * *")
     @Async
     public void updateOnGoingAuctionStatus() {
         try {
@@ -72,43 +72,46 @@ public class SystemService {
                 boolean isUpdate = auctionService.updateAuctionStatus(auction);
                 if (isUpdate) {
                     updateAuctionKoiStatus(auction);
-                    if (auction.getEndTime().isBefore(LocalDateTime.now())) {
-                        Context context = new Context();
-                        auctionMailService.sendAuctionClosedEmailToAllUser(
-                                auction.getId(), "Auction Closed", "auctionClosed", context);
-                    }
+                    Context context = new Context();
+                    auctionMailService.sendAuctionClosedEmailToAllUser(
+                            auction.getId(), "Auction Closed", "auctionClosed", context);
+
                 }
             }
         } catch (SystemServiceTaskException e) {
             log.error("Error updating on going auction status", e.getCause());
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
 
-    public void updateAuctionKoiStatus(@NotNull Auction auction) throws SystemServiceTaskException, MessagingException {
+    public void updateAuctionKoiStatus(@NotNull Auction auction) throws Exception {
         List<AuctionKoi> auctionKois = auctionKoiService.getAuctionKoiByAuctionIdV2(auction.getId());
         for (AuctionKoi auctionKoi : auctionKois) {
-            auctionKoiService.updateAuctionKoiStatus(auctionKoi.getId(), auctionKoi);
-            autoRefundUserBalance(auctionKoi);
+            boolean isUpdate = auctionKoiService.updateAuctionKoiStatus(auctionKoi.getId(), auctionKoi);
+            if (isUpdate) {
+                if (auctionKoi.isSold()) {
+                    orderService.createOrderForAuctionKoi(auctionKoi, userService.getUserById(auctionKoi.getCurrentBidderId()));
+                }
+            }
+            autoRefundUserBalanceAndCreateOrder(auctionKoi);
             biddingHistoryEmailService.sendRefundEmail(auctionKoi, "Balance Refund Email", "balanceRefunded", new Context());
         }
     }
 
-    public void autoRefundUserBalance(@NotNull AuctionKoi auctionKoi) throws SystemServiceTaskException {
+    public void autoRefundUserBalanceAndCreateOrder(@NotNull AuctionKoi auctionKoi) throws Exception {
         Long winnerBidderId = auctionKoi.getCurrentBidderId();
-        if (winnerBidderId != null) {
+        if (winnerBidderId != null && winnerBidderId != 0) {
             List<Bid> bids = biddingHistoryService.getBidsByAuctionKoiId(auctionKoi.getId());
             Map<Long, Long> userBids = new HashMap<>();
             // iterate through the Map userBids
             for (Map.Entry<Long, Long> entry :
-                FilterUtils.filterBiddersExceptWinner(
-                    winnerBidderId,
-                    bids,
-                    userBids
-                ).entrySet())
-            {
+                    FilterUtils.filterBiddersExceptWinner(
+                            winnerBidderId,
+                            bids,
+                            userBids
+                    ).entrySet()) {
                 Long bidedAmount = biddingHistoryService.getBidderLatestBid(entry.getKey(), auctionKoi.getId()).getBidAmount();
                 try {
                     userService.updateAccountBalance(entry.getKey(), bidedAmount);

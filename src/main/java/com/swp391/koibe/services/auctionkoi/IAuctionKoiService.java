@@ -25,7 +25,7 @@ public interface IAuctionKoiService {
     AuctionKoiResponse getAuctionKoiDetailsById(long id) throws DataNotFoundException;
     AuctionKoiResponse getAuctionKoiByAuctionIdAndKoiId(long aid, long id) throws DataNotFoundException;
     List<AuctionKoi> getAuctionKoiIsNotSold();
-    void updateAuctionKoiStatus(long auctionKoiId, AuctionKoi auctionKoi);
+    boolean updateAuctionKoiStatus(long auctionKoiId, AuctionKoi auctionKoi);
     List<AuctionKoi> getAuctionKoiByAuctionIdV2(long id);
     void updateDescendAuctionKoiPrice(long auctionKoiId, AuctionKoi auctionKoi);
     AuctionKoi revokeKoiInAuction(long koiId, long auctionId);
