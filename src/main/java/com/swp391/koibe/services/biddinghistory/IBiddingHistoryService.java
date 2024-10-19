@@ -23,4 +23,5 @@ public interface IBiddingHistoryService {
     List<Bid> getBidsByAuctionKoiId(Long auctionKoiId);
     boolean hasBid(Long auctionKoiId, Long bidderId);
     Bid getBidderLatestBid(Long auctionKoiId, Long bidderId);
+    BidResponse getBidderHighestBid(Long auctionKoiId, Long bidderId);
 }

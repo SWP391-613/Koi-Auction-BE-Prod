@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -118,6 +119,28 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
                     .max(Comparator.comparing(Bid::getBidTime))
                     .orElse(null);
         }
+    }
+
+    @Override
+    public BidResponse getBidderHighestBid(Long auctionKoiId, Long bidderId) {
+        ArrayList<Bid> bids = getBidsByAuctionKoiId(auctionKoiId);
+        Bid highestBid;
+        if (bids.isEmpty()) {
+            return null;
+        } else {
+            highestBid = bids.stream()
+                    .filter(bid -> bid.getBidder().getId().equals(bidderId))
+                    .max(Comparator.comparing(Bid::getBidTime))
+                    .orElse(null);
+            if (highestBid == null) {
+                return BidResponse.builder()
+                        .bidderId(bidderId)
+                        .auctionKoiId(auctionKoiId)
+                        .bidAmount(0)
+                        .build();
+            }
+        }
+        return DTOConverter.convertToBidDTO(highestBid);
     }
 
     @Override

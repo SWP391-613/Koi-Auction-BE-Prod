@@ -37,7 +37,7 @@ public class BiddingHistoryController {
 
     private final IBiddingHistoryService biddingHistoryService;
     private final SimpMessagingTemplate messagingTemplate;
-
+    private final IAuctionKoiService auctionKoiService;
 
     @GetMapping("/{id}")
     public ResponseEntity<List<BidResponse>> getBiddingHistoryByAuctionKoiId(@PathVariable long id) {
@@ -78,9 +78,19 @@ public class BiddingHistoryController {
             @RequestBody BidDTO bidDTO) throws Exception {
         try {
             BidResponse bidResponse = biddingHistoryService.placeBid(bidDTO);
+
+            // Check if the auction koi is sold
+            AuctionKoi auctionKoi = auctionKoiService.getAuctionKoiById(auctionKoiId);
+            boolean isSold = auctionKoi.isSold();
+
             messagingTemplate.convertAndSend("/topic/auctionkoi/" + auctionKoiId, bidResponse);
 
-            return ResponseEntity.ok(bidResponse);
+            // Return a response that includes both the bid response and the isSold status
+            Map<String, Object> response = new HashMap<>();
+            response.put("bidResponse", bidResponse);
+            response.put("isSold", isSold);
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             BaseResponse response = new BaseResponse();
             response.setReason(BiddingRuleException.class.getSimpleName());
@@ -89,13 +99,12 @@ public class BiddingHistoryController {
         }
     }
 
-    @GetMapping("/{userId}/{auctionKoiId}")
+    @GetMapping("/{auctionKoiId}/{userId}")
     public ResponseEntity<?> getUserHighestBid(
             @PathVariable Long auctionKoiId,
             @PathVariable Long userId) throws Exception {
         try {
-            Bid bidResponse = biddingHistoryService.getBidderLatestBid(userId, auctionKoiId);
-
+            BidResponse bidResponse = biddingHistoryService.getBidderHighestBid(auctionKoiId, userId);
             return ResponseEntity.ok(bidResponse);
         } catch (Exception e) {
             BaseResponse response = new BaseResponse();
