@@ -193,7 +193,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public List<OrderResponse> findByUserId(Long userId, Sort sort) {
+    public List<OrderResponse> findByUserId(Long userId) {
         List<Order> orders = orderRepository.findByUserId(userId);
         List<OrderResponse> list = new ArrayList<>();
         if (orders.isEmpty())
