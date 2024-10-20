@@ -15,6 +15,7 @@ import com.swp391.koibe.repositories.AuctionKoiRepository;
 import com.swp391.koibe.repositories.AuctionRepository;
 import com.swp391.koibe.repositories.KoiRepository;
 import com.swp391.koibe.responses.AuctionKoiResponse;
+import com.swp391.koibe.responses.KoiInAuctionResponse;
 import com.swp391.koibe.services.auction.IAuctionService;
 import com.swp391.koibe.services.mail.IMailService;
 import com.swp391.koibe.utils.DTOConverter;
@@ -188,7 +189,7 @@ public class AuctionKoiService implements IAuctionKoiService {
     }
 
     @Override
-    public Page<Koi> getKoiByKeyword(String keyword, Pageable pageable) {
+    public Page<KoiInAuctionResponse> getKoiByKeyword(String keyword, Pageable pageable) {
         return koiRepository.findByKeyword(keyword, pageable);
     }
 

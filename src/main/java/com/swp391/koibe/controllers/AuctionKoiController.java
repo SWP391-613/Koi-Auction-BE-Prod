@@ -8,9 +8,11 @@ import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.AuctionKoi;
 import com.swp391.koibe.responses.AuctionKoiResponse;
+import com.swp391.koibe.responses.KoiInAuctionResponse;
 import com.swp391.koibe.responses.KoiResponse;
 import com.swp391.koibe.responses.order.OrderListResponse;
 import com.swp391.koibe.responses.order.OrderResponse;
+import com.swp391.koibe.responses.pagination.KoiInAuctionPaginationResponse;
 import com.swp391.koibe.responses.pagination.KoiPaginationResponse;
 import com.swp391.koibe.services.auction.IAuctionService;
 import com.swp391.koibe.services.auctionkoi.IAuctionKoiService;
@@ -289,7 +291,7 @@ public class AuctionKoiController {
 //    }
 
     @GetMapping("/get-kois-by-keyword")
-    public ResponseEntity<KoiPaginationResponse> getOrdersByKeyword(
+    public ResponseEntity<KoiInAuctionPaginationResponse> getOrdersByKeyword(
         @RequestParam(defaultValue = "", required = false) String keyword,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int limit) {
@@ -298,10 +300,9 @@ public class AuctionKoiController {
             page, limit,
             // Sort.by("createdAt").descending()
             Sort.by("id").ascending());
-        Page<KoiResponse> koiPage = auctionKoiService
-            .getKoiByKeyword(keyword, pageRequest)
-            .map(DTOConverter::convertToKoiDTO);
-        KoiPaginationResponse response = new KoiPaginationResponse();
+        Page<KoiInAuctionResponse> koiPage = auctionKoiService
+            .getKoiByKeyword(keyword, pageRequest);
+        KoiInAuctionPaginationResponse response = new KoiInAuctionPaginationResponse();
         response.setItem(koiPage.getContent());
         response.setTotalItem(koiPage.getTotalElements());
         response.setTotalPage(koiPage.getTotalPages());

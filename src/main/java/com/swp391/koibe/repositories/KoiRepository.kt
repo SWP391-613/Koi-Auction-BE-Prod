@@ -2,6 +2,7 @@ package com.swp391.koibe.repositories
 
 import com.swp391.koibe.enums.EKoiStatus
 import com.swp391.koibe.models.Koi
+import com.swp391.koibe.responses.KoiInAuctionResponse
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -15,7 +16,10 @@ interface KoiRepository : JpaRepository<Koi, Long> {
     fun findByStatus(status: EKoiStatus, pageable: Pageable): Page<Koi>
 
     //SELECT koi data is display in existing auction
-    @Query("SELECT k FROM Koi k INNER JOIN AuctionKoi ak ON k.id = ak.koi.id WHERE k.status = 'VERIFIED' AND " +
+    //notice im want to retrieve the auction id at that last column to use in fe call
+    @Query("SELECT new com.swp391.koibe.responses.KoiInAuctionResponse(k.id, k.name, k.sex, k.length, k.age, k.price, k.status, k.isDisplay, k.thumbnail, k.description, k.owner.id, k.category.id, ak.auction.id) " +
+            "FROM Koi k INNER JOIN AuctionKoi ak ON k.id = ak.koi.id " +
+            "WHERE k.status = 'VERIFIED' AND " +
             "(:keyword IS NULL OR :keyword = '' OR " +
             "k.name LIKE CONCAT('%', :keyword, '%') " +
             "OR k.description LIKE CONCAT('%', :keyword, '%') " +
@@ -23,6 +27,8 @@ interface KoiRepository : JpaRepository<Koi, Long> {
             "OR CAST(k.length AS string) LIKE CONCAT('%', :keyword, '%') " +
             "OR CAST(k.age AS string) LIKE CONCAT('%', :keyword, '%') " +
             "OR CAST(k.price AS string) LIKE CONCAT('%', :keyword, '%') " +
-            "OR CAST(k.owner as string) LIKE CONCAT('%', :keyword, '%'))")
-    fun findByKeyword(@Param("keyword") keyword: String, pageable: Pageable): Page<Koi>
+            "OR CAST(k.owner.id as string) LIKE CONCAT('%', :keyword, '%')" +
+            "OR CAST(ak.bidMethod as string) LIKE CONCAT('%', :keyword, '%')" +
+            "OR CAST(ak.bidStep as string) LIKE CONCAT('%', :keyword, '%'))")
+    fun findByKeyword(@Param("keyword") keyword: String, pageable: Pageable): Page<KoiInAuctionResponse>
 }

@@ -7,6 +7,7 @@ import com.swp391.koibe.models.AuctionKoi;
 import com.swp391.koibe.models.Koi;
 import com.swp391.koibe.models.Order;
 import com.swp391.koibe.responses.AuctionKoiResponse;
+import com.swp391.koibe.responses.KoiInAuctionResponse;
 import jakarta.mail.MessagingException;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -31,5 +32,5 @@ public interface IAuctionKoiService {
     List<AuctionKoi> getAuctionKoiByAuctionIdV2(long id);
     void updateDescendAuctionKoiPrice(long auctionKoiId, AuctionKoi auctionKoi);
     AuctionKoi revokeKoiInAuction(long koiId, long auctionId);
-    Page<Koi> getKoiByKeyword(String keyword, Pageable pageable);
+    Page<KoiInAuctionResponse> getKoiByKeyword(String keyword, Pageable pageable);
 }
