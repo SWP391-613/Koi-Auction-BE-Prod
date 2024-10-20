@@ -18,6 +18,7 @@ import com.swp391.koibe.repositories.KoiImageRepository;
 import com.swp391.koibe.repositories.KoiRepository;
 import com.swp391.koibe.repositories.UserRepository;
 import com.swp391.koibe.responses.KoiResponse;
+import com.swp391.koibe.responses.pagination.KoiPaginationResponse;
 import com.swp391.koibe.services.mail.IMailService;
 import com.swp391.koibe.utils.DTOConverter;
 import jakarta.mail.MessagingException;
@@ -197,8 +198,11 @@ public class KoiService implements IKoiService<KoiResponse> {
             templateName,
             context
         );
+    }
 
-
+    @Override
+    public Page<Koi> findKoiByKeyword(String keyword, Pageable pageable) {
+        return koiRepository.findKoiByKeyword(keyword,  pageable);
     }
 
 }

@@ -3,6 +3,8 @@ package com.swp391.koibe.repositories
 import com.swp391.koibe.enums.EKoiStatus
 import com.swp391.koibe.models.Koi
 import com.swp391.koibe.responses.KoiInAuctionResponse
+import com.swp391.koibe.responses.KoiResponse
+import com.swp391.koibe.responses.pagination.KoiPaginationResponse
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -31,4 +33,18 @@ interface KoiRepository : JpaRepository<Koi, Long> {
             "OR CAST(ak.bidMethod as string) LIKE CONCAT('%', :keyword, '%')" +
             "OR CAST(ak.bidStep as string) LIKE CONCAT('%', :keyword, '%'))")
     fun findByKeyword(@Param("keyword") keyword: String, pageable: Pageable): Page<KoiInAuctionResponse>
+
+    @Query(
+        "SELECT k FROM Koi k WHERE " +
+                "k.name LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.sex as string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.length as string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.age as string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.price as string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR k.description LIKE CONCAT('%', :keyword, '%') " +
+                "OR k.category.name LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.status as string) LIKE CONCAT('%', :keyword, '%')"
+    )
+    fun findKoiByKeyword(@Param ("keyword") keyword: String, pageable: Pageable): Page<Koi>
+
 }

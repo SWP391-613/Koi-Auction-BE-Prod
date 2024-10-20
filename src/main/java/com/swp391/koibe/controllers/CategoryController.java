@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -63,6 +64,7 @@ public class CategoryController {
     }
 
     @PostMapping("")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     public ResponseEntity<CategoryResponse> createCategory(
         @Valid @RequestBody CategoryDTO categoryDTO,
         BindingResult result) {
@@ -85,6 +87,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     public ResponseEntity<CategoryResponse> updateCategory(
         @PathVariable int id,
         @Valid @RequestBody CategoryDTO categoryDTO,
@@ -110,6 +113,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     public ResponseEntity<CategoryResponse> deleteCategory(@PathVariable int id) {
         try {
            CategoryResponse response = CategoryResponse.builder()

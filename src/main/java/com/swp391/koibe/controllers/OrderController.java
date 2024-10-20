@@ -45,6 +45,7 @@ public class OrderController {
     private final LocalizationUtils localizationUtils;
 
     @PostMapping("")
+    @PreAuthorize("hasAnyRole('ROLE_MEMBER')")
     public ResponseEntity<?> createOrder(
             @Valid @RequestBody OrderDTO orderDTO,
             BindingResult result) {

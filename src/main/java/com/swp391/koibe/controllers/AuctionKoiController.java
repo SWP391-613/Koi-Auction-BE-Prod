@@ -261,6 +261,7 @@ public class AuctionKoiController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_BREEDER', 'ROLE_MANAGER', 'ROLE_STAFF')")
     public ResponseEntity<?> deleteAuctionKoi(@PathVariable Long id) {
         try {
             auctionKoiService.deleteAuctionKoi(id);

@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +25,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtTokenFilter extends OncePerRequestFilter {
     @Value("${api.prefix}")
     private String apiPrefix;
@@ -37,7 +39,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain)
             throws ServletException, IOException, JwtAuthenticationException {
         try {
+            log.debug("Request path: {}, Method: {}", request.getServletPath(), request.getMethod());
             if (isBypassToken(request)) {
+                log.debug("Bypass token: {}", isBypassToken(request));
+
                 filterChain.doFilter(request, response); // enable bypass
                 return;
             }
@@ -163,6 +168,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/auctionkois", apiPrefix), "POST"),
                 Pair.of(String.format("%s/auctionkois", apiPrefix), "PUT"),
                 Pair.of(String.format("%s/auctionkois/get-kois-by-keyword", apiPrefix), "GET"),
+                Pair.of(String.format("%s/kois/get-kois-by-keyword", apiPrefix), "GET"),
 
                 // AuctionKoiDetail
                 Pair.of(String.format("%s/bidding", apiPrefix), "GET"),
@@ -203,6 +209,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         String servletPath = request.getServletPath();
         String method = request.getMethod();
 
+        log.info("Request path: {}, Method: {}", request.getServletPath(), request.getMethod());
         for (Pair<String, String> bypassToken : bypassTokens) {
             String bypassPath = bypassToken.getFirst();
             if (servletPath.startsWith(bypassPath) && method.equals(bypassToken.getSecond())) {
@@ -210,6 +217,5 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             }
         }
         return false;
-
     }
 }

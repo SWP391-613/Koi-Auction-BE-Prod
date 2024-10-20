@@ -31,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -117,6 +118,7 @@ public class UserController {
     // PUT: localhost:4000/api/v1/users/4/deposit/100
     // Header: Authorization Bearer token
     @PutMapping("/{userId}/deposit/{payment}")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER', 'ROLE_STAFF', 'ROLE_BREEDER')")
     public ResponseEntity<String> deposit(
         @PathVariable long userId,
         @PathVariable long payment
@@ -177,6 +179,7 @@ public class UserController {
     }
 
     @PutMapping("/details/{userId}")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER', 'ROLE_STAFF', 'ROLE_BREEDER')")
     public ResponseEntity<?> updateUserDetails(
         @PathVariable Long userId,
         @Valid @RequestBody UpdateUserDTO updatedUserDTO,
@@ -206,6 +209,7 @@ public class UserController {
     }
 
     @PutMapping("/block/{userId}/{active}")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER', 'ROLE_STAFF', 'ROLE_BREEDER')")
     public ResponseEntity<String> blockOrEnable(
         @Valid @PathVariable long userId,
         @Valid @PathVariable int active
@@ -223,6 +227,7 @@ public class UserController {
     }
 
     @PutMapping("/verify/{otp}")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER', 'ROLE_STAFF', 'ROLE_BREEDER')")
     public ResponseEntity<OtpResponse> verifiedUser(
         @PathVariable int otp,
         @RequestHeader("Authorization") String authorizationHeader

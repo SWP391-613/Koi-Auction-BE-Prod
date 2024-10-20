@@ -9,6 +9,7 @@ import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Koi;
 import com.swp391.koibe.models.KoiImage;
 import com.swp391.koibe.responses.KoiResponse;
+import com.swp391.koibe.responses.pagination.KoiPaginationResponse;
 import jakarta.mail.MessagingException;
 import java.util.List;
 import java.util.Set;
@@ -37,4 +38,6 @@ public interface IKoiService<T> {
     Page<KoiResponse> getKoiByStatus(Pageable pageable,EKoiStatus status);
 
     void updateKoiStatus(long id, UpdateKoiStatusDTO updateKoiStatusDTO) throws MessagingException;
+
+    Page<Koi> findKoiByKeyword(String keyword, Pageable pageable);
 }
