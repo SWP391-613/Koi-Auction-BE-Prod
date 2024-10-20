@@ -117,7 +117,7 @@ public class WebSecurityConfig {
 
                     .requestMatchers(GET,
                                      String.format("%s/kois/get-kois-by-keyword", apiPrefix))
-                    .permitAll()
+                    .hasAnyRole(Role.BREEDER)
 
                     .requestMatchers(GET,
                                      String.format("%s/orders_details**", apiPrefix))

@@ -201,8 +201,8 @@ public class KoiService implements IKoiService<KoiResponse> {
     }
 
     @Override
-    public Page<Koi> findKoiByKeyword(String keyword, Pageable pageable) {
-        return koiRepository.findKoiByKeyword(keyword,  pageable);
+    public Page<Koi> findKoiByKeyword(String keyword, long breederId, Pageable pageable) {
+        return koiRepository.findKoiByKeyword(keyword, breederId,  pageable);
     }
 
 }

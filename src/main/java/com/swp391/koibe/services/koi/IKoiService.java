@@ -39,5 +39,5 @@ public interface IKoiService<T> {
 
     void updateKoiStatus(long id, UpdateKoiStatusDTO updateKoiStatusDTO) throws MessagingException;
 
-    Page<Koi> findKoiByKeyword(String keyword, Pageable pageable);
+    Page<Koi> findKoiByKeyword(String keyword, long breederId, Pageable pageable);
 }

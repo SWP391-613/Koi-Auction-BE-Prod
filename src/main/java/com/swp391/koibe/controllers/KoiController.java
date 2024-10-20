@@ -144,10 +144,14 @@ public class KoiController {
     public ResponseEntity<KoiPaginationResponse> getKoisByKeyword(
         @RequestParam(defaultValue = "") String keyword,
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int limit
-    ) {
+        @RequestParam(defaultValue = "10") int limit,
+        @RequestHeader("Authorization") String authorizationHeader
+    ) throws Exception {
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userService.getUserDetailsFromToken(extractedToken);
+
         PageRequest pageRequest = PageRequest.of(page, limit);
-        Page<KoiResponse> koiPage = koiService.findKoiByKeyword(keyword, pageRequest)
+        Page<KoiResponse> koiPage = koiService.findKoiByKeyword(keyword, user.getId(), pageRequest)
             .map(DTOConverter::convertToKoiDTO);
         KoiPaginationResponse response = new KoiPaginationResponse();
         response.setItem(koiPage.getContent());

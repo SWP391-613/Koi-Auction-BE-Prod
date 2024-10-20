@@ -35,16 +35,17 @@ interface KoiRepository : JpaRepository<Koi, Long> {
     fun findByKeyword(@Param("keyword") keyword: String, pageable: Pageable): Page<KoiInAuctionResponse>
 
     @Query(
-        "SELECT k FROM Koi k WHERE " +
-                "k.name LIKE CONCAT('%', :keyword, '%') " +
+        "SELECT k FROM Koi k WHERE k.owner.id = :breederId " +
+                "AND (k.name LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.sex as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.length as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.age as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.price as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR k.description LIKE CONCAT('%', :keyword, '%') " +
                 "OR k.category.name LIKE CONCAT('%', :keyword, '%') " +
-                "OR CAST(k.status as string) LIKE CONCAT('%', :keyword, '%')"
+                "OR CAST(k.status as string) LIKE CONCAT('%', :keyword, '%'))"
     )
-    fun findKoiByKeyword(@Param ("keyword") keyword: String, pageable: Pageable): Page<Koi>
+    fun findKoiByKeyword(@Param("keyword") keyword: String, @Param("breederId") breederId: Long, pageable: Pageable): Page<Koi>
+
 
 }
