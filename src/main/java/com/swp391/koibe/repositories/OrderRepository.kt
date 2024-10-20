@@ -18,5 +18,6 @@ interface OrderRepository : JpaRepository<Order, Long>{
             "OR o.email LIKE %:keyword%)")
     fun findByKeyword(@Param("keyword") keyword: String?, pageable: Pageable): Page<Order>
     fun findByStatus(status: OrderStatus): List<Order>
+    fun findByUserIdAndStatus(userId: Long, status: OrderStatus, pageable: Pageable): Page<Order>
 
 }

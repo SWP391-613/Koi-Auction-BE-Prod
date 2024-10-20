@@ -25,4 +25,5 @@ public interface IOrderService {
     Page<Order> getOrdersByKeyword(String keyword, Pageable pageable);
     List<Order> getOrdersByStatus(OrderStatus orderStatus) throws DataNotFoundException;
     void createOrderForAuctionKoi(AuctionKoi auctionKoi, User bidder) throws Exception;
+    Page<Order> getOrdersByStatus(Long userId,String keyword, Pageable pageable);
 }

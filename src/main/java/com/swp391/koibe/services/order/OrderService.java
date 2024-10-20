@@ -258,4 +258,9 @@ public class OrderService implements IOrderService {
         Context context = new Context();
         orderMailService.sendOrderCreatedEmailToUser(order, "Order Created Successfully", "orderCreated", context);
     }
+
+    @Override
+    public Page<Order> getOrdersByStatus(Long userId, String keyword, Pageable pageable) {
+        return orderRepository.findByUserIdAndStatus(userId, OrderStatus.valueOf(keyword), pageable);
+    }
 }

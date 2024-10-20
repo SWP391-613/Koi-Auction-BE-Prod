@@ -71,8 +71,8 @@ public class OrderController {
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
             BaseResponse response = new BaseResponse();
-            response.setMessage(e.getMessage());
             response.setMessage("Get orders failed");
+            response.setReason(e.toString());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -87,8 +87,8 @@ public class OrderController {
             return ResponseEntity.ok(orderResponse);
         } catch (Exception e) {
             BaseResponse response = new BaseResponse();
-            response.setMessage(e.getMessage());
-            response.setMessage("Get orders failed" + orderId);
+            response.setMessage("Get orders failed");
+            response.setReason(e.toString());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -122,8 +122,8 @@ public class OrderController {
                 throw e;
             }
             BaseResponse response = new BaseResponse();
-            response.setMessage(e.getMessage());
-            response.setReason("Update order failed");
+            response.setReason(e.getMessage());
+            response.setMessage("Update order failed");
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -144,8 +144,8 @@ public class OrderController {
                 throw e;
             }
             BaseResponse response = new BaseResponse();
-            response.setMessage(e.getMessage());
-            response.setReason("Delete order failed");
+            response.setReason(e.getMessage());
+            response.setMessage("Delete order failed");
             return ResponseEntity.badRequest().body(response);
         }
 
@@ -166,6 +166,29 @@ public class OrderController {
                 .getOrdersByKeyword(keyword, pageRequest)
                 .map(DTOConverter::fromOrder);
         // Lấy tổng số trang
+        int totalPages = orderPage.getTotalPages();
+        List<OrderResponse> orderResponses = orderPage.getContent();
+        return ResponseEntity.ok(OrderListResponse
+                .builder()
+                .orders(orderResponses)
+                .totalPages(totalPages)
+                .build());
+    }
+
+    @GetMapping("/user/{user_id}/get-sorted-orders")
+    public ResponseEntity<OrderListResponse> getSortedOrder(
+            @Valid @PathVariable("user_id") Long userId,
+            @Valid @RequestParam("keyword") String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit) {
+
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                // Sort.by("createdAt").descending()
+                Sort.by("id").ascending());
+        Page<OrderResponse> orderPage = orderService
+                .getOrdersByStatus(userId, keyword, pageRequest)
+                .map(DTOConverter::fromOrder);
         int totalPages = orderPage.getTotalPages();
         List<OrderResponse> orderResponses = orderPage.getContent();
         return ResponseEntity.ok(OrderListResponse
