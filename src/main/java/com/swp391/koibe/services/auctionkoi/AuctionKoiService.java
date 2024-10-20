@@ -188,6 +188,11 @@ public class AuctionKoiService implements IAuctionKoiService {
     }
 
     @Override
+    public Page<Koi> getKoiByKeyword(String keyword, Pageable pageable) {
+        return koiRepository.findByKeyword(keyword, pageable);
+    }
+
+    @Override
     public List<AuctionKoiResponse> getAuctionKoiByAuctionId(long id) {
         return auctionKoiRepository.findAuctionKoiByAuctionId(id).stream()
                 .map(DTOConverter::convertToAuctionKoiDTO)

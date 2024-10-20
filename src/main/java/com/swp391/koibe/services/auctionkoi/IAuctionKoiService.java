@@ -4,6 +4,8 @@ import com.swp391.koibe.dtos.auctionkoi.AuctionKoiDTO;
 import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.AuctionKoi;
+import com.swp391.koibe.models.Koi;
+import com.swp391.koibe.models.Order;
 import com.swp391.koibe.responses.AuctionKoiResponse;
 import jakarta.mail.MessagingException;
 import java.util.List;
@@ -29,4 +31,5 @@ public interface IAuctionKoiService {
     List<AuctionKoi> getAuctionKoiByAuctionIdV2(long id);
     void updateDescendAuctionKoiPrice(long auctionKoiId, AuctionKoi auctionKoi);
     AuctionKoi revokeKoiInAuction(long koiId, long auctionId);
+    Page<Koi> getKoiByKeyword(String keyword, Pageable pageable);
 }

@@ -8,6 +8,10 @@ import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.AuctionKoi;
 import com.swp391.koibe.responses.AuctionKoiResponse;
+import com.swp391.koibe.responses.KoiResponse;
+import com.swp391.koibe.responses.order.OrderListResponse;
+import com.swp391.koibe.responses.order.OrderResponse;
+import com.swp391.koibe.responses.pagination.KoiPaginationResponse;
 import com.swp391.koibe.services.auction.IAuctionService;
 import com.swp391.koibe.services.auctionkoi.IAuctionKoiService;
 import com.swp391.koibe.services.biddinghistory.IBiddingHistoryService;
@@ -21,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -282,5 +287,26 @@ public class AuctionKoiController {
 //        BidResponse response = biddingHistoryService.placeBid(bidDTO);
 //        return ResponseEntity.ok(response);
 //    }
+
+    @GetMapping("/get-kois-by-keyword")
+    public ResponseEntity<KoiPaginationResponse> getOrdersByKeyword(
+        @RequestParam(defaultValue = "", required = false) String keyword,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int limit) {
+        // Tạo Pageable từ thông tin trang và giới hạn
+        PageRequest pageRequest = PageRequest.of(
+            page, limit,
+            // Sort.by("createdAt").descending()
+            Sort.by("id").ascending());
+        Page<KoiResponse> koiPage = auctionKoiService
+            .getKoiByKeyword(keyword, pageRequest)
+            .map(DTOConverter::convertToKoiDTO);
+        KoiPaginationResponse response = new KoiPaginationResponse();
+        response.setItem(koiPage.getContent());
+        response.setTotalItem(koiPage.getTotalElements());
+        response.setTotalPage(koiPage.getTotalPages());
+
+        return ResponseEntity.ok(response);
+    }
 
 }
