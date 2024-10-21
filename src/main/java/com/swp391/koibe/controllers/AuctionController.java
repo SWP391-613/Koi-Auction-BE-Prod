@@ -9,6 +9,9 @@ import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Auction;
 import com.swp391.koibe.responses.AuctionResponse;
+import com.swp391.koibe.responses.KoiInAuctionResponse;
+import com.swp391.koibe.responses.pagination.AuctionPaginationResponse;
+import com.swp391.koibe.responses.pagination.KoiInAuctionPaginationResponse;
 import com.swp391.koibe.services.auction.IAuctionMailService;
 import com.swp391.koibe.services.auction.IAuctionService;
 import com.swp391.koibe.utils.DTOConverter;
@@ -19,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -141,6 +145,28 @@ public class AuctionController {
             log.error("Error getting auction by id: " + e.getMessage());
             throw new DataNotFoundException();
         }
+    }
+
+    @GetMapping("/get-auctions-by-keyword")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
+    public ResponseEntity<AuctionPaginationResponse> getAuctionsByKeyword(
+        @RequestParam(defaultValue = "", required = false) String keyword,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int limit)
+    {
+        // Tạo Pageable từ thông tin trang và giới hạn
+        PageRequest pageRequest = PageRequest.of(
+            page, limit,
+            // Sort.by("createdAt").descending()
+            Sort.by("id").ascending());
+        Page<AuctionResponse> auctionPage = auctionService
+            .getAuctionByKeyword(keyword, pageRequest).map(DTOConverter::convertToAuctionDTO);
+        AuctionPaginationResponse response = new AuctionPaginationResponse();
+        response.setItem(auctionPage.getContent());
+        response.setTotalItem(auctionPage.getTotalElements());
+        response.setTotalPage(auctionPage.getTotalPages());
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("")

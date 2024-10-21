@@ -124,6 +124,11 @@ public class WebSecurityConfig {
                                      String.format("%s/kois/get-unverified-kois-by-keyword", apiPrefix))
                     .hasAnyRole(Role.MANAGER, Role.STAFF)
 
+                    //Already put this in PreAuthorize
+//                    .requestMatchers(GET,
+//                                     String.format("%s/auctions/get-auctions-by-keyword", apiPrefix))
+//                    .hasAnyRole(Role.MANAGER, Role.STAFF)
+
                     .requestMatchers(GET,
                                      String.format("%s/orders_details**", apiPrefix))
                     .permitAll()
