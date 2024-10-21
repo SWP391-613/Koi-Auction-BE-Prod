@@ -40,4 +40,6 @@ public interface IKoiService<T> {
     void updateKoiStatus(long id, UpdateKoiStatusDTO updateKoiStatusDTO) throws MessagingException;
 
     Page<Koi> findKoiByKeyword(String keyword, long breederId, Pageable pageable);
+
+    Page<Koi> findUnverifiedKoiByKeyword(String keyword, Pageable pageable);
 }

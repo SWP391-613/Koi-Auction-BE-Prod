@@ -160,6 +160,22 @@ public class KoiController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/get-unverified-kois-by-keyword")
+    public ResponseEntity<KoiPaginationResponse> getUnverifiedKoisByKeyword(
+        @RequestParam(defaultValue = "") String keyword,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int limit
+    ) throws Exception {
+        PageRequest pageRequest = PageRequest.of(page, limit);
+        Page<KoiResponse> koiPage = koiService.findUnverifiedKoiByKeyword(keyword, pageRequest)
+            .map(DTOConverter::convertToKoiDTO);
+        KoiPaginationResponse response = new KoiPaginationResponse();
+        response.setItem(koiPage.getContent());
+        response.setTotalPage(koiPage.getTotalPages());
+        response.setTotalItem(koiPage.getTotalElements());
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping(value = "")
     @PreAuthorize("hasRole('ROLE_BREEDER')")
     public ResponseEntity<KoiResponse> createNewKoi(

@@ -119,6 +119,11 @@ public class WebSecurityConfig {
                                      String.format("%s/kois/get-kois-by-keyword", apiPrefix))
                     .hasAnyRole(Role.BREEDER)
 
+                    //get-unverified-kois-by-keyword
+                    .requestMatchers(GET,
+                                     String.format("%s/kois/get-unverified-kois-by-keyword", apiPrefix))
+                    .hasAnyRole(Role.MANAGER, Role.STAFF)
+
                     .requestMatchers(GET,
                                      String.format("%s/orders_details**", apiPrefix))
                     .permitAll()

@@ -72,6 +72,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 return;
             }
         } catch (Exception e) {
+            log.error("Error in JwtTokenFilter: ", e);
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
         }
 
@@ -155,7 +156,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
                 // Actuator
                 Pair.of(String.format("%s/healthcheck/health", apiPrefix), "GET"),
-                Pair.of(String.format("%s/actuator", apiPrefix), "GET"),
+                Pair.of(String.format("%s/actuator/prometheus", apiPrefix), "GET"),
 
                 // Prometheus
                 Pair.of("/actuator/prometheus", "GET"),
@@ -208,10 +209,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         String servletPath = request.getServletPath();
         String method = request.getMethod();
 
-        log.info("Request path: {}, Method: {}", request.getServletPath(), request.getMethod());
         for (Pair<String, String> bypassToken : bypassTokens) {
             String bypassPath = bypassToken.getFirst();
-            if (servletPath.startsWith(bypassPath) && method.equals(bypassToken.getSecond())) {
+            if (servletPath.equals(bypassPath) && method.equals(bypassToken.getSecond())) {
                 return true;
             }
         }

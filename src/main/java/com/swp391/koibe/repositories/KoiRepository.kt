@@ -47,5 +47,16 @@ interface KoiRepository : JpaRepository<Koi, Long> {
     )
     fun findKoiByKeyword(@Param("keyword") keyword: String, @Param("breederId") breederId: Long, pageable: Pageable): Page<Koi>
 
+    @Query(
+        "SELECT k FROM Koi k WHERE k.status = 'UNVERIFIED' " +
+                "AND (k.name LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.sex as string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.length as string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.age as string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.price as string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR k.description LIKE CONCAT('%', :keyword, '%') " +
+                "OR k.category.name LIKE CONCAT('%', :keyword, '%'))"
+    )
+    fun findUnverifiedKoiByKeyword(keyword: String, pageable: Pageable): Page<Koi>
 
 }
