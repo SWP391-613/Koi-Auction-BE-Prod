@@ -28,10 +28,10 @@ public class FeedbackService implements IFeedbackService {
         if (feedbackRepository.existsByUserIdAndOrderId(feedbackDTO.getUserId(), feedbackDTO.getOrderId())) {
             throw new DataAlreadyExistException("Feedback already exists");
         }
-        User user = userRepository.findById(feedbackDTO.getUserId()).orElseThrow(()
-                -> new DataNotFoundException("User not found: " + feedbackDTO.getUserId()));
-        Order order = orderRepository.findById(feedbackDTO.getOrderId()).orElseThrow(()
-                -> new DataNotFoundException("Order not found: " + feedbackDTO.getOrderId()));
+        User user = userRepository.findById(feedbackDTO.getUserId())
+                .orElseThrow(() -> new DataNotFoundException("User not found: " + feedbackDTO.getUserId()));
+        Order order = orderRepository.findById(feedbackDTO.getOrderId())
+                .orElseThrow(() -> new DataNotFoundException("Order not found: " + feedbackDTO.getOrderId()));
 
         if (order.getUser().getId() != user.getId()) {
             throw new DataNotFoundException("User not found in order");
@@ -58,12 +58,12 @@ public class FeedbackService implements IFeedbackService {
 
     @Override
     public Feedback updateFeedback(long id, FeedbackDTO feedbackDTO) {
-        Feedback feedback = feedbackRepository.findById(id).orElseThrow(()
-                -> new DataNotFoundException("Feedback not found"));
-        User existUser = userRepository.findById(feedbackDTO.getUserId()).orElseThrow(()
-                -> new DataNotFoundException("User not found"));
-        Order existOrder = orderRepository.findById(feedbackDTO.getUserId()).orElseThrow(()
-                -> new DataNotFoundException("Order not found"));
+        Feedback feedback = feedbackRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Feedback not found"));
+        User existUser = userRepository.findById(feedbackDTO.getUserId())
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+        Order existOrder = orderRepository.findById(feedbackDTO.getUserId())
+                .orElseThrow(() -> new DataNotFoundException("Order not found"));
         feedback.setContent(feedbackDTO.getContent());
         feedback.setRating(feedbackDTO.getRating());
         feedback.setUser(existUser);
@@ -74,15 +74,23 @@ public class FeedbackService implements IFeedbackService {
 
     @Override
     public void deleteFeedback(long id) {
-        Feedback feedback = feedbackRepository.findById(id).orElseThrow(()
-                -> new DataNotFoundException("Feedback not found"));
+        Feedback feedback = feedbackRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Feedback not found"));
         feedbackRepository.delete(feedback);
     }
 
     @Override
     public Feedback getFeedbackById(long id) {
-        Feedback feedback = feedbackRepository.findById(id).orElseThrow(()
-                -> new DataNotFoundException("Feedback not found"));
+        Feedback feedback = feedbackRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Feedback not found"));
         return feedback;
+    }
+
+    @Override
+    public Feedback getFeedbackByOrderId(long orderId) {
+        if (!orderRepository.existsById(orderId)) {
+            return null;
+        }
+        return feedbackRepository.findByOrderId(orderId).orElse(null);
     }
 }

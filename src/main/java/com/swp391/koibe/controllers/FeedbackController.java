@@ -2,10 +2,15 @@ package com.swp391.koibe.controllers;
 
 import com.swp391.koibe.components.LocalizationUtils;
 import com.swp391.koibe.dtos.FeedbackDTO;
+import com.swp391.koibe.enums.OrderStatus;
 import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
+import com.swp391.koibe.models.Feedback;
+import com.swp391.koibe.models.Order;
 import com.swp391.koibe.responses.FeedbackResponse;
 import com.swp391.koibe.services.feedback.IFeedbackService;
+import com.swp391.koibe.services.order.IOrderService;
+import com.swp391.koibe.services.order.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +27,7 @@ public class FeedbackController {
 
     private final IFeedbackService feedbackService;
     private final LocalizationUtils localizationUtils;
+    private final IOrderService orderService;
 
     @GetMapping("")
     public ResponseEntity<FeedbackResponse> getAllFeedbacks() {
@@ -59,11 +65,24 @@ public class FeedbackController {
             throw new MethodArgumentNotValidException(result);
         }
         try {
+            // Check if the order is in DELIVERED status
+            Order order = orderService.getOrder(feedback.getOrderId());
+            if (order.getStatus() != OrderStatus.DELIVERED) {
+                throw new IllegalStateException("Feedback can only be submitted for delivered orders.");
+            }
+
+            // Check if feedback already exists for this order
+            if (feedbackService.getFeedbackByOrderId(feedback.getOrderId()) != null) {
+                throw new IllegalStateException("Feedback has already been submitted for this order.");
+            }
+
             FeedbackResponse response = FeedbackResponse.builder()
                     .message(localizationUtils.getLocalizedMessage("feedback.create_successfully"))
                     .singleData(feedbackService.createFeedback(feedback))
                     .build();
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalStateException e) {
+            throw new RuntimeException(e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(
                     localizationUtils.getLocalizedMessage("feedback.create_failed"));
@@ -101,6 +120,25 @@ public class FeedbackController {
         } catch (Exception e) {
             throw new RuntimeException(
                     localizationUtils.getLocalizedMessage("feedback.delete_failed"));
+        }
+    }
+
+    @GetMapping("/order/{order_id}")
+    public ResponseEntity<FeedbackResponse> getFeedbackByOrderId(@PathVariable long order_id) {
+        try {
+            Feedback feedback = feedbackService.getFeedbackByOrderId(order_id);
+            FeedbackResponse response = FeedbackResponse.builder()
+                    .message(feedback != null
+                            ? localizationUtils.getLocalizedMessage("feedback.get_by_order_id_successfully")
+                            : localizationUtils.getLocalizedMessage("feedback.not_found_for_order"))
+                    .singleData(feedback)
+                    .build();
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    FeedbackResponse.builder()
+                            .message(localizationUtils.getLocalizedMessage("feedback.get_by_order_id_failed", order_id))
+                            .build());
         }
     }
 }

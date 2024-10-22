@@ -2,6 +2,7 @@ package com.swp391.koibe.controllers;
 
 import com.swp391.koibe.components.LocalizationUtils;
 import com.swp391.koibe.dtos.order.OrderDTO;
+import com.swp391.koibe.dtos.order.UpdateOrderStatusDTO;
 import com.swp391.koibe.enums.OrderStatus;
 import com.swp391.koibe.exceptions.InvalidApiPathVariableException;
 import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
@@ -95,11 +96,12 @@ public class OrderController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER')")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER', 'ROLE_STAFF')")
     // PUT http://localhost:8088/api/v1/orders/2
     public ResponseEntity<?> updateOrder(
             @Valid @PathVariable long id,
             @Valid @RequestBody OrderDTO orderDTO,
+            @Valid @RequestBody UpdateOrderStatusDTO updateOrderStatusDTO,
             BindingResult result) {
 
         if (id <= 0)
@@ -111,8 +113,8 @@ public class OrderController {
         try {
             Order order;
             if (SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_MANAGER"))) {
-                order = orderService.updateOrder(id, orderDTO);
+                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_STAFF"))) {
+                order = orderService.updateOrderStatus(id, OrderStatus.valueOf(updateOrderStatusDTO.getStatus()));
             } else {
                 order = orderService.updateOrderByUser(id, orderDTO);
             }
@@ -156,22 +158,20 @@ public class OrderController {
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
     public ResponseEntity<OrderPaginationResponse> getOrdersByKeyword(
             @RequestParam(defaultValue = "", required = false) String keyword,
-            @RequestParam(defaultValue = "", required = false) String status,
+            @RequestParam String status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit) {
 
         List<OrderResponse> orderResponses = orderService
-                .getOrdersByKeyword(keyword, OrderStatus.valueOf(status.toUpperCase()))
+                .getOrdersByKeyword(keyword, status)
                 .stream()
                 .map(DTOConverter::fromOrder)
                 .collect(Collectors.toList());
         OrderPaginationResponse orderPaginationResponse = new OrderPaginationResponse();
         orderPaginationResponse.setItem(orderResponses);
+        orderPaginationResponse.setTotalPage(Math.floorDiv(orderResponses.size(), limit) + 1);
         orderPaginationResponse.setTotalItem(orderResponses.size());
-        orderPaginationResponse.setTotalPage(Math.floorDiv(orderResponses.size(), limit));
         return ResponseEntity.ok(orderPaginationResponse);
-
-//        return ResponseEntity.ok(orderResponses);
     }
 
     @GetMapping("/user/{user_id}/get-sorted-orders")
@@ -195,6 +195,23 @@ public class OrderController {
                 .orders(orderResponses)
                 .totalPages(totalPages)
                 .build());
+    }
+
+    @PutMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
+    public ResponseEntity<?> updateOrderStatus(
+            @Valid @PathVariable long id,
+            @Valid @RequestBody UpdateOrderStatusDTO updateOrderStatusDTO) {
+        try {
+            Order updatedOrder = orderService.updateOrderStatusAndShipDate(id,
+                    OrderStatus.valueOf(updateOrderStatusDTO.getStatus()));
+            return ResponseEntity.ok(DTOConverter.fromOrder(updatedOrder));
+        } catch (Exception e) {
+            BaseResponse response = new BaseResponse();
+            response.setReason(e.getMessage());
+            response.setMessage("Update order status failed");
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
 }

@@ -187,6 +187,17 @@ public class OrderService implements IOrderService {
 
         // no hard-delete, => please soft-delete
         order.setActive(false);
+        orderRepository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public void cancelOrder(Long id) {
+        Order order = orderRepository
+                .findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + id));
+
+        // set order status to CANCELLED
         order.setStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
     }
@@ -204,8 +215,8 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public List<Order> getOrdersByKeyword(String keyword, OrderStatus status) {
-        return orderRepository.findByKeyword(keyword, status);
+    public List<Order> getOrdersByKeyword(String keyword, String status) {
+        return orderRepository.findByKeyword(keyword, OrderStatus.valueOf(status.toUpperCase()));
     }
 
     @Override
@@ -261,5 +272,14 @@ public class OrderService implements IOrderService {
     @Override
     public Page<Order> getOrdersByStatus(Long userId, String keyword, Pageable pageable) {
         return orderRepository.findByUserIdAndStatus(userId, OrderStatus.valueOf(keyword), pageable);
+    }
+
+    @Override
+    public Order updateOrderStatusAndShipDate(Long id, OrderStatus orderStatus) throws DataNotFoundException {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + id));
+        order.setStatus(orderStatus);
+        order.setShippingDate(LocalDate.now().plusDays(5));
+        return orderRepository.save(order);
     }
 }

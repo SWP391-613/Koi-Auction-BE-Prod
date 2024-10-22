@@ -15,11 +15,11 @@ interface OrderRepository : JpaRepository<Order, Long> {
         "SELECT o FROM Order o WHERE o.active = true " +
                 "AND (:status IS NULL OR o.status = :status) " +
                 "AND (:keyword IS NULL OR :keyword = '' OR " +
-                "LOWER(o.firstName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-                "OR LOWER(o.lastName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+                "LOWER(CONCAT(o.firstName, ' ', o.lastName)) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
                 "OR LOWER(o.address) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
                 "OR LOWER(o.note) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-                "OR LOWER(o.email) LIKE LOWER(CONCAT('%', :keyword, '%')))"
+                "OR LOWER(o.email) LIKE LOWER(CONCAT('%', :keyword, '%')))" +
+                "ORDER BY o.orderDate DESC"
     )
     fun findByKeyword(
         @Param("keyword") keyword: String?,

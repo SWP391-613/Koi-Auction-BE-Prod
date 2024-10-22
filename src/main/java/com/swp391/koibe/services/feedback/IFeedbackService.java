@@ -12,4 +12,5 @@ public interface IFeedbackService {
     Feedback updateFeedback(long id, FeedbackDTO feedbackDTO);
     void deleteFeedback(long id);
     Feedback getFeedbackById(long id);
+    Feedback getFeedbackByOrderId(long orderId);
 }
