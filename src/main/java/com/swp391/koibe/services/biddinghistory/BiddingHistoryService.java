@@ -1,9 +1,7 @@
 package com.swp391.koibe.services.biddinghistory;
 
 import com.swp391.koibe.dtos.BidDTO;
-import com.swp391.koibe.dtos.OrderDTO;
 import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
-import com.swp391.koibe.enums.OrderStatus;
 import com.swp391.koibe.exceptions.BiddingRuleException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.*;
@@ -15,25 +13,19 @@ import com.swp391.koibe.services.auctionparticipant.IAuctionParticipantService;
 import com.swp391.koibe.services.order.IOrderMailService;
 import com.swp391.koibe.services.order.IOrderService;
 import com.swp391.koibe.services.orderdetail.IOrderDetailService;
-import com.swp391.koibe.services.orderdetail.OrderDetailService;
-import com.swp391.koibe.services.token.ITokenService;
 import com.swp391.koibe.services.user.IUserService;
 import com.swp391.koibe.utils.DTOConverter;
 import com.swp391.koibe.utils.DateTimeUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.context.Context;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor

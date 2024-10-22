@@ -1,22 +1,23 @@
 package com.swp391.koibe.controllers;
 
 import com.swp391.koibe.components.LocalizationUtils;
-import com.swp391.koibe.dtos.OrderDTO;
-import com.swp391.koibe.dtos.PaymentDTO;
+import com.swp391.koibe.dtos.order.OrderDTO;
+import com.swp391.koibe.enums.OrderStatus;
 import com.swp391.koibe.exceptions.InvalidApiPathVariableException;
 import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Order;
-import com.swp391.koibe.models.Payment;
 import com.swp391.koibe.responses.base.BaseResponse;
 import com.swp391.koibe.responses.order.OrderListResponse;
 import com.swp391.koibe.responses.order.OrderResponse;
+import com.swp391.koibe.responses.pagination.OrderPaginationResponse;
 import com.swp391.koibe.services.order.IOrderService;
 import com.swp391.koibe.utils.DTOConverter;
 import com.swp391.koibe.utils.MessageKeys;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -151,28 +152,26 @@ public class OrderController {
 
     }
 
-    @GetMapping("/get-orders-by-keyword")
-    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER', 'ROLE_STAFF', 'ROLE_MEMBER')")
-    public ResponseEntity<OrderListResponse> getOrdersByKeyword(
+    @GetMapping("/get-orders-by-keyword-and-status")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
+    public ResponseEntity<OrderPaginationResponse> getOrdersByKeyword(
             @RequestParam(defaultValue = "", required = false) String keyword,
+            @RequestParam(defaultValue = "", required = false) String status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit) {
-        // Tạo Pageable từ thông tin trang và giới hạn
-        PageRequest pageRequest = PageRequest.of(
-                page, limit,
-                // Sort.by("createdAt").descending()
-                Sort.by("id").ascending());
-        Page<OrderResponse> orderPage = orderService
-                .getOrdersByKeyword(keyword, pageRequest)
-                .map(DTOConverter::fromOrder);
-        // Lấy tổng số trang
-        int totalPages = orderPage.getTotalPages();
-        List<OrderResponse> orderResponses = orderPage.getContent();
-        return ResponseEntity.ok(OrderListResponse
-                .builder()
-                .orders(orderResponses)
-                .totalPages(totalPages)
-                .build());
+
+        List<OrderResponse> orderResponses = orderService
+                .getOrdersByKeyword(keyword, OrderStatus.valueOf(status.toUpperCase()))
+                .stream()
+                .map(DTOConverter::fromOrder)
+                .collect(Collectors.toList());
+        OrderPaginationResponse orderPaginationResponse = new OrderPaginationResponse();
+        orderPaginationResponse.setItem(orderResponses);
+        orderPaginationResponse.setTotalItem(orderResponses.size());
+        orderPaginationResponse.setTotalPage(Math.floorDiv(orderResponses.size(), limit));
+        return ResponseEntity.ok(orderPaginationResponse);
+
+//        return ResponseEntity.ok(orderResponses);
     }
 
     @GetMapping("/user/{user_id}/get-sorted-orders")

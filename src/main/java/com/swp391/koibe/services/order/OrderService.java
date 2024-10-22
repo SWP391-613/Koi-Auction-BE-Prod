@@ -1,7 +1,7 @@
 package com.swp391.koibe.services.order;
 
 import com.swp391.koibe.dtos.CartItemDTO;
-import com.swp391.koibe.dtos.OrderDTO;
+import com.swp391.koibe.dtos.order.OrderDTO;
 import com.swp391.koibe.dtos.OrderDetailDTO;
 import com.swp391.koibe.dtos.OrderWithDetailsDTO;
 import com.swp391.koibe.enums.OrderStatus;
@@ -24,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
@@ -84,7 +83,7 @@ public class OrderService implements IOrderService {
             Long koiId = cartItemDTO.koiId();
             int quantity = cartItemDTO.quantity();
 
-            // Tìm thông tin sản phẩm t�� cơ sở dữ liệu (hoặc sử dụng cache nếu cần)
+            // Tìm thông tin sản phẩm t cơ sở dữ liệu (hoặc sử dụng cache nếu cần)
             Koi koi = koiRepository.findById(koiId)
                     .orElseThrow(() -> new DataNotFoundException("Koi not found with id: " + koiId));
 
@@ -205,8 +204,8 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public Page<Order> getOrdersByKeyword(String keyword, Pageable pageable) {
-        return orderRepository.findByKeyword(keyword, pageable);
+    public List<Order> getOrdersByKeyword(String keyword, OrderStatus status) {
+        return orderRepository.findByKeyword(keyword, status);
     }
 
     @Override
