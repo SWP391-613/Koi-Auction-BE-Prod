@@ -43,4 +43,7 @@ public interface IKoiService<T> {
     Page<Koi> findKoiByKeyword(String keyword, long breederId, Pageable pageable);
 
     Page<Koi> findUnverifiedKoiByKeyword(String keyword, Pageable pageable);
+
+    Page<Koi> findAllKoiByKeyword(String keyword, Pageable pageable);
+
 }

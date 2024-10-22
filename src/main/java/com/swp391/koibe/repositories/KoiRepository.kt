@@ -19,20 +19,25 @@ interface KoiRepository : JpaRepository<Koi, Long> {
 
     //SELECT koi data is display in existing auction
     //notice im want to retrieve the auction id at that last column to use in fe call
-    @Query("SELECT new com.swp391.koibe.responses.KoiInAuctionResponse(k.id, k.name, k.sex, k.length, k.age, k.price, k.status, k.isDisplay, k.thumbnail, k.description, k.owner.id, k.category.id, ak.auction.id) " +
-            "FROM Koi k INNER JOIN AuctionKoi ak ON k.id = ak.koi.id " +
-            "WHERE k.status = 'VERIFIED' AND " +
-            "(:keyword IS NULL OR :keyword = '' OR " +
-            "k.name LIKE CONCAT('%', :keyword, '%') " +
-            "OR k.description LIKE CONCAT('%', :keyword, '%') " +
-            "OR k.sex LIKE CONCAT('%', :keyword, '%') " +
-            "OR CAST(k.length AS string) LIKE CONCAT('%', :keyword, '%') " +
-            "OR CAST(k.age AS string) LIKE CONCAT('%', :keyword, '%') " +
-            "OR CAST(k.price AS string) LIKE CONCAT('%', :keyword, '%') " +
-            "OR CAST(k.owner.id as string) LIKE CONCAT('%', :keyword, '%')" +
-            "OR CAST(ak.bidMethod as string) LIKE CONCAT('%', :keyword, '%')" +
-            "OR CAST(ak.bidStep as string) LIKE CONCAT('%', :keyword, '%'))")
-    fun findByKeyword(@Param("keyword") keyword: String, pageable: Pageable): Page<KoiInAuctionResponse>
+    @Query(
+        "SELECT new com.swp391.koibe.responses.KoiInAuctionResponse(k.id, k.name, k.sex, k.length, k.age, k.price, k.status, k.isDisplay, k.thumbnail, k.description, k.owner.id, k.category.id, ak.auction.id) " +
+                "FROM Koi k INNER JOIN AuctionKoi ak ON k.id = ak.koi.id " +
+                "WHERE k.status = 'VERIFIED' AND " +
+                "(:keyword IS NULL OR :keyword = '' OR " +
+                "k.name LIKE CONCAT('%', :keyword, '%') " +
+                "OR k.description LIKE CONCAT('%', :keyword, '%') " +
+                "OR k.sex LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.length AS string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.age AS string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.price AS string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.owner.id as string) LIKE CONCAT('%', :keyword, '%')" +
+                "OR CAST(ak.bidMethod as string) LIKE CONCAT('%', :keyword, '%')" +
+                "OR CAST(ak.bidStep as string) LIKE CONCAT('%', :keyword, '%'))"
+    )
+    fun findByKeyword(
+        @Param("keyword") keyword: String,
+        pageable: Pageable
+    ): Page<KoiInAuctionResponse>
 
     @Query(
         "SELECT k FROM Koi k WHERE k.owner.id = :breederId " +
@@ -45,7 +50,11 @@ interface KoiRepository : JpaRepository<Koi, Long> {
                 "OR k.category.name LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.status as string) LIKE CONCAT('%', :keyword, '%'))"
     )
-    fun findKoiByKeyword(@Param("keyword") keyword: String, @Param("breederId") breederId: Long, pageable: Pageable): Page<Koi>
+    fun findKoiByKeyword(
+        @Param("keyword") keyword: String,
+        @Param("breederId") breederId: Long,
+        pageable: Pageable
+    ): Page<Koi>
 
     @Query(
         "SELECT k FROM Koi k WHERE k.status = 'UNVERIFIED' " +
@@ -58,5 +67,16 @@ interface KoiRepository : JpaRepository<Koi, Long> {
                 "OR k.category.name LIKE CONCAT('%', :keyword, '%'))"
     )
     fun findUnverifiedKoiByKeyword(keyword: String, pageable: Pageable): Page<Koi>
+
+    @Query(
+        "SELECT k FROM Koi k WHERE (k.name LIKE CONCAT('%', :keyword, '%') " +
+                "OR k.description LIKE CONCAT('%', :keyword, '%') " +
+                "OR k.sex LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.length AS string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.age AS string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.price AS string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR k.category.name LIKE CONCAT('%', :keyword, '%'))"
+    )
+    fun findAllKoiByKeyword(keyword: String, pageable: Pageable): Page<Koi>
 
 }

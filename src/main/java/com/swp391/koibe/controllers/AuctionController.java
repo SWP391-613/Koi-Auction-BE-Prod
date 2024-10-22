@@ -2,6 +2,8 @@ package com.swp391.koibe.controllers;
 
 import com.github.javafaker.Faker;
 import com.swp391.koibe.dtos.AuctionDTO;
+import com.swp391.koibe.dtos.MailDTO;
+import com.swp391.koibe.dtos.UpdateAuctionDTO;
 import com.swp391.koibe.enums.EAuctionStatus;
 import com.swp391.koibe.exceptions.GenerateDataException;
 import com.swp391.koibe.exceptions.MalformDataException;
@@ -47,17 +49,18 @@ public class AuctionController {
         Faker faker = new Faker();
 
         for (int i = 0; i < 100; i++) {
-            LocalDateTime endTime = LocalDateTime.ofInstant(faker.date().past(30, TimeUnit.DAYS).toInstant(), ZoneId.systemDefault());
+            LocalDateTime endTime = LocalDateTime.ofInstant(
+                faker.date().past(30, TimeUnit.DAYS).toInstant(), ZoneId.systemDefault());
             LocalDateTime startTime = endTime.minusDays(faker.number().numberBetween(1, 20));
 
             AuctionDTO auction = AuctionDTO.builder()
-                    .statusName(String.valueOf(EAuctionStatus.ENDED))
-                    .endTime(String.valueOf(endTime))
-                    .startTime(String.valueOf(startTime))
-                    .title(" Auction #" + i)
-                    .build();
+                .statusName(String.valueOf(EAuctionStatus.ENDED))
+                .endTime(String.valueOf(endTime))
+                .startTime(String.valueOf(startTime))
+                .title(" Auction #" + i)
+                .build();
             try {
-                 auctionService.createAscendingAuction(auction);
+                auctionService.createAscendingAuction(auction);
             } catch (Exception e) {
                 log.error("Error creating auction: " + e.getMessage());
                 throw new GenerateDataException();
@@ -66,11 +69,12 @@ public class AuctionController {
     }
 
     @GetMapping("/notify/upcoming")
-    public ResponseEntity<?> notifyAllUserUpcomingAuction(){
-        try{
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
+    public ResponseEntity<?> notifyAllUserUpcomingAuction() {
+        try {
             auctionMailService.notifyUsersAboutUpcomingAuctions();
             return ResponseEntity.ok("Success");
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -78,14 +82,13 @@ public class AuctionController {
     //pagination for auctions
     @GetMapping("") // /auctions/?page=1&limit=10
     public ResponseEntity<List<AuctionResponse>> getAllAuctions(
-            @RequestParam int page,
-            @RequestParam int limit) {
+        @RequestParam int page,
+        @RequestParam int limit) {
         try {
             PageRequest pageRequest = PageRequest.of(page, limit);
             Page<AuctionResponse> auctions = auctionService.getAllAuctions(pageRequest);
             return ResponseEntity.ok(auctions.getContent());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error getting all auctions: " + e.getMessage());
             throw new DataNotFoundException();
         }
@@ -99,7 +102,8 @@ public class AuctionController {
         try {
             PageRequest pageRequest = PageRequest.of(page, limit);
             EAuctionStatus auctionStatus = EAuctionStatus.valueOf(status.toUpperCase());
-            Page<AuctionResponse> auctions = auctionService.getAuctionByStatus(auctionStatus, pageRequest);
+            Page<AuctionResponse> auctions = auctionService.getAuctionByStatus(auctionStatus,
+                                                                               pageRequest);
             return ResponseEntity.ok(auctions.getContent());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null); // Handle invalid status value
@@ -112,11 +116,11 @@ public class AuctionController {
     @GetMapping("/staff")
     public ResponseEntity<?> getAuctionHandledByStaff(
         @RequestParam long id
-    ){
-        if(id <= 0){
+    ) {
+        if (id <= 0) {
             throw new MalformDataException("Invalid staff id, staff id must greater than 0");
         }
-        try{
+        try {
             //convert to List<AuctionResponse>
             List<AuctionResponse> auctionDTOs = auctionService
                 .getAuctionByAuctioneerId(id)
@@ -125,9 +129,9 @@ public class AuctionController {
                 .collect(Collectors.toList());
 
             return ResponseEntity.ok(auctionDTOs);
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("Error getting auction handled by staff: " + e.getMessage());
-            if(e instanceof DataNotFoundException){
+            if (e instanceof DataNotFoundException) {
                 return ResponseEntity.notFound().build();
             }
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -140,8 +144,7 @@ public class AuctionController {
         try {
             AuctionResponse auction = auctionService.getById(id);
             return ResponseEntity.ok(auction);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error getting auction by id: " + e.getMessage());
             throw new DataNotFoundException();
         }
@@ -151,8 +154,7 @@ public class AuctionController {
     public ResponseEntity<AuctionPaginationResponse> getAuctionsByKeyword(
         @RequestParam(defaultValue = "", required = false) String keyword,
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int limit)
-    {
+        @RequestParam(defaultValue = "10") int limit) {
         // Tạo Pageable từ thông tin trang và giới hạn
         PageRequest pageRequest = PageRequest.of(
             page, limit,
@@ -175,7 +177,7 @@ public class AuctionController {
         BindingResult result
     ) {
 
-        if(result.hasErrors()) {
+        if (result.hasErrors()) {
             throw new MethodArgumentNotValidException(result);
         }
 
@@ -188,9 +190,8 @@ public class AuctionController {
             response.setStatus(newAuction.getStatus().getStatus());
             response.setAuctioneerId(newAuction.getAuctioneer().getId());
             return ResponseEntity.status(201).body(response);
-        }
-        catch (Exception e) {
-            if(e instanceof MalformDataException){
+        } catch (Exception e) {
+            if (e instanceof MalformDataException) {
                 throw e;
             }
             log.error("Error creating auction: " + e.getMessage());
@@ -203,17 +204,16 @@ public class AuctionController {
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
     public ResponseEntity<AuctionResponse> updateAuction(
         @PathVariable long id,
-        @Valid @RequestBody AuctionDTO auctionDTO,
-        BindingResult result)
-    {
-        if(result.hasErrors()) {
+        @Valid @RequestBody UpdateAuctionDTO updateAuctionDTO,
+        BindingResult result) {
+        if (result.hasErrors()) {
             throw new MethodArgumentNotValidException(result);
         }
 
         AuctionResponse response = new AuctionResponse();
 
         try {
-            Auction updatedAuction = auctionService.update(id, auctionDTO);
+            Auction updatedAuction = auctionService.update(id, updateAuctionDTO);
             response.setId(updatedAuction.getId());
             response.setTitle(updatedAuction.getTitle());
             response.setStartTime(String.valueOf(updatedAuction.getStartTime()));
@@ -221,12 +221,19 @@ public class AuctionController {
             response.setStatus(updatedAuction.getStatus().getStatus());
             response.setAuctioneerId(updatedAuction.getAuctioneer().getId());
             return ResponseEntity.ok(response);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error updating auction: " + e.getMessage());
             response.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
+    }
+
+    @PutMapping("/end/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
+    public ResponseEntity<String> endAuction(
+        @PathVariable long id) {
+        auctionService.end(id);
+        return ResponseEntity.ok().body("End auction successfully");
     }
 
     @DeleteMapping("/{id}")
@@ -236,8 +243,7 @@ public class AuctionController {
         try {
             auctionService.delete(id);
             return ResponseEntity.noContent().build();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error deleting auction: " + e.getMessage());
             response.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(response);

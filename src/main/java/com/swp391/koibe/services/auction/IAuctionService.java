@@ -2,6 +2,7 @@ package com.swp391.koibe.services.auction;
 
 //import com.swp391.koibe.dtos.AuctionDTO;
 import com.swp391.koibe.dtos.AuctionDTO;
+import com.swp391.koibe.dtos.UpdateAuctionDTO;
 import com.swp391.koibe.enums.EAuctionStatus;
 import com.swp391.koibe.exceptions.base.DataAlreadyExistException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
@@ -29,10 +30,10 @@ public interface IAuctionService {
 
         Page<AuctionResponse> getAllAuctions(Pageable pageable);
 
-        Auction update(long auctionId, AuctionDTO auctionDTO) throws DataNotFoundException;
+        Auction update(long auctionId, UpdateAuctionDTO updateAuctionDTO) throws DataNotFoundException;
 
         void delete(long id);
-
+        void end(long id) throws DataNotFoundException;
         List<Auction> getAllAuctions();
 
         List<Auction> getAuctionByStatus(EAuctionStatus status);

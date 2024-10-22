@@ -157,7 +157,7 @@ public class KoiController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/get-kois-by-keyword")
+    @GetMapping("/get-kois-owner-by-keyword")
     public ResponseEntity<KoiPaginationResponse> getKoisByKeyword(
         @RequestParam(defaultValue = "") String keyword,
         @RequestParam(defaultValue = "0") int page,
@@ -169,6 +169,23 @@ public class KoiController {
 
         PageRequest pageRequest = PageRequest.of(page, limit);
         Page<KoiResponse> koiPage = koiService.findKoiByKeyword(keyword, user.getId(), pageRequest)
+            .map(DTOConverter::convertToKoiDTO);
+        KoiPaginationResponse response = new KoiPaginationResponse();
+        response.setItem(koiPage.getContent());
+        response.setTotalPage(koiPage.getTotalPages());
+        response.setTotalItem(koiPage.getTotalElements());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/get-all-kois-by-keyword")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
+    public ResponseEntity<KoiPaginationResponse> getAllKoisByKeyword(
+        @RequestParam(defaultValue = "") String keyword,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int limit
+    ) throws Exception {
+        PageRequest pageRequest = PageRequest.of(page, limit);
+        Page<KoiResponse> koiPage = koiService.findAllKoiByKeyword(keyword, pageRequest)
             .map(DTOConverter::convertToKoiDTO);
         KoiPaginationResponse response = new KoiPaginationResponse();
         response.setItem(koiPage.getContent());

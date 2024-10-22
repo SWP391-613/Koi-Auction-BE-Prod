@@ -1,6 +1,7 @@
 package com.swp391.koibe.services.auction;
 
 import com.swp391.koibe.dtos.AuctionDTO;
+import com.swp391.koibe.dtos.UpdateAuctionDTO;
 import com.swp391.koibe.enums.EAuctionStatus;
 import com.swp391.koibe.exceptions.DeleteException;
 import com.swp391.koibe.exceptions.MalformDataException;
@@ -103,17 +104,17 @@ public class AuctionService implements IAuctionService {
 
 
     @Override
-    public Auction update(long auctionId, AuctionDTO auctionDTO) throws DataNotFoundException {
+    public Auction update(long auctionId,  UpdateAuctionDTO updateAuctionDTO) throws DataNotFoundException {
         Auction auction = auctionRepository.findById(auctionId)
                 .orElseThrow(() -> new DataNotFoundException("Auction not found"));
 
-        LocalDateTime startTime = DateTimeUtils.parseTime(auctionDTO.startTime());
-        LocalDateTime endTime = DateTimeUtils.parseTime(auctionDTO.endTime());
+        LocalDateTime startTime = DateTimeUtils.parseTime(updateAuctionDTO.startTime());
+        LocalDateTime endTime = DateTimeUtils.parseTime(updateAuctionDTO.endTime());
         DateTimeUtils.validateAuctionTimes(startTime, endTime);
 
         // check if status name is valid
         boolean isValidStatus = Arrays.stream(EAuctionStatus.values())
-                .anyMatch(status -> status.name().equals(auctionDTO.statusName()));
+                .anyMatch(status -> status.name().equals(updateAuctionDTO.statusName()));
 
         if (!isValidStatus) {
             throw new MalformDataException("Invalid auction status name");
@@ -121,14 +122,14 @@ public class AuctionService implements IAuctionService {
 
         //can update the auction to any status
 
-        User existingUser = userRepository.findStaffById(auctionDTO.auctioneerId())
+        User existingUser = userRepository.findStaffById(updateAuctionDTO.auctioneerId())
             .orElseThrow(() -> new MalformDataException("Auctioneer not found"));
 
 
-        auction.setTitle(auctionDTO.title());
+        auction.setTitle(updateAuctionDTO.title());
         auction.setStartTime(startTime);
         auction.setEndTime(endTime);
-        auction.setStatus(EAuctionStatus.valueOf(auctionDTO.statusName()));
+        auction.setStatus(EAuctionStatus.valueOf(updateAuctionDTO.statusName()));
         auction.setAuctioneer(existingUser);
 
         return auctionRepository.save(auction);
@@ -155,6 +156,19 @@ public class AuctionService implements IAuctionService {
 
          //only delete in case auction has no joined participants, koi added
         auctionRepository.delete(auction);
+    }
+
+    @Override
+    public void end(long id) throws DataNotFoundException {
+        Auction auction = auctionRepository.findById(id)
+            .orElseThrow(() -> new DataNotFoundException("Auction not found"));
+        if(auction.getStatus() == EAuctionStatus.ENDED) throw
+            new MalformDataException("Auction already ended");
+        LocalDateTime now = LocalDateTime.now();
+        auction.setStartTime(now);
+        auction.setEndTime(now);
+        auction.setStatus(EAuctionStatus.ENDED);
+        auctionRepository.save(auction);
     }
 
     @Override

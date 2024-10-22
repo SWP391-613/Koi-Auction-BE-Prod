@@ -23,7 +23,7 @@ import lombok.experimental.SuperBuilder;
 public class AuctionResponse extends BaseResponse<Auction> {
 
     @JsonProperty("id")
-    private long id;
+    private Long id;
 
     @JsonProperty("title")
     private String title;
@@ -38,5 +38,5 @@ public class AuctionResponse extends BaseResponse<Auction> {
     private String status;
 
     @JsonProperty("auctioneer_id")
-    private long auctioneerId;
+    private Long auctioneerId;
 }

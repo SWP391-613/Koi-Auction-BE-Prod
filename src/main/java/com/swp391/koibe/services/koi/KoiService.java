@@ -216,4 +216,9 @@ public class KoiService implements IKoiService<KoiResponse> {
         return koiRepository.findUnverifiedKoiByKeyword(keyword,  pageable);
     }
 
+    @Override
+    public Page<Koi> findAllKoiByKeyword(String keyword, Pageable pageable) {
+        return koiRepository.findAllKoiByKeyword(keyword,  pageable);
+    }
+
 }
