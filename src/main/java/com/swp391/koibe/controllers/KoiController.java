@@ -140,6 +140,23 @@ public class KoiController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/owner/{owner_id}/status")
+    public ResponseEntity<KoiPaginationResponse> getBreederKoiListByStatus(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int limit,
+        @PathVariable("owner_id") Long ownerId,
+        @RequestParam String status
+    ){
+        KoiPaginationResponse response = new KoiPaginationResponse();
+        EKoiStatus eKoiStatus = EKoiStatus.valueOf(status.toUpperCase());
+        PageRequest pageRequest = PageRequest.of(page, limit);
+        Page<KoiResponse> kois = koiService.getBreederKoiByStatus(pageRequest, ownerId, eKoiStatus);
+        response.setItem(kois.getContent());
+        response.setTotalPage(kois.getTotalPages());
+        response.setTotalItem(kois.getTotalElements());
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/get-kois-by-keyword")
     public ResponseEntity<KoiPaginationResponse> getKoisByKeyword(
         @RequestParam(defaultValue = "") String keyword,

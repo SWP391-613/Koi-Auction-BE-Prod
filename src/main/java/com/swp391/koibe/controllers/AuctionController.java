@@ -148,7 +148,6 @@ public class AuctionController {
     }
 
     @GetMapping("/get-auctions-by-keyword")
-    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
     public ResponseEntity<AuctionPaginationResponse> getAuctionsByKeyword(
         @RequestParam(defaultValue = "", required = false) String keyword,
         @RequestParam(defaultValue = "0") int page,

@@ -42,8 +42,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         specialCasePatterns = new ArrayList<>();
 
         // Add special case patterns
-        specialCasePatterns.add(
-            Pair.of("GET", Pattern.compile(String.format("%s/auctions/\\d+", apiPrefix))));
+        specialCasePatterns.add(Pair.of("GET", Pattern.compile(
+            String.format("%s/auctions/\\d+", apiPrefix))));
         specialCasePatterns.add(Pair.of("GET", Pattern.compile(
             String.format("%s/auctionkois/auction/\\d+", apiPrefix))));
         specialCasePatterns.add(Pair.of("GET", Pattern.compile(
@@ -199,6 +199,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             Pair.of(String.format("%s/auctionkois", apiPrefix), "POST"),
             Pair.of(String.format("%s/auctionkois", apiPrefix), "PUT"),
             Pair.of(String.format("%s/auctionkois/get-kois-by-keyword", apiPrefix), "GET"),
+            Pair.of(String.format("%s/auctions/get-auctions-by-keyword", apiPrefix), "GET"),
 
             // AuctionKoiDetail
             Pair.of(String.format("%s/bidding", apiPrefix), "GET"),

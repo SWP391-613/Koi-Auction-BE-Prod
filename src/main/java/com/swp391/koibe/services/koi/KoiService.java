@@ -165,6 +165,12 @@ public class KoiService implements IKoiService<KoiResponse> {
     }
 
     @Override
+    public Page<KoiResponse> getBreederKoiByStatus(Pageable pageable, long breederId,
+                                                   EKoiStatus status) {
+        return null;
+    }
+
+    @Override
     public void updateKoiStatus(long id, UpdateKoiStatusDTO updateKoiStatusDTO)
         throws MessagingException {
         //find if koi exist

@@ -36,6 +36,7 @@ public interface IKoiService<T> {
         throws Exception;
 
     Page<KoiResponse> getKoiByStatus(Pageable pageable,EKoiStatus status);
+    Page<KoiResponse> getBreederKoiByStatus(Pageable pageable, long breederId,EKoiStatus status);
 
     void updateKoiStatus(long id, UpdateKoiStatusDTO updateKoiStatusDTO) throws MessagingException;
 
