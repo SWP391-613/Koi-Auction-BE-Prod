@@ -15,6 +15,7 @@ import com.swp391.koibe.services.biddinghistory.IBiddingHistoryEmailService;
 import com.swp391.koibe.services.biddinghistory.IBiddingHistoryService;
 import com.swp391.koibe.services.order.IOrderService;
 import com.swp391.koibe.services.otp.IOtpService;
+import com.swp391.koibe.services.token.ITokenService;
 import com.swp391.koibe.services.token.TokenService;
 import com.swp391.koibe.services.user.IUserService;
 import com.swp391.koibe.utils.FilterUtils;
@@ -46,7 +47,7 @@ public class SystemService {
     private final IAuctionMailService auctionMailService;
     private final IBiddingHistoryEmailService biddingHistoryEmailService;
     private final IOtpService otpService;
-    private final TokenService tokenService;
+    private final ITokenService tokenService;
 
     //every 5 minutes
     @Scheduled(cron = "0 */5 * * * *")

@@ -297,7 +297,7 @@ public class OrderService implements IOrderService {
                     order.setShippingDate(null);
                     // refund user balance
                     userService.updateAccountBalance(order.getUser().getId(),
-                            order.getOrderDetails().get(0).getTotalMoney().longValue());
+                            order.getOrderDetails().get(0).getPrice().longValue());
                     break;
                 default:
                     break;
@@ -308,7 +308,7 @@ public class OrderService implements IOrderService {
                     order.setShippingDate(LocalDate.now());
                     // update to koi owner
                     userService.updateAccountBalance(order.getOrderDetails().get(0).getKoi().getOwner().getId(),
-                            order.getOrderDetails().get(0).getTotalMoney().longValue());
+                            order.getOrderDetails().get(0).getPrice().longValue());
                     // set koi status to SOLD
                     order.getOrderDetails().get(0).getKoi().setStatus(EKoiStatus.SOLD);
                     koiRepository.save(order.getOrderDetails().get(0).getKoi());
@@ -320,7 +320,7 @@ public class OrderService implements IOrderService {
                             order.getOrderDetails().get(0).getPrice().longValue());
                     // refund to koi owner
                     userService.updateAccountBalance(order.getOrderDetails().get(0).getKoi().getOwner().getId(),
-                            -order.getOrderDetails().get(0).getTotalMoney().longValue());
+                            order.getOrderDetails().get(0).getPrice().longValue());
                     break;
                 default:
                     break;
