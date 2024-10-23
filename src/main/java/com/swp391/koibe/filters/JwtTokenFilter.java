@@ -47,13 +47,15 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         specialCasePatterns.add(Pair.of("GET", Pattern.compile(
                 String.format("%s/auctions/\\d+", apiPrefix))));
         specialCasePatterns.add(Pair.of("GET", Pattern.compile(
+            String.format("%s/kois/\\d+", apiPrefix))));
+        specialCasePatterns.add(Pair.of("GET", Pattern.compile(
                 String.format("%s/auctionkois/auction/\\d+", apiPrefix))));
         specialCasePatterns.add(Pair.of("GET", Pattern.compile(
                 String.format("%s/auctionkois/\\d+/\\d+", apiPrefix))));
         specialCasePatterns.add(Pair.of("GET", Pattern.compile(
                 String.format("%s/bidding/\\d+", apiPrefix))));
-        specialCasePatterns.add(Pair.of("POST", Pattern.compile(
-                String.format("%s/bidding/bid/\\d+", apiPrefix))));
+//        specialCasePatterns.add(Pair.of("POST", Pattern.compile(
+//                String.format("%s/bidding/bid/\\d+", apiPrefix))));
         specialCasePatterns.add(Pair.of("GET", Pattern.compile(
                 String.format("%s/bidding/\\d+/\\d+", apiPrefix))));
         // Add WebSocket connection pattern
@@ -72,8 +74,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             log.debug("Request path: {}, Method: {}", request.getServletPath(),
                     request.getMethod());
             if (isBypassToken(request)) {
-                log.debug("Bypass token: {}", isBypassToken(request));
-
+                log.debug("Bypass token: {}", request.getRequestURI());
                 filterChain.doFilter(request, response); // enable bypass
                 return;
             }
@@ -131,8 +132,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/categories", apiPrefix), "PUT"), // add security later
                 Pair.of(String.format("%s/categories", apiPrefix), "DELETE"), // add security later
 
-                // StaffController: all route need to be protected
-
                 // ManagerController
                 Pair.of(String.format("%s/managers", apiPrefix), "GET"),
                 Pair.of(String.format("%s/managers", apiPrefix), "POST"),
@@ -152,8 +151,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
                 Pair.of(String.format("%s/oauth2", apiPrefix), "POST"),
                 Pair.of(String.format("%s/oauth2/google-client-id", apiPrefix), "GET"),
-                Pair.of(String.format("%s/members", apiPrefix), "GET"),
-                Pair.of(String.format("%s/breeders", apiPrefix), "GET"),
 
                 // Otp
                 Pair.of(String.format("%s/otp/send", apiPrefix), "GET"),

@@ -41,7 +41,7 @@ public class AuctionKoi {
     @Min(0)
     private Long basePrice;
 
-    @Column(name = "bid_step", columnDefinition = "int default 0")
+    @Column(name = "bid_step", columnDefinition = "BIGINT default 0")
     private long bidStep; // Track the bid step
 
     @Enumerated(EnumType.STRING)

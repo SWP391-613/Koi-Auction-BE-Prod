@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -72,6 +73,7 @@ public class BiddingHistoryController {
     }
 
     @PostMapping("/bid/{auctionKoiId}")
+    @PreAuthorize("hasRole('ROLE_MEMBER')")
     @MessageMapping("/auctionkoi/{auctionKoiId}/bid")
     public ResponseEntity<?> processBid(
             @DestinationVariable @PathVariable Long auctionKoiId,
@@ -92,7 +94,7 @@ public class BiddingHistoryController {
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            BaseResponse response = new BaseResponse();
+            BaseResponse<Object> response = new BaseResponse<>();
             response.setReason(BiddingRuleException.class.getSimpleName());
             response.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(response);

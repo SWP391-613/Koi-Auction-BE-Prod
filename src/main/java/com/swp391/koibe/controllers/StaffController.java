@@ -36,7 +36,7 @@ public class StaffController {
     private final IStaffService staffService;
 
     @GetMapping("")
-    @PreAuthorize("hasRole('ROLE_MANAGER')")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
     public ResponseEntity<UserPaginationResponse> getAllStaffs(
         @RequestParam("page") int page,
         @RequestParam("limit") int limit
