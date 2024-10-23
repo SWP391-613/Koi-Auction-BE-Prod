@@ -214,4 +214,20 @@ public class OrderController {
         }
     }
 
+    @PutMapping("/{id}/confirm-delivery")
+    @PreAuthorize("hasAnyRole('ROLE_MEMBER')")
+    public ResponseEntity<?> confirmDelivery(@Valid @PathVariable long id,
+            @Valid @RequestBody UpdateOrderStatusDTO updateOrderStatusDTO) {
+        try {
+            Order updatedOrder = orderService.updateOrderStatus(id,
+                    OrderStatus.valueOf(updateOrderStatusDTO.getStatus()));
+            return ResponseEntity.ok(DTOConverter.fromOrder(updatedOrder));
+        } catch (Exception e) {
+            BaseResponse response = new BaseResponse();
+            response.setReason(e.getMessage());
+            response.setMessage("Failed to confirm delivery");
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
 }

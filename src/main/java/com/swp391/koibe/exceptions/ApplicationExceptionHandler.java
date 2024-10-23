@@ -31,18 +31,18 @@ public class ApplicationExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public BaseResponse<Object> handleDataNotFoundException(DataNotFoundException e) {
         return ExceptionResponse.builder()
-            .message(localizationUtils.getLocalizedMessage("exception.data_not_found"))
-            .reason(e.getMessage())
-            .build();
+                .message(localizationUtils.getLocalizedMessage("exception.data_not_found"))
+                .reason(e.getMessage())
+                .build();
     }
 
     @ExceptionHandler(NullPointerException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public BaseResponse<Object> handleNullPointerException(NullPointerException e) {
         return ExceptionResponse.builder()
-            .message(localizationUtils.getLocalizedMessage("exception.null_pointer"))
-            .reason(e.getMessage())
-            .build();
+                .message(localizationUtils.getLocalizedMessage("exception.null_pointer"))
+                .reason(e.getMessage())
+                .build();
     }
 
     @ExceptionHandler(BiddingRuleException.class)
@@ -61,44 +61,44 @@ public class ApplicationExceptionHandler {
         log.error("Internal server error: ", e);
 
         return ExceptionResponse.builder()
-            .message(localizationUtils.getLocalizedMessage("exception.internal_server_error"))
-            .reason(e.getMessage())
-            .build();
+                .message(localizationUtils.getLocalizedMessage("exception.internal_server_error"))
+                .reason(e.getMessage())
+                .build();
     }
 
     @ExceptionHandler(GenerateDataException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public BaseResponse<Object> handleGenerateDataException(GenerateDataException e) {
         return ExceptionResponse.builder()
-            .message(localizationUtils.getLocalizedMessage("exception.generate_data_error"))
-            .reason(e.getMessage())
-            .build();
+                .message(localizationUtils.getLocalizedMessage("exception.generate_data_error"))
+                .reason(e.getMessage())
+                .build();
     }
 
-    //DataAlreadyExistsException
+    // DataAlreadyExistsException
     @ExceptionHandler(DataAlreadyExistException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public BaseResponse<Object> handleDataAlreadyExistsException(DataAlreadyExistException e) {
         return ExceptionResponse.builder()
-            .message(localizationUtils.getLocalizedMessage("exception.data_already_exist"))
-            .reason(e.getMessage())
-            .build();
+                .message(localizationUtils.getLocalizedMessage("exception.data_already_exist"))
+                .reason(e.getMessage())
+                .build();
     }
 
     @ExceptionHandler(InvalidApiPathVariableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public BaseResponse<Object> handleInvalidApiPathVariableException(InvalidApiPathVariableException e) {
         return ExceptionResponse.builder()
-            .message(localizationUtils.getLocalizedMessage("exception.invalid_api_path_variable"))
-            .reason(e.getMessage())
-            .build();
+                .message(localizationUtils.getLocalizedMessage("exception.invalid_api_path_variable"))
+                .reason(e.getMessage())
+                .build();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(
-        MethodArgumentNotValidException ex) {
+            MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
@@ -112,18 +112,18 @@ public class ApplicationExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public BaseResponse<Object> handleDeleteException(DeleteException e) {
         return ExceptionResponse.builder()
-            .message(localizationUtils.getLocalizedMessage("exception.delete_error"))
-            .reason(e.getMessage())
-            .build();
+                .message(localizationUtils.getLocalizedMessage("exception.delete_error"))
+                .reason(e.getMessage())
+                .build();
     }
 
     @ExceptionHandler(MalformDataException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public BaseResponse<Object> handleMalformDataException(MalformDataException e) {
         return ExceptionResponse.builder()
-            .message(localizationUtils.getLocalizedMessage("exception.malformed_data"))
-            .reason(e.getMessage())
-            .build();
+                .message(localizationUtils.getLocalizedMessage("exception.malformed_data"))
+                .reason(e.getMessage())
+                .build();
     }
 
     @ExceptionHandler(JwtAuthenticationException.class)
@@ -143,27 +143,37 @@ public class ApplicationExceptionHandler {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public BaseResponse<Object> handlePermissionDeniedException(PermissionDeniedException e) {
         return ExceptionResponse.builder()
-            .message(localizationUtils.getLocalizedMessage("exception.permission_denied"))
-            .reason(e.getMessage())
-            .build();
+                .message(localizationUtils.getLocalizedMessage("exception.permission_denied"))
+                .reason(e.getMessage())
+                .build();
     }
 
     @ExceptionHandler(KoiRevokeException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public BaseResponse<Object> handleKoiRevokeException(KoiRevokeException e) {
         return ExceptionResponse.builder()
-            .message(localizationUtils.getLocalizedMessage("exception.koi_revoke"))
-            .reason(e.getMessage())
-            .build();
+                .message(localizationUtils.getLocalizedMessage("exception.koi_revoke"))
+                .reason(e.getMessage())
+                .build();
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public BaseResponse<Object> handleBadCredentialsException(BadCredentialsException e) {
         return ExceptionResponse.builder()
-            .message(localizationUtils.getLocalizedMessage("exception.bad_credentials"))
-            .reason(e.getMessage())
-            .build();
+                .message(localizationUtils.getLocalizedMessage("exception.bad_credentials"))
+                .reason(e.getMessage())
+                .build();
+    }
+
+    @ExceptionHandler(FeedbackResponseException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<BaseResponse<Object>> handleFeedBackResponseException(FeedbackResponseException e) {
+        BaseResponse<Object> response = ExceptionResponse.builder()
+                .message(localizationUtils.getLocalizedMessage("feedback.exception"))
+                .reason(e.getMessage())
+                .build();
+        return ResponseEntity.badRequest().body(response);
     }
 
 }

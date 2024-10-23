@@ -25,6 +25,6 @@ public interface IOrderService {
     List<Order> getOrdersByStatus(OrderStatus orderStatus) throws DataNotFoundException;
     void createOrderForAuctionKoi(AuctionKoi auctionKoi, User bidder) throws Exception;
     Page<Order> getOrdersByStatus(Long userId,String keyword, Pageable pageable);
-    Order updateOrderStatusAndShipDate(Long id, OrderStatus orderStatus) throws DataNotFoundException;
+    Order updateOrderStatusAndShipDate(Long id, OrderStatus orderStatus) throws Exception;
     void cancelOrder(Long id) throws DataNotFoundException;
 }

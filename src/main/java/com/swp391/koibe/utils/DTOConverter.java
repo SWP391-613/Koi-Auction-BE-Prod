@@ -124,4 +124,12 @@ public class DTOConverter {
             .build();
     }
 
+    public static FeedbackResponse fromFeedback(Feedback feedback) {
+        return FeedbackResponse.builder()
+                .createAt(feedback.getCreatedAt())
+                .rating(feedback.getRating())
+                .content(feedback.getContent())
+                .build();
+    }
+
 }

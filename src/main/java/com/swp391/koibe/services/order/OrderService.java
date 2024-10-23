@@ -4,6 +4,7 @@ import com.swp391.koibe.dtos.CartItemDTO;
 import com.swp391.koibe.dtos.order.OrderDTO;
 import com.swp391.koibe.dtos.OrderDetailDTO;
 import com.swp391.koibe.dtos.OrderWithDetailsDTO;
+import com.swp391.koibe.enums.EKoiStatus;
 import com.swp391.koibe.enums.OrderStatus;
 import com.swp391.koibe.exceptions.MalformDataException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
@@ -12,12 +13,14 @@ import com.swp391.koibe.repositories.KoiRepository;
 import com.swp391.koibe.repositories.OrderDetailRepository;
 import com.swp391.koibe.repositories.OrderRepository;
 import com.swp391.koibe.repositories.UserRepository;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.swp391.koibe.responses.order.OrderResponse;
 import com.swp391.koibe.services.orderdetail.IOrderDetailService;
+import com.swp391.koibe.services.user.UserService;
 import com.swp391.koibe.utils.DTOConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +42,7 @@ public class OrderService implements IOrderService {
     private final ModelMapper modelMapper;
     private final IOrderMailService orderMailService;
     private final IOrderDetailService orderDetailService;
+    private final UserService userService;
 
     @Override
     @Transactional
@@ -244,7 +248,7 @@ public class OrderService implements IOrderService {
                 .status(OrderStatus.PENDING)
                 .address(bidder.getAddress())
                 .phoneNumber(bidder.getPhoneNumber() == null ? "" : bidder.getPhoneNumber())
-                .totalMoney(500F)
+                .totalMoney(10000F)
                 .shippingMethod("Standard")
                 .shippingAddress(bidder.getAddress())
                 .shippingDate(LocalDate.now())
@@ -257,7 +261,7 @@ public class OrderService implements IOrderService {
                 .order(order)
                 .koi(auctionKoi.getKoi())
                 .numberOfProducts(1)
-                .price(0F)
+                .price(Float.valueOf(auctionKoi.getCurrentBid()))
                 .totalMoney(0F)
                 .build();
 
@@ -275,11 +279,57 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public Order updateOrderStatusAndShipDate(Long id, OrderStatus orderStatus) throws DataNotFoundException {
+    @Transactional
+    public Order updateOrderStatusAndShipDate(Long id, OrderStatus orderStatus) throws Exception {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + id));
+
+        if (order.getOrderDetails() == null || order.getOrderDetails().isEmpty()) {
+            throw new DataNotFoundException("Order details not found for order id: " + id);
+        }
+
+        if (order.getStatus() == OrderStatus.PROCESSING) {
+            switch (orderStatus) {
+                case SHIPPED:
+                    order.setShippingDate(LocalDate.now());
+                    break;
+                case CANCELLED:
+                    order.setShippingDate(null);
+                    // refund user balance
+                    userService.updateAccountBalance(order.getUser().getId(),
+                            order.getOrderDetails().get(0).getTotalMoney().longValue());
+                    break;
+                default:
+                    break;
+            }
+        } else if (order.getStatus() == OrderStatus.SHIPPED) {
+            switch (orderStatus) {
+                case DELIVERED:
+                    order.setShippingDate(LocalDate.now());
+                    // update to koi owner
+                    userService.updateAccountBalance(order.getOrderDetails().get(0).getKoi().getOwner().getId(),
+                            order.getOrderDetails().get(0).getTotalMoney().longValue());
+                    // set koi status to SOLD
+                    order.getOrderDetails().get(0).getKoi().setStatus(EKoiStatus.SOLD);
+                    koiRepository.save(order.getOrderDetails().get(0).getKoi());
+                    break;
+                case CANCELLED:
+                    order.setShippingDate(null);
+                    // refund user balance
+                    userService.updateAccountBalance(order.getUser().getId(),
+                            order.getOrderDetails().get(0).getPrice().longValue());
+                    // refund to koi owner
+                    userService.updateAccountBalance(order.getOrderDetails().get(0).getKoi().getOwner().getId(),
+                            -order.getOrderDetails().get(0).getTotalMoney().longValue());
+                    break;
+                default:
+                    break;
+            }
+        }
+
         order.setStatus(orderStatus);
-        order.setShippingDate(LocalDate.now().plusDays(5));
-        return orderRepository.save(order);
+        Order updatedOrder = orderRepository.save(order);
+        log.info("Order status updated to {} for order id: {}", orderStatus, id);
+        return updatedOrder;
     }
 }

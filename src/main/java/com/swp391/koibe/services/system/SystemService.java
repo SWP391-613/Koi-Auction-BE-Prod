@@ -150,7 +150,7 @@ public class SystemService {
             List<Order> orders = orderService.getOrdersByStatus(OrderStatus.PENDING);
             for (Order order : orders) {
                 if (order.getOrderDate().plusDays(3).isBefore(ChronoLocalDate.from(LocalDateTime.now()))) {
-                    orderService.deleteOrder(order.getId());
+                    orderService.cancelOrder(order.getId());
                 }
             }
         } catch (SystemServiceTaskException e) {
@@ -180,6 +180,23 @@ public class SystemService {
         } catch (Exception e) {
             // Log the exception and handle error
             log.error("Error auto setting Token expired", e.getCause());
+        }
+    }
+
+    // every 10 minutes
+    @Scheduled(cron = "0 */10 * * * *")
+    @Async
+    public void deleteOrder() {
+        // with order status is CANCELLED, the order will be deleted after 10 days
+        try {
+            List<Order> orders = orderService.getOrdersByStatus(OrderStatus.CANCELLED);
+            for (Order order : orders) {
+                if (order.getOrderDate().plusDays(10).isBefore(ChronoLocalDate.from(LocalDateTime.now()))) {
+                    orderService.deleteOrder(order.getId());
+                }
+            }
+        } catch (SystemServiceTaskException e) {
+            log.error("Error updating order status", e.getCause());
         }
     }
 

@@ -148,7 +148,7 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
 
         //handle if ceil price is null (example data error)
         if (auctionKoi.getCeilPrice() == null) {
-            auctionKoi.setCeilPrice(1000000000L);
+            auctionKoi.setCeilPrice(100000L);
         }
 
         // 8.1.5 if Bid_amount is higher than ceiling price, set is_sold true
