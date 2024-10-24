@@ -9,4 +9,4 @@ spring:
     encoding: UTF-8
 
   profiles:
-    active: dockerdeployment
+    active: prod
