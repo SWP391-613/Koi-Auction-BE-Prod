@@ -9,7 +9,6 @@ import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Order;
 import com.swp391.koibe.responses.base.BaseResponse;
-import com.swp391.koibe.responses.order.OrderListResponse;
 import com.swp391.koibe.responses.order.OrderResponse;
 import com.swp391.koibe.responses.pagination.OrderPaginationResponse;
 import com.swp391.koibe.services.order.IOrderService;
@@ -49,8 +48,8 @@ public class OrderController {
     @PostMapping("")
     @PreAuthorize("hasAnyRole('ROLE_MEMBER')")
     public ResponseEntity<?> createOrder(
-            @Valid @RequestBody OrderDTO orderDTO,
-            BindingResult result) {
+        @Valid @RequestBody OrderDTO orderDTO,
+        BindingResult result) {
         if (result.hasErrors()) {
             throw new MethodArgumentNotValidException(result);
         }
@@ -67,22 +66,25 @@ public class OrderController {
 
     @GetMapping("/user/{user_id}")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER')")
-    public ResponseEntity<?> getOrders(@Valid @PathVariable("user_id") Long userId) {
-        try {
-            List<OrderResponse> orders = orderService.findByUserId(userId);
-            return ResponseEntity.ok(orders);
-        } catch (Exception e) {
-            BaseResponse response = new BaseResponse();
-            response.setMessage("Get orders failed");
-            response.setReason(e.toString());
-            return ResponseEntity.badRequest().body(response);
-        }
+    public ResponseEntity<?> getOrders(
+        @PathVariable("user_id") Long userId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int limit) {
+        PageRequest pageRequest = PageRequest.of(page, limit);
+        Page<OrderResponse> orders =
+            orderService.findByUserId(userId, pageRequest).map(DTOConverter::fromOrder);
+        OrderPaginationResponse response = new OrderPaginationResponse();
+        response.setItem(orders.getContent());
+        response.setTotalItem(orders.getTotalElements());
+        response.setTotalPage(orders.getTotalPages());
+        return ResponseEntity.ok(response);
     }
 
     // GET http://localhost:8088/api/v1/orders/2
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER', 'ROLE_STAFF', 'ROLE_BREEDER')")
     public ResponseEntity<?> getOrder(
-            @Valid @PathVariable("id") Long orderId) {
+        @Valid @PathVariable("id") Long orderId) {
         try {
             Order existingOrder = orderService.getOrder(orderId);
             OrderResponse orderResponse = DTOConverter.fromOrder(existingOrder);
@@ -99,22 +101,26 @@ public class OrderController {
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER', 'ROLE_STAFF')")
     // PUT http://localhost:8088/api/v1/orders/2
     public ResponseEntity<?> updateOrder(
-            @Valid @PathVariable long id,
-            @Valid @RequestBody OrderDTO orderDTO,
-            @Valid @RequestBody UpdateOrderStatusDTO updateOrderStatusDTO,
-            BindingResult result) {
+        @Valid @PathVariable long id,
+        @Valid @RequestBody OrderDTO orderDTO,
+        @Valid @RequestBody UpdateOrderStatusDTO updateOrderStatusDTO,
+        BindingResult result) {
 
-        if (id <= 0)
+        if (id <= 0) {
             throw new InvalidApiPathVariableException("Order id must be greater than 0");
+        }
 
-        if (result.hasErrors())
+        if (result.hasErrors()) {
             throw new MethodArgumentNotValidException(result);
+        }
 
         try {
             Order order;
             if (SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_STAFF"))) {
-                order = orderService.updateOrderStatus(id, OrderStatus.valueOf(updateOrderStatusDTO.getStatus()));
+                .anyMatch(
+                    grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_STAFF"))) {
+                order = orderService.updateOrderStatus(id, OrderStatus.valueOf(
+                    updateOrderStatusDTO.getStatus()));
             } else {
                 order = orderService.updateOrderByUser(id, orderDTO);
             }
@@ -135,12 +141,13 @@ public class OrderController {
     @PreAuthorize("hasRole('ROLE_MANAGER')")
     public ResponseEntity<?> deleteOrder(@Valid @PathVariable Long id) {
         // xóa mềm => cập nhật trường active = false
-        if (id <= 0)
+        if (id <= 0) {
             throw new InvalidApiPathVariableException("Order id must be greater than 0");
+        }
         try {
             orderService.deleteOrder(id);
             String result = localizationUtils.getLocalizedMessage(
-                    MessageKeys.DELETE_ORDER_SUCCESSFULLY, id);
+                MessageKeys.DELETE_ORDER_SUCCESSFULLY, id);
             return ResponseEntity.ok().body(result);
         } catch (Exception e) {
             if (e instanceof DataNotFoundException) {
@@ -157,16 +164,16 @@ public class OrderController {
     @GetMapping("/get-orders-by-keyword-and-status")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
     public ResponseEntity<OrderPaginationResponse> getOrdersByKeyword(
-            @RequestParam(defaultValue = "", required = false) String keyword,
-            @RequestParam String status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int limit) {
+        @RequestParam(defaultValue = "", required = false) String keyword,
+        @RequestParam String status,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int limit) {
 
         List<OrderResponse> orderResponses = orderService
-                .getOrdersByKeyword(keyword, status)
-                .stream()
-                .map(DTOConverter::fromOrder)
-                .collect(Collectors.toList());
+            .getOrdersByKeyword(keyword, status)
+            .stream()
+            .map(DTOConverter::fromOrder)
+            .collect(Collectors.toList());
         OrderPaginationResponse orderPaginationResponse = new OrderPaginationResponse();
         orderPaginationResponse.setItem(orderResponses);
         orderPaginationResponse.setTotalPage(Math.floorDiv(orderResponses.size(), limit) + 1);
@@ -174,37 +181,47 @@ public class OrderController {
         return ResponseEntity.ok(orderPaginationResponse);
     }
 
-    @GetMapping("/user/{user_id}/get-sorted-orders")
-    public ResponseEntity<OrderListResponse> getSortedOrder(
-            @Valid @PathVariable("user_id") Long userId,
-            @Valid @RequestParam("keyword") String keyword,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int limit) {
+    @GetMapping("/user/{user_id}/get-active-sorted-orders")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER', 'ROLE_STAFF', 'ROLE_BREEDER')")
+    public ResponseEntity<OrderPaginationResponse> getSortedOrder(
+        @PathVariable("user_id") Long userId,
+        @RequestParam("keyword") OrderStatus keyword,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int limit) {
 
         PageRequest pageRequest = PageRequest.of(
-                page, limit,
-                // Sort.by("createdAt").descending()
-                Sort.by("id").ascending());
-        Page<OrderResponse> orderPage = orderService
+            page, limit,
+            // Sort.by("createdAt").descending()
+            Sort.by("id").ascending());
+
+        Page<OrderResponse> orders;
+        OrderPaginationResponse response = new OrderPaginationResponse();
+
+        if(String.valueOf(keyword).equals("ALL")){
+            orders =
+                orderService.findByUserId(userId, pageRequest).map(DTOConverter::fromOrder);
+
+        }else{
+            orders = orderService
                 .getOrdersByStatus(userId, keyword, pageRequest)
                 .map(DTOConverter::fromOrder);
-        int totalPages = orderPage.getTotalPages();
-        List<OrderResponse> orderResponses = orderPage.getContent();
-        return ResponseEntity.ok(OrderListResponse
-                .builder()
-                .orders(orderResponses)
-                .totalPages(totalPages)
-                .build());
+        }
+
+        response.setItem(orders.getContent());
+        response.setTotalItem(orders.getTotalElements());
+        response.setTotalPage(orders.getTotalPages());
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
     public ResponseEntity<?> updateOrderStatus(
-            @Valid @PathVariable long id,
-            @Valid @RequestBody UpdateOrderStatusDTO updateOrderStatusDTO) {
+        @Valid @PathVariable long id,
+        @Valid @RequestBody UpdateOrderStatusDTO updateOrderStatusDTO) {
         try {
             Order updatedOrder = orderService.updateOrderStatusAndShipDate(id,
-                    OrderStatus.valueOf(updateOrderStatusDTO.getStatus()));
+                                                                           OrderStatus.valueOf(
+                                                                               updateOrderStatusDTO.getStatus()));
             return ResponseEntity.ok(DTOConverter.fromOrder(updatedOrder));
         } catch (Exception e) {
             BaseResponse response = new BaseResponse();
@@ -217,10 +234,11 @@ public class OrderController {
     @PutMapping("/{id}/confirm-delivery")
     @PreAuthorize("hasAnyRole('ROLE_MEMBER')")
     public ResponseEntity<?> confirmDelivery(@Valid @PathVariable long id,
-            @Valid @RequestBody UpdateOrderStatusDTO updateOrderStatusDTO) {
+                                             @Valid @RequestBody UpdateOrderStatusDTO updateOrderStatusDTO) {
         try {
             Order updatedOrder = orderService.updateOrderStatus(id,
-                    OrderStatus.valueOf(updateOrderStatusDTO.getStatus()));
+                                                                OrderStatus.valueOf(
+                                                                    updateOrderStatusDTO.getStatus()));
             return ResponseEntity.ok(DTOConverter.fromOrder(updatedOrder));
         } catch (Exception e) {
             BaseResponse response = new BaseResponse();

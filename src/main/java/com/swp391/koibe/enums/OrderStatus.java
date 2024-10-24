@@ -7,6 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum OrderStatus {
 
+       ALL("ALL"), // for view
        PENDING("PENDING"),
        PROCESSING("PROCESSING"),
        SHIPPED("SHIPPED"),

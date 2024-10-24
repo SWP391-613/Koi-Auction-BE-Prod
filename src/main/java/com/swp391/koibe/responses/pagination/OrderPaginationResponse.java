@@ -11,6 +11,5 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class OrderPaginationResponse extends BasePaginationResponse {
-        @JsonProperty("item")
         private List<OrderResponse> item;
 }

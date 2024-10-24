@@ -10,6 +10,7 @@ import java.util.List;
 import com.swp391.koibe.models.User;
 import com.swp391.koibe.responses.order.OrderResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 public interface IOrderService {
@@ -20,11 +21,11 @@ public interface IOrderService {
     Order updateOrderByUser(Long id, OrderDTO orderDTO) throws DataNotFoundException;
     Order updateOrderStatus(Long id, OrderStatus orderStatus) throws DataNotFoundException;
     void deleteOrder(Long id);
-    List<OrderResponse> findByUserId(Long userId);
+    Page<Order> findByUserId(Long userId, Pageable pageable);
     List<Order> getOrdersByKeyword(String keyword, String status);
     List<Order> getOrdersByStatus(OrderStatus orderStatus) throws DataNotFoundException;
     void createOrderForAuctionKoi(AuctionKoi auctionKoi, User bidder) throws Exception;
-    Page<Order> getOrdersByStatus(Long userId,String keyword, Pageable pageable);
+    Page<Order> getOrdersByStatus(Long userId, OrderStatus keyword, Pageable pageable);
     Order updateOrderStatusAndShipDate(Long id, OrderStatus orderStatus) throws Exception;
     void cancelOrder(Long id) throws DataNotFoundException;
 }

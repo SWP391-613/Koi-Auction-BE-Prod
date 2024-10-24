@@ -36,4 +36,6 @@ interface OrderRepository : JpaRepository<Order, Long> {
     )
     fun findByUserIdAndStatus(userId: Long, status: OrderStatus, pageable: Pageable): Page<Order>
 
+    fun findOrdersByUserId(userId: Long, pageable: Pageable): Page<Order>
+
 }

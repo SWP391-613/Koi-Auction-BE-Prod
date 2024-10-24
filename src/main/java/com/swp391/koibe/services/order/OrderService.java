@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -208,15 +209,10 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public List<OrderResponse> findByUserId(Long userId) {
-        List<Order> orders = orderRepository.findByUserId(userId);
-        List<OrderResponse> list = new ArrayList<>();
-        if (orders.isEmpty())
-            return list;
-        for (Order order : orders) {
-            list.add(DTOConverter.fromOrder(order));
-        }
-        return list;
+    public Page<Order> findByUserId(Long userId, Pageable pageable) {
+        userRepository.findById(userId)
+            .orElseThrow(() -> new DataNotFoundException("Cannot find user with id: " + userId));
+        return orderRepository.findOrdersByUserId(userId, pageable);
     }
 
     @Override
@@ -275,8 +271,8 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public Page<Order> getOrdersByStatus(Long userId, String keyword, Pageable pageable) {
-        return orderRepository.findByUserIdAndStatus(userId, OrderStatus.valueOf(keyword), pageable);
+    public Page<Order> getOrdersByStatus(Long userId, OrderStatus keyword, Pageable pageable) {
+        return orderRepository.findByUserIdAndStatus(userId, keyword, pageable);
     }
 
     @Override
