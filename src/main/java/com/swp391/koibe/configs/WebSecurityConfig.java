@@ -142,6 +142,10 @@ public class WebSecurityConfig {
                             .requestMatchers(GET,
                                     String.format("%s/kois/get-kois-by-keyword", apiPrefix))
                             .hasAnyRole(Role.BREEDER)
+                            //get-kois-owner-by-keyword-not-auth
+                            .requestMatchers(GET,
+                                    String.format("%s/kois/get-kois-owner-by-keyword-not-auth", apiPrefix))
+                            .permitAll()
                             .requestMatchers(GET,
                                     String.format("%s/kois/get-unverified-kois-by-keyword", apiPrefix))
                             .hasAnyRole(Role.MANAGER, Role.STAFF)

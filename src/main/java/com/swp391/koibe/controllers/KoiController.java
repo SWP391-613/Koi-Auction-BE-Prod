@@ -177,6 +177,23 @@ public class KoiController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/get-kois-owner-by-keyword-not-auth")
+    public ResponseEntity<KoiPaginationResponse> getKoisByKeywordNotAuth(
+        @RequestParam(defaultValue = "") String keyword,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int limit,
+        @RequestParam("owner_id") Long ownerId
+    ) throws Exception {
+        PageRequest pageRequest = PageRequest.of(page, limit);
+        Page<KoiResponse> koiPage = koiService.findKoiByKeyword(keyword, ownerId, pageRequest)
+            .map(DTOConverter::convertToKoiDTO);
+        KoiPaginationResponse response = new KoiPaginationResponse();
+        response.setItem(koiPage.getContent());
+        response.setTotalPage(koiPage.getTotalPages());
+        response.setTotalItem(koiPage.getTotalElements());
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/get-all-kois-by-keyword")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
     public ResponseEntity<KoiPaginationResponse> getAllKoisByKeyword(
