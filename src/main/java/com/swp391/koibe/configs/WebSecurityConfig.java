@@ -7,6 +7,7 @@ import static org.springframework.http.HttpMethod.PUT;
 
 import com.swp391.koibe.filters.JwtTokenFilter;
 import com.swp391.koibe.models.Role;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Configuration
@@ -34,7 +38,9 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)
         throws Exception {
-        http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+        http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(requests -> {
                 requests
                     .requestMatchers(
@@ -102,16 +108,23 @@ public class WebSecurityConfig {
                     .requestMatchers(GET,
                                      String.format("%s/auctionkois**", apiPrefix))
                     .permitAll()
+
                     .requestMatchers(GET,
                                      String.format("%s/auctionkois/auction/{id:\\d+}", apiPrefix))
                     .permitAll()
                     .requestMatchers(GET,
                                      String.format("%s/auctionkois/{aid:\\d+}/{id:\\d+}", apiPrefix))
                     .permitAll()
-                    ///get-kois-by-keyword
+
                     .requestMatchers(GET,
-                                     String.format("%s/auctionkois/get-kois-by-keyword",
-                                                   apiPrefix))
+                                     String.format("%s/bidding/{id:\\d+}", apiPrefix))
+                    .permitAll()
+                    .requestMatchers(GET,
+                                     String.format("%s/bidding/{auctionKoiId:\\d+}/{userId:\\d+}", apiPrefix))
+                    .permitAll()
+
+                    .requestMatchers(GET,
+                                     String.format("%s/auctionkois/get-kois-by-keyword", apiPrefix))
                     .permitAll()
 
                     .requestMatchers(GET,
@@ -180,5 +193,38 @@ public class WebSecurityConfig {
         ;
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:3000",     // Your frontend local
+            "http://10.0.2.2:4000",       // Android emulator
+            "https://*.lt",          // Localtunnel domains
+            "https://www.koiauction88.me",    // Your domain
+            "https://koiauction88.me",        // Non-www version
+            "https://*.ngrok-free.app"              // ngrok domains
+        ));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList(
+            "Authorization",
+            "Content-Type",
+            "X-Requested-With",
+            "Accept",
+            "Origin",
+            "Access-Control-Request-Method",
+            "Access-Control-Request-Headers"
+        ));
+        configuration.setExposedHeaders(Arrays.asList(
+            "Access-Control-Allow-Origin",
+            "Access-Control-Allow-Credentials"
+        ));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
