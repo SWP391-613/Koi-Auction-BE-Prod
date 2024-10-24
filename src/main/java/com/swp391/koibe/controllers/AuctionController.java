@@ -156,10 +156,7 @@ public class AuctionController {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int limit) {
         // Tạo Pageable từ thông tin trang và giới hạn
-        PageRequest pageRequest = PageRequest.of(
-            page, limit,
-            // Sort.by("createdAt").descending()
-            Sort.by("id").ascending());
+        PageRequest pageRequest = PageRequest.of(page, limit);
         Page<AuctionResponse> auctionPage = auctionService
             .getAuctionByKeyword(keyword, pageRequest).map(DTOConverter::convertToAuctionDTO);
         AuctionPaginationResponse response = new AuctionPaginationResponse();

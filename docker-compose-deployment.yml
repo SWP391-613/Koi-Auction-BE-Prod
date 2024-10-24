@@ -32,7 +32,7 @@ services:
       PMA_USER: root                     # MySQL root user
       PMA_PASSWORD: Luucaohoang1604^^    # MySQL root password
     ports:
-      - "80:80"                        # Expose phpMyAdmin on port 81
+      - "81:80"                        # Expose phpMyAdmin on port 81
 
   koiauction:
     image: lcaohoanq/koiauction_on_cd:latest #change version here
