@@ -94,7 +94,7 @@ public class DTOConverter {
         return OrderResponse
             .builder()
             .id(order.getId())
-            .userId(order.getUser().getId())
+            .user(DTOConverter.convertToUserDTO(order.getUser()))
             .firstName(order.getFirstName())
             .lastName(order.getLastName())
             .phoneNumber(order.getPhoneNumber())
@@ -117,7 +117,7 @@ public class DTOConverter {
             .builder()
             .id(orderDetail.getId())
             .orderId(orderDetail.getOrder().getId())
-            .productId(orderDetail.getKoi().getId())
+            .productId(DTOConverter.convertToKoiDTO(orderDetail.getKoi()))
             .price(orderDetail.getPrice())
             .numberOfProducts(orderDetail.getNumberOfProducts())
             .totalMoney(orderDetail.getTotalMoney())

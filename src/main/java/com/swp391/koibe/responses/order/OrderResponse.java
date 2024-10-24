@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.swp391.koibe.models.Order;
 import com.swp391.koibe.models.OrderDetail;
+import com.swp391.koibe.models.User;
+import com.swp391.koibe.responses.UserResponse;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -22,8 +24,8 @@ import lombok.Setter;
 public class OrderResponse {
     private Long id;
 
-    @JsonProperty("user_id")
-    private Long userId;
+    @JsonProperty("user")
+    private UserResponse user;
 
     @JsonProperty("first_name")
     private String firstName;
@@ -69,6 +71,6 @@ public class OrderResponse {
     private String trackingNumber;
 
     @JsonProperty("order_details")
-    @JsonIgnore
+//    @JsonIgnore
     private List<OrderDetail> orderDetails;
 }

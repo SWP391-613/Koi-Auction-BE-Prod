@@ -57,16 +57,16 @@ public class OrderController {
             Order newOrder = orderService.createOrder(orderDTO);
             return ResponseEntity.ok(DTOConverter.fromOrder(newOrder));
         } catch (Exception e) {
-            BaseResponse response = new BaseResponse();
-            response.setMessage(e.getMessage());
+            BaseResponse<Object> response = new BaseResponse<>();
             response.setMessage("Create order failed");
+            response.setReason(e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
 
     @GetMapping("/user/{user_id}")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER')")
-    public ResponseEntity<?> getOrders(
+    public ResponseEntity<OrderPaginationResponse> getOrders(
         @PathVariable("user_id") Long userId,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int limit) {
@@ -74,9 +74,9 @@ public class OrderController {
         Page<OrderResponse> orders =
             orderService.findByUserId(userId, pageRequest).map(DTOConverter::fromOrder);
         OrderPaginationResponse response = new OrderPaginationResponse();
-        response.setItem(orders.getContent());
-        response.setTotalItem(orders.getTotalElements());
         response.setTotalPage(orders.getTotalPages());
+        response.setTotalItem(orders.getTotalElements());
+        response.setItem(orders.getContent());
         return ResponseEntity.ok(response);
     }
 
@@ -90,7 +90,7 @@ public class OrderController {
             OrderResponse orderResponse = DTOConverter.fromOrder(existingOrder);
             return ResponseEntity.ok(orderResponse);
         } catch (Exception e) {
-            BaseResponse response = new BaseResponse();
+            BaseResponse<Object> response = new BaseResponse<>();
             response.setMessage("Get orders failed");
             response.setReason(e.toString());
             return ResponseEntity.badRequest().body(response);

@@ -1,5 +1,6 @@
 package com.swp391.koibe.responses;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 import lombok.AllArgsConstructor;
@@ -32,6 +33,7 @@ public class UserResponse {
     private String address;
 
     @JsonProperty("password")
+    @JsonIgnore
     private String password;
 
     @JsonProperty("is_active")

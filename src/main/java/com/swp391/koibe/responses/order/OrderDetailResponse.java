@@ -3,6 +3,7 @@ package com.swp391.koibe.responses.order;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.swp391.koibe.models.OrderDetail;
+import com.swp391.koibe.responses.KoiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,7 +23,7 @@ public class OrderDetailResponse {
     private Long orderId;
 
     @JsonProperty("product_id")
-    private Long productId;
+    private KoiResponse productId;
 
     @JsonProperty("price")
     private Float price;
