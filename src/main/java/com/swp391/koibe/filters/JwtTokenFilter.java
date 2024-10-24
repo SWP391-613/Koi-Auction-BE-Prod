@@ -47,7 +47,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         specialCasePatterns.add(Pair.of("GET", Pattern.compile(
                 String.format("%s/auctions/\\d+", apiPrefix))));
         specialCasePatterns.add(Pair.of("GET", Pattern.compile(
-            String.format("%s/kois/\\d+", apiPrefix))));
+                String.format("%s/kois/\\d+", apiPrefix))));
         specialCasePatterns.add(Pair.of("GET", Pattern.compile(
                 String.format("%s/auctionkois/auction/\\d+", apiPrefix))));
         specialCasePatterns.add(Pair.of("GET", Pattern.compile(
@@ -223,17 +223,20 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/payment", apiPrefix), "GET"),
                 Pair.of(String.format("%s/payment", apiPrefix), "POST"),
 
-                //ForgotPassword
+                // ForgotPassword
                 Pair.of(String.format("%s/forgot-password", apiPrefix), "GET"),
                 Pair.of(String.format("%s/forgot-password", apiPrefix), "PUT"),
 
-                //Feedback
+                // Feedback
                 Pair.of(String.format("%s/feedback", apiPrefix), "GET"),
                 Pair.of(String.format("%s/feedback", apiPrefix), "POST"),
                 Pair.of(String.format("%s/feedback", apiPrefix), "PUT"),
-                Pair.of(String.format("%s/feedback", apiPrefix), "DELETE")
+                Pair.of(String.format("%s/feedback", apiPrefix), "DELETE"),
 
-                // Pair.of(String.format("%s/products/test/view", apiPrefix), "GET")
+                // VNPay
+                Pair.of(String.format("%s/payment/vnpay/payment_return", apiPrefix), "GET")
+
+        // Pair.of(String.format("%s/products/test/view", apiPrefix), "GET")
         );
 
         String servletPath = request.getServletPath();
@@ -264,4 +267,3 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         return false;
     }
 }
-

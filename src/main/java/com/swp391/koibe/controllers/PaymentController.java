@@ -1,7 +1,7 @@
 package com.swp391.koibe.controllers;
 
 import com.swp391.koibe.configs.VNPayConfig;
-import com.swp391.koibe.dtos.PaymentDTO;
+import com.swp391.koibe.dtos.payment.PaymentDTO;
 import com.swp391.koibe.responses.base.BaseResponse;
 import com.swp391.koibe.services.payment.IPaymentService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -72,6 +72,20 @@ public class PaymentController {
         } catch (Exception e) {
             BaseResponse<?> response = new BaseResponse<>();
             response.setMessage("Failed to create payment");
+            response.setReason(e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/create_drawout_request")
+    public ResponseEntity<?> createDrawOutRequest(
+            @Valid @RequestBody PaymentDTO paymentDTO) {
+        try {
+            Map<String, Object> response = paymentService.createDrawOutRequest(paymentDTO);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            BaseResponse<?> response = new BaseResponse<>();
+            response.setMessage("Failed to create draw out request");
             response.setReason(e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }

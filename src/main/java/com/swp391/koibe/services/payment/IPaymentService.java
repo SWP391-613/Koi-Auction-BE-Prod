@@ -1,6 +1,6 @@
 package com.swp391.koibe.services.payment;
 
-import com.swp391.koibe.dtos.PaymentDTO;
+import com.swp391.koibe.dtos.payment.PaymentDTO;
 import com.swp391.koibe.models.Payment;
 
 import java.io.UnsupportedEncodingException;
@@ -22,4 +22,5 @@ public interface IPaymentService {
 
         Map<String, Object> createPaymentAndUpdateOrder(PaymentDTO paymentDTO) throws Exception;
 
+        Map<String, Object> createDrawOutRequest(PaymentDTO paymentDrawOutDTO) throws Exception;
 }

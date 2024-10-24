@@ -50,4 +50,15 @@ public class OrderMailService implements IOrderMailService {
 
         mailService.sendMail(user.getEmail(), "Order Created Successfully", "orderCreated", context);
     }
+
+    @Retryable(
+            retryFor = {MessagingException.class},  // Retry only for specific exceptions
+            maxAttempts = 3,                       // Maximum retry attempts
+            backoff = @Backoff(delay = 2000)       // 2 seconds delay between retries
+    )
+    @Async
+    @Override
+    public void sendOrderCancelledToUser(Order order, String subject, String templateName, Context context) throws MessagingException {
+        mailService.sendMail(order.getUser().getEmail(), "Order Cancelled", "orderCancelled", context);
+    }
 }

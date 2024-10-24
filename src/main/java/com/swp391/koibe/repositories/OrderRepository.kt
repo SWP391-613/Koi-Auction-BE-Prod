@@ -27,6 +27,13 @@ interface OrderRepository : JpaRepository<Order, Long> {
     ): List<Order>
 
     fun findByStatus(status: OrderStatus): List<Order>
+
+    @Query(
+        "SELECT o FROM Order o WHERE o.active = true " +
+                "AND (:status IS NULL OR o.status = :status) " +
+                "AND (:userId IS NULL OR o.user.id = :userId) " +
+                "ORDER BY o.orderDate DESC"
+    )
     fun findByUserIdAndStatus(userId: Long, status: OrderStatus, pageable: Pageable): Page<Order>
 
 }

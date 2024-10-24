@@ -1,4 +1,4 @@
-package com.swp391.koibe.dtos;
+package com.swp391.koibe.dtos.payment;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;

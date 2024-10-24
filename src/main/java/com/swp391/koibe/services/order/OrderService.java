@@ -20,8 +20,9 @@ import java.util.List;
 
 import com.swp391.koibe.responses.order.OrderResponse;
 import com.swp391.koibe.services.orderdetail.IOrderDetailService;
-import com.swp391.koibe.services.user.UserService;
+import com.swp391.koibe.services.user.IUserService;
 import com.swp391.koibe.utils.DTOConverter;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -42,7 +43,7 @@ public class OrderService implements IOrderService {
     private final ModelMapper modelMapper;
     private final IOrderMailService orderMailService;
     private final IOrderDetailService orderDetailService;
-    private final UserService userService;
+    private final IUserService userService;
 
     @Override
     @Transactional
@@ -251,7 +252,7 @@ public class OrderService implements IOrderService {
                 .totalMoney(10000F)
                 .shippingMethod("Standard")
                 .shippingAddress(bidder.getAddress())
-                .shippingDate(LocalDate.now())
+                .shippingDate(null)
                 .paymentMethod("Cash")
                 .orderDate(LocalDate.now())
                 .active(true)
@@ -287,17 +288,20 @@ public class OrderService implements IOrderService {
         if (order.getOrderDetails() == null || order.getOrderDetails().isEmpty()) {
             throw new DataNotFoundException("Order details not found for order id: " + id);
         }
+        Long refundAmount = order.getOrderDetails().stream()
+                .mapToLong(orderDetail -> orderDetail.getPrice().longValue()).sum()
+                + order.getPaymentMethod() == "Cash" ? 0L : order.getTotalMoney().longValue();
 
         if (order.getStatus() == OrderStatus.PROCESSING) {
             switch (orderStatus) {
                 case SHIPPED:
-                    order.setShippingDate(LocalDate.now());
+                    order.setShippingDate(LocalDate.now().plusDays(5));
                     break;
                 case CANCELLED:
                     order.setShippingDate(null);
                     // refund user balance
-                    userService.updateAccountBalance(order.getUser().getId(),
-                            order.getOrderDetails().get(0).getPrice().longValue());
+                    userService.updateAccountBalance(order.getUser().getId(), refundAmount);
+                    sendOrderCancelledEmail(order, order.getUser());
                     break;
                 default:
                     break;
@@ -316,20 +320,37 @@ public class OrderService implements IOrderService {
                 case CANCELLED:
                     order.setShippingDate(null);
                     // refund user balance
-                    userService.updateAccountBalance(order.getUser().getId(),
-                            order.getOrderDetails().get(0).getPrice().longValue());
+                    userService.updateAccountBalance(order.getUser().getId(), refundAmount);
+                    sendOrderCancelledEmail(order, order.getUser());
                     // refund to koi owner
                     userService.updateAccountBalance(order.getOrderDetails().get(0).getKoi().getOwner().getId(),
                             order.getOrderDetails().get(0).getPrice().longValue());
+                    sendOrderCancelledEmail(order, order.getOrderDetails().get(0).getKoi().getOwner());
                     break;
                 default:
                     break;
             }
         }
-
         order.setStatus(orderStatus);
         Order updatedOrder = orderRepository.save(order);
         log.info("Order status updated to {} for order id: {}", orderStatus, id);
         return updatedOrder;
+    }
+
+    private void sendOrderCancelledEmail(Order order, User user) throws MessagingException {
+        Context context = new Context();
+        context.setVariable("user_name", user.getFirstName() + " " + user.getLastName());
+        context.setVariable("order_id", order.getId());
+        context.setVariable("order_status", order.getStatus());
+        context.setVariable("order_date", order.getOrderDate());
+        if (user.getRole().equals(Role.BREEDER)) {
+            context.setVariable("koi_id", order.getOrderDetails().get(0).getKoi().getId());
+            context.setVariable("koi_name", order.getOrderDetails().get(0).getKoi().getName());
+            context.setVariable("koi_price", order.getOrderDetails().get(0).getPrice());
+            orderMailService.sendOrderCancelledToUser(order, "Order Cancelled", "orderCancelledForBreeder", context);
+        } else if (user.getRole().equals(Role.MEMBER)) {
+            context.setVariable("total_money", order.getTotalMoney());
+            orderMailService.sendOrderCancelledToUser(order, "Order Cancelled", "orderCancelled", context);
+        }
     }
 }

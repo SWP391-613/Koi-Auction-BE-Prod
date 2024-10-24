@@ -1,7 +1,7 @@
 package com.swp391.koibe.services.payment;
 
 import com.swp391.koibe.configs.VNPayConfig;
-import com.swp391.koibe.dtos.PaymentDTO;
+import com.swp391.koibe.dtos.payment.PaymentDTO;
 import com.swp391.koibe.enums.EPaymentStatus;
 import com.swp391.koibe.enums.EPaymentType;
 import com.swp391.koibe.enums.OrderStatus;
@@ -9,6 +9,7 @@ import com.swp391.koibe.exceptions.MalformDataException;
 import com.swp391.koibe.exceptions.base.DataAlreadyExistException;
 import com.swp391.koibe.models.Order;
 import com.swp391.koibe.models.Payment;
+import com.swp391.koibe.models.User;
 import com.swp391.koibe.repositories.OrderRepository;
 import com.swp391.koibe.repositories.PaymentRepository;
 import com.swp391.koibe.repositories.UserRepository;
@@ -161,10 +162,10 @@ public class PaymentService implements IPaymentService {
                 .user(orderInfo.startsWith("Deposit")
                         ? userRepository.findById(Long.parseLong(orderInfo.split(":")[1])).orElse(null)
                         : orderRepository.findById(Long.parseLong(orderInfo.split(":")[1]))
-                        .orElseThrow(() -> new MalformDataException("Order not found")).getUser())
+                                .orElseThrow(() -> new MalformDataException("Order not found")).getUser())
                 .order(orderInfo.startsWith("Payment for order")
                         ? orderRepository.findById(Long.parseLong(orderInfo.split(":")[1]))
-                        .orElseThrow(() -> new MalformDataException("Order not found"))
+                                .orElseThrow(() -> new MalformDataException("Order not found"))
                         : null)
                 .build();
     }
@@ -185,18 +186,18 @@ public class PaymentService implements IPaymentService {
         }
     }
 
-   private void processOrderPayment(Map<String, Object> result, long amount, Payment payment) {
-    result.put("message", "Order payment successful");
-    result.put("amount", amount);
-    result.put("paymentType", "order");
-    String orderId = payment.getOrder().getId().toString();
-    orderRepository.findById(Long.parseLong(orderId)).ifPresent(order -> {
-        orderService.updateOrderStatus(order.getId(), OrderStatus.PROCESSING);
-        orderRepository.save(order);
-        payment.setOrder(order);
-        paymentRepository.save(payment);
-    });
-}
+    private void processOrderPayment(Map<String, Object> result, long amount, Payment payment) {
+        result.put("message", "Order payment successful");
+        result.put("amount", amount);
+        result.put("paymentType", "order");
+        String orderId = payment.getOrder().getId().toString();
+        orderRepository.findById(Long.parseLong(orderId)).ifPresent(order -> {
+            orderService.updateOrderStatus(order.getId(), OrderStatus.PROCESSING);
+            orderRepository.save(order);
+            payment.setOrder(order);
+            paymentRepository.save(payment);
+        });
+    }
 
     @Override
     public Payment createPayment(PaymentDTO paymentDTO) {
@@ -204,9 +205,8 @@ public class PaymentService implements IPaymentService {
                 .paymentAmount(paymentDTO.getPaymentAmount())
                 .paymentMethod(paymentDTO.getPaymentMethod())
                 .paymentType(EPaymentType.valueOf(paymentDTO.getPaymentType()))
-                .order(paymentDTO.getOrderId() != null ?
-                        orderRepository.findById(paymentDTO.getOrderId())
-                                .orElseThrow(() -> new MalformDataException("Order not found")) : null)
+                .order(paymentDTO.getOrderId() != null ? orderRepository.findById(paymentDTO.getOrderId())
+                        .orElseThrow(() -> new MalformDataException("Order not found")) : null)
                 .user(userRepository.findById(paymentDTO.getUserId()).orElse(null))
                 .paymentStatus(EPaymentStatus.valueOf(paymentDTO.getPaymentStatus()))
                 .paymentDate(LocalDateTime.now())
@@ -236,6 +236,28 @@ public class PaymentService implements IPaymentService {
         Map<String, Object> response = new HashMap<>();
         response.put("payment", payment);
         response.put("orderStatus", OrderStatus.PROCESSING);
+        return response;
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> createDrawOutRequest(PaymentDTO paymentDrawOutDTO) throws Exception {
+        User user = userRepository.findById(paymentDrawOutDTO.getUserId())
+                .orElseThrow(() -> new MalformDataException("User not found"));
+
+        if (user.getAccountBalance() < paymentDrawOutDTO.getPaymentAmount()) {
+            throw new MalformDataException("Insufficient balance");
+        }
+
+        paymentDrawOutDTO.setPaymentType(EPaymentType.DRAW_OUT.toString());
+        paymentDrawOutDTO.setPaymentStatus(EPaymentStatus.PENDING.toString());
+        Payment payment = createPayment(paymentDrawOutDTO);
+
+        userService.updateAccountBalance(paymentDrawOutDTO.getUserId(), - paymentDrawOutDTO.getPaymentAmount().longValue());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("payment", payment);
+        response.put("newBalance", user.getAccountBalance());
         return response;
     }
 }

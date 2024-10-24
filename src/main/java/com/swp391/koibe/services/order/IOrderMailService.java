@@ -10,4 +10,8 @@ public interface IOrderMailService {
                                      String subject,
                                      String templateName,
                                      Context context) throws MessagingException;
+    void sendOrderCancelledToUser(Order order,
+                                  String subject,
+                                  String templateName,
+                                  Context context) throws MessagingException;
 }
