@@ -1,7 +1,11 @@
 package com.swp391.koibe.services.payment;
 
 import com.swp391.koibe.dtos.payment.PaymentDTO;
+import com.swp391.koibe.enums.EPaymentStatus;
 import com.swp391.koibe.models.Payment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
@@ -23,4 +27,10 @@ public interface IPaymentService {
         Map<String, Object> createPaymentAndUpdateOrder(PaymentDTO paymentDTO) throws Exception;
 
         Map<String, Object> createDrawOutRequest(PaymentDTO paymentDrawOutDTO) throws Exception;
+
+        Payment updatePaymentStatus(Long id, String status);
+        Page<Payment> getPaymentsByUserId(Long userId, Pageable pageable);
+        Page<Payment> getPaymentsByUserIdAndStatus(Long userId, EPaymentStatus status, Pageable pageable);
+        Page<Payment> getPaymentsByKeywordAndStatus(String keyword, EPaymentStatus status, Pageable pageable);
+        Payment updatePaymentStatus(Long id, EPaymentStatus status);
 }

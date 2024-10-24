@@ -35,4 +35,7 @@ public class PaymentDTO {
     @Min(value = 1, message = "User id must be greater than 0")
     private Long userId;
 
+    @JsonProperty("bank_number")
+    private String bankNumber;
+
 }

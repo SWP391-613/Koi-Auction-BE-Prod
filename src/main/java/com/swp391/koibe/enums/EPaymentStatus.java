@@ -8,7 +8,8 @@ import lombok.Getter;
 public enum EPaymentStatus {
     PENDING("PENDING"),
     SUCCESS("SUCCESS"),
-    REFUNDED("REFUNDED");
+    REFUNDED("REFUNDED"),
+    ALL("ALL"); //for searching
 
     private final String status;
 }

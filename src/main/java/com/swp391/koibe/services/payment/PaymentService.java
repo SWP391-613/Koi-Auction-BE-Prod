@@ -16,6 +16,8 @@ import com.swp391.koibe.repositories.UserRepository;
 import com.swp391.koibe.services.order.IOrderService;
 import com.swp391.koibe.services.user.IUserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -209,6 +211,7 @@ public class PaymentService implements IPaymentService {
                         .orElseThrow(() -> new MalformDataException("Order not found")) : null)
                 .user(userRepository.findById(paymentDTO.getUserId()).orElse(null))
                 .paymentStatus(EPaymentStatus.valueOf(paymentDTO.getPaymentStatus()))
+                .bankNumber(paymentDTO.getBankNumber())
                 .paymentDate(LocalDateTime.now())
                 .build();
         return paymentRepository.save(payment);
@@ -259,5 +262,34 @@ public class PaymentService implements IPaymentService {
         response.put("payment", payment);
         response.put("newBalance", user.getAccountBalance());
         return response;
+    }
+
+    @Override
+    public Payment updatePaymentStatus(Long id, String status) {
+        return null;
+    }
+
+    @Override
+    public Page<Payment> getPaymentsByUserId(Long userId, Pageable pageable) {
+        userRepository.findById(userId).orElseThrow(() -> new MalformDataException("User not found"));
+        return paymentRepository.findPaymentsByUserId(userId, pageable);
+    }
+
+    @Override
+    public Page<Payment> getPaymentsByUserIdAndStatus(Long userId, EPaymentStatus status, Pageable pageable) {
+        userRepository.findById(userId).orElseThrow(() -> new MalformDataException("User not found"));
+        return paymentRepository.findPaymentsByUserIdAndPaymentStatus(userId, status, pageable);
+    }
+
+    @Override
+    public Page<Payment> getPaymentsByKeywordAndStatus(String keyword, EPaymentStatus status, Pageable pageable) {
+        return paymentRepository.findPaymentsByStatusAndKeyWord(keyword, status, pageable);
+    }
+
+    @Override
+    public Payment updatePaymentStatus(Long id, EPaymentStatus status) {
+        Payment payment = paymentRepository.findById(id).orElseThrow(() -> new MalformDataException("Payment not found"));
+        payment.setPaymentStatus(status);
+        return paymentRepository.save(payment);
     }
 }

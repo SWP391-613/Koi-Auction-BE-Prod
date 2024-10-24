@@ -50,6 +50,9 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_type", nullable = false)
     private EPaymentType paymentType; // e.g., 'DEPOSIT', 'ORDER', 'DRAW_OUT'
+
+    @Column(name = "bank_number")
+    private String bankNumber;
     
     // Track refunds related to this payment
 //    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
