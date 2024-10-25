@@ -34,7 +34,7 @@ import org.thymeleaf.context.Context;
 
 @Service
 @RequiredArgsConstructor
-public class KoiService implements IKoiService<KoiResponse> {
+public non-sealed class KoiService implements IKoiService<KoiResponse> {
 
     private final KoiRepository koiRepository;
     private final CategoryRepository categoryRepository;
@@ -124,16 +124,6 @@ public class KoiService implements IKoiService<KoiResponse> {
         Koi existingKoi = koiRepository.findById(id)
             .orElseThrow(() -> new DataNotFoundException("Koi not found: " + id));
         koiRepository.delete(existingKoi);
-    }
-
-    @Override
-    public boolean existsByName(String name) {
-        return koiRepository.existsByName(name);
-    }
-
-    @Override
-    public List<Koi> getAllKois() {
-        return koiRepository.findAll();
     }
 
     @Override

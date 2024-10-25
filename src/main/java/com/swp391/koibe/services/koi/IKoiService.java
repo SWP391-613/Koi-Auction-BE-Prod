@@ -9,14 +9,11 @@ import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Koi;
 import com.swp391.koibe.models.KoiImage;
 import com.swp391.koibe.responses.KoiResponse;
-import com.swp391.koibe.responses.pagination.KoiPaginationResponse;
 import jakarta.mail.MessagingException;
-import java.util.List;
-import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface IKoiService<T> {
+public sealed interface IKoiService<T> permits KoiService {
 
     Koi createKoi(KoiDTO koiDTO, long breederId) throws Exception;
 
@@ -28,14 +25,10 @@ public interface IKoiService<T> {
 
     void deleteKoi(long id);
 
-    boolean existsByName(String name);
-
-    List<Koi> getAllKois();
-
-    KoiImage createKoiImage(Long koiId, KoiImageDTO koiImageDTO)
-        throws Exception;
+    KoiImage createKoiImage(Long koiId, KoiImageDTO koiImageDTO) throws Exception;
 
     Page<KoiResponse> getKoiByStatus(Pageable pageable,EKoiStatus status);
+
     Page<KoiResponse> getBreederKoiByStatus(Pageable pageable, long breederId,EKoiStatus status);
 
     void updateKoiStatus(long id, UpdateKoiStatusDTO updateKoiStatusDTO) throws MessagingException;
