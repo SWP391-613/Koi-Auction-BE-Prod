@@ -5,6 +5,7 @@ import com.swp391.koibe.dtos.order.OrderDTO;
 import com.swp391.koibe.dtos.OrderDetailDTO;
 import com.swp391.koibe.dtos.OrderWithDetailsDTO;
 import com.swp391.koibe.enums.EKoiStatus;
+import com.swp391.koibe.enums.EmailCategoriesEnum;
 import com.swp391.koibe.enums.OrderStatus;
 import com.swp391.koibe.exceptions.MalformDataException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.swp391.koibe.responses.order.OrderResponse;
+import com.swp391.koibe.services.mail.MailService;
 import com.swp391.koibe.services.orderdetail.IOrderDetailService;
 import com.swp391.koibe.services.user.IUserService;
 import com.swp391.koibe.utils.DTOConverter;
@@ -152,36 +154,20 @@ public class OrderService implements IOrderService {
     @Override
     @Transactional
     public Order updateOrder(Long id, OrderDTO orderDTO) throws DataNotFoundException {
-        Order order = orderRepository.findById(id)
+        Order existingOrder = orderRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + id));
-        User existingUser = userRepository.findById(
-                orderDTO.getUserId()).orElseThrow(() -> new DataNotFoundException("Cannot find user with id: " + id));
 
-        // Tạo một luồng bảng ánh xạ riêng để kiểm soát việc ánh xạ
-        modelMapper.typeMap(OrderDTO.class, Order.class)
-                .addMappings(mapper -> mapper.skip(Order::setId));
-        // Cập nhật các trường của đơn hàng từ orderDTO
-        modelMapper.map(orderDTO, order);
-        order.setUser(existingUser);
-        return orderRepository.save(order);
-    }
+        // Update only the fields that are allowed to be changed
+        existingOrder.setFirstName(orderDTO.getFirstName());
+        existingOrder.setLastName(orderDTO.getLastName());
+        existingOrder.setPhoneNumber(orderDTO.getPhoneNumber());
+        existingOrder.setAddress(orderDTO.getAddress());
+        existingOrder.setShippingMethod(orderDTO.getShippingMethod());
+        existingOrder.setShippingAddress(orderDTO.getShippingAddress());
+        existingOrder.setPaymentMethod(orderDTO.getPaymentMethod());
+        existingOrder.setNote(orderDTO.getNote());
 
-    @Override
-    @Transactional
-    public Order updateOrderByUser(Long id, OrderDTO orderDTO)
-            throws DataNotFoundException {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + id));
-        User existingUser = userRepository.findById(
-                orderDTO.getUserId()).orElseThrow(() -> new DataNotFoundException("Cannot find user with id: " + id));
-
-        // Tạo một luồng bảng ánh xạ riêng để kiểm soát việc ánh xạ
-        modelMapper.typeMap(OrderDTO.class, Order.class)
-                .addMappings(mapper -> mapper.skip(Order::setId));
-        // Cập nhật các trường của đơn hàng từ orderDTO
-        modelMapper.map(orderDTO, order);
-        order.setUser(existingUser);
-        return orderRepository.save(order);
+        return orderRepository.save(existingOrder);
     }
 
     @Override
@@ -216,13 +202,18 @@ public class OrderService implements IOrderService {
     @Override
     public Page<Order> findByUserId(Long userId, Pageable pageable) {
         userRepository.findById(userId)
-            .orElseThrow(() -> new DataNotFoundException("Cannot find user with id: " + userId));
+                .orElseThrow(() -> new DataNotFoundException("Cannot find user with id: " + userId));
         return orderRepository.findOrdersByUserId(userId, pageable);
     }
 
     @Override
-    public List<Order> getOrdersByKeyword(String keyword, String status) {
-        return orderRepository.findByKeyword(keyword, OrderStatus.valueOf(status.toUpperCase()));
+    public Page<Order> getOrderByKeyword(String keyword, Pageable pageable) {
+        return orderRepository.findByKeyword(keyword, pageable);
+    }
+
+    @Override
+    public Page<Order> getOrdersByKeywordAndStatus(String keyword, OrderStatus status, Pageable pageable) {
+        return orderRepository.findByKeywordAndStatus(keyword, status, pageable);
     }
 
     @Override
@@ -264,7 +255,7 @@ public class OrderService implements IOrderService {
                 .koi(auctionKoi.getKoi())
                 .numberOfProducts(1)
                 .price(Float.valueOf(auctionKoi.getCurrentBid()))
-                .totalMoney(0F)
+                .totalMoney(Float.valueOf(auctionKoi.getCurrentBid()))
                 .build();
 
         order.setOrderDetails(List.of(orderDetail));
@@ -289,49 +280,16 @@ public class OrderService implements IOrderService {
         if (order.getOrderDetails() == null || order.getOrderDetails().isEmpty()) {
             throw new DataNotFoundException("Order details not found for order id: " + id);
         }
-        Long refundAmount = order.getOrderDetails().stream()
-                .mapToLong(orderDetail -> orderDetail.getPrice().longValue()).sum()
-                + order.getPaymentMethod() == "Cash" ? 0L : order.getTotalMoney().longValue();
+        Long refundAmount = calculateRefundAmount(order);
 
         if (order.getStatus() == OrderStatus.PROCESSING) {
-            switch (orderStatus) {
-                case SHIPPED:
-                    order.setShippingDate(LocalDate.now().plusDays(5));
-                    break;
-                case CANCELLED:
-                    order.setShippingDate(null);
-                    // refund user balance
-                    userService.updateAccountBalance(order.getUser().getId(), refundAmount);
-                    sendOrderCancelledEmail(order, order.getUser());
-                    break;
-                default:
-                    break;
-            }
-        } else if (order.getStatus() == OrderStatus.SHIPPED) {
-            switch (orderStatus) {
-                case DELIVERED:
-                    order.setShippingDate(LocalDate.now());
-                    // update to koi owner
-                    userService.updateAccountBalance(order.getOrderDetails().get(0).getKoi().getOwner().getId(),
-                            order.getOrderDetails().get(0).getPrice().longValue());
-                    // set koi status to SOLD
-                    order.getOrderDetails().get(0).getKoi().setStatus(EKoiStatus.SOLD);
-                    koiRepository.save(order.getOrderDetails().get(0).getKoi());
-                    break;
-                case CANCELLED:
-                    order.setShippingDate(null);
-                    // refund user balance
-                    userService.updateAccountBalance(order.getUser().getId(), refundAmount);
-                    sendOrderCancelledEmail(order, order.getUser());
-                    // refund to koi owner
-                    userService.updateAccountBalance(order.getOrderDetails().get(0).getKoi().getOwner().getId(),
-                            order.getOrderDetails().get(0).getPrice().longValue());
-                    sendOrderCancelledEmail(order, order.getOrderDetails().get(0).getKoi().getOwner());
-                    break;
-                default:
-                    break;
-            }
+            handleProcessingOrderStatus(order, orderStatus, refundAmount);
+        } else if (order.getStatus() == OrderStatus.SHIPPING) {
+            handleShippingOrderStatus(order, orderStatus, refundAmount);
+        } else if (order.getStatus() == OrderStatus.DELIVERED) {
+            handleDeliveredOrderStatus(order, orderStatus);
         }
+
         order.setStatus(orderStatus);
         Order updatedOrder = orderRepository.save(order);
         log.info("Order status updated to {} for order id: {}", orderStatus, id);
@@ -348,10 +306,63 @@ public class OrderService implements IOrderService {
             context.setVariable("koi_id", order.getOrderDetails().get(0).getKoi().getId());
             context.setVariable("koi_name", order.getOrderDetails().get(0).getKoi().getName());
             context.setVariable("koi_price", order.getOrderDetails().get(0).getPrice());
-            orderMailService.sendOrderCancelledToUser(order, "Order Cancelled", "orderCancelledForBreeder", context);
+            orderMailService.sendOrderCancelledToUser(order, "Order Cancelled", EmailCategoriesEnum.ORDER_CANCELLED_BREEDER.getType(), context);
         } else if (user.getRole().equals(Role.MEMBER)) {
             context.setVariable("total_money", order.getTotalMoney());
-            orderMailService.sendOrderCancelledToUser(order, "Order Cancelled", "orderCancelled", context);
+            orderMailService.sendOrderCancelledToUser(order, "Order Cancelled", EmailCategoriesEnum.ORDER_CANCELLED.getType(), context);
+        }
+    }
+
+    private Long calculateRefundAmount(Order order) {
+        Long itemsTotal = order.getOrderDetails().stream()
+                .mapToLong(orderDetail -> orderDetail.getPrice().longValue())
+                .sum();
+        return itemsTotal + (order.getPaymentMethod().equals("Cash") ? 0L : order.getTotalMoney().longValue());
+    }
+
+    private void handleProcessingOrderStatus(Order order, OrderStatus orderStatus, Long refundAmount) throws Exception {
+        switch (orderStatus) {
+            case SHIPPING:
+                order.setShippingDate(LocalDate.now().plusDays(5));
+                break;
+            case CANCELLED:
+                order.setShippingDate(null);
+                userService.updateAccountBalance(order.getUser().getId(), refundAmount);
+                sendOrderCancelledEmail(order, order.getUser());
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void handleShippingOrderStatus(Order order, OrderStatus orderStatus, Long refundAmount) throws Exception {
+        switch (orderStatus) {
+            case DELIVERED:
+                order.setShippingDate(LocalDate.now());
+                break;
+            case CANCELLED:
+                order.setShippingDate(null);
+                userService.updateAccountBalance(order.getUser().getId(), refundAmount);
+                sendOrderCancelledEmail(order, order.getUser());
+                userService.updateAccountBalance(order.getOrderDetails().get(0).getKoi().getOwner().getId(),
+                        order.getOrderDetails().get(0).getPrice().longValue());
+                sendOrderCancelledEmail(order, order.getOrderDetails().get(0).getKoi().getOwner());
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void handleDeliveredOrderStatus(Order order, OrderStatus orderStatus) throws Exception {
+        switch (orderStatus) {
+            case COMPLETED:
+                userService.updateAccountBalance(order.getOrderDetails().get(0).getKoi().getOwner().getId(),
+                        order.getOrderDetails().get(0).getPrice().longValue());
+                order.getOrderDetails().get(0).getKoi().setStatus(EKoiStatus.SOLD);
+                koiRepository.save(order.getOrderDetails().get(0).getKoi());
+                break;
+            default:
+                break;
         }
     }
 }

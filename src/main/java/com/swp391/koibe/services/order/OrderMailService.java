@@ -59,6 +59,6 @@ public class OrderMailService implements IOrderMailService {
     @Async
     @Override
     public void sendOrderCancelledToUser(Order order, String subject, String templateName, Context context) throws MessagingException {
-        mailService.sendMail(order.getUser().getEmail(), "Order Cancelled", "orderCancelled", context);
+        mailService.sendMail(order.getUser().getEmail(), "Order Cancelled", templateName, context);
     }
 }

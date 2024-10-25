@@ -4,9 +4,11 @@ import com.swp391.koibe.configs.VNPayConfig;
 import com.swp391.koibe.dtos.payment.PaymentDTO;
 import com.swp391.koibe.enums.EPaymentStatus;
 import com.swp391.koibe.models.Payment;
+import com.swp391.koibe.responses.PaymentResponse;
 import com.swp391.koibe.responses.base.BaseResponse;
 import com.swp391.koibe.responses.pagination.PaymentPaginationResponse;
 import com.swp391.koibe.services.payment.IPaymentService;
+import com.swp391.koibe.utils.DTOConverter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -99,7 +101,7 @@ public class PaymentController {
 
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasAnyRole('ROLE_MEMBER')")
-    public ResponseEntity<?> getPaymentByUserId(
+    public ResponseEntity<?> getPaymentByUserIdAndStatus(
             @PathVariable Long userId,
             @RequestParam EPaymentStatus status,
             @RequestParam(defaultValue = "0") int page,
@@ -107,12 +109,14 @@ public class PaymentController {
         try {
             PageRequest pageRequest = PageRequest.of(page, limit);
 
-            Page<Payment> payments;
+            Page<PaymentResponse> payments;
             PaymentPaginationResponse response = new PaymentPaginationResponse();
             if (String.valueOf(status).equals("ALL")) {
-                payments = paymentService.getPaymentsByUserId(userId, pageRequest);
+                payments = paymentService.getPaymentsByUserId(userId, pageRequest)
+                        .map(DTOConverter::fromPayment);
             } else {
-                payments = paymentService.getPaymentsByUserIdAndStatus(userId, status, pageRequest);
+                payments = paymentService.getPaymentsByUserIdAndStatus(userId, status, pageRequest)
+                        .map(DTOConverter::fromPayment);
             }
             response.setItem(payments.getContent());
             response.setTotalItem(payments.getTotalElements());
@@ -129,14 +133,15 @@ public class PaymentController {
 
     @GetMapping("/get_payments_by_status_and_keyword")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
-    public ResponseEntity<?> getPaymentsByStatus(
+    public ResponseEntity<?> getPaymentsByStatusAndKeyword(
             @RequestParam(defaultValue = "", required = false) String keyword,
             @RequestParam EPaymentStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit) {
         try {
             PageRequest pageRequest = PageRequest.of(page, limit);
-            Page<Payment> payments = paymentService.getPaymentsByKeywordAndStatus(keyword, status, pageRequest);
+            Page<PaymentResponse> payments = paymentService.getPaymentsByKeywordAndStatus(keyword, status, pageRequest)
+                    .map(DTOConverter::fromPayment);
             PaymentPaginationResponse response = new PaymentPaginationResponse();
             response.setItem(payments.getContent());
             response.setTotalItem(payments.getTotalElements());

@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 public class UpdateOrderStatusDTO {
     @NotBlank(message = "Order status is required")
-    @Pattern(regexp = "PROCESSING|SHIPPED|DELIVERED|PENDING|CANCELLED", message = "Status must be either PROCESSING,SHIPPED,DELIVERED,PENDING,CANCELLED")
+    @Pattern(regexp = "PROCESSING|SHIPPING|DELIVERED|PENDING|CANCELLED|COMPLETED", message = "Status must be either PROCESSING, SHIPPING, DELIVERED, PENDING, CANCELLED or COMPLETED")
     @JsonProperty("status")
     String status;
 }

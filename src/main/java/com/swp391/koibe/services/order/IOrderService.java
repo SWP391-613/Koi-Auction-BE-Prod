@@ -18,11 +18,11 @@ public interface IOrderService {
     Order createOrder(Order order) throws Exception;
     Order getOrder(Long id);
     Order updateOrder(Long id, OrderDTO orderDTO) throws DataNotFoundException;
-    Order updateOrderByUser(Long id, OrderDTO orderDTO) throws DataNotFoundException;
     Order updateOrderStatus(Long id, OrderStatus orderStatus) throws DataNotFoundException;
     void deleteOrder(Long id);
     Page<Order> findByUserId(Long userId, Pageable pageable);
-    List<Order> getOrdersByKeyword(String keyword, String status);
+    Page<Order> getOrderByKeyword(String keyword, Pageable pageable);
+    Page<Order> getOrdersByKeywordAndStatus(String keyword, OrderStatus status, Pageable pageable);
     List<Order> getOrdersByStatus(OrderStatus orderStatus) throws DataNotFoundException;
     void createOrderForAuctionKoi(AuctionKoi auctionKoi, User bidder) throws Exception;
     Page<Order> getOrdersByStatus(Long userId, OrderStatus keyword, Pageable pageable);

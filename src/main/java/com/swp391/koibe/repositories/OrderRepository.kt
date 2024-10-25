@@ -15,16 +15,18 @@ interface OrderRepository : JpaRepository<Order, Long> {
         "SELECT o FROM Order o WHERE o.active = true " +
                 "AND (:status IS NULL OR o.status = :status) " +
                 "AND (:keyword IS NULL OR :keyword = '' OR " +
-                "LOWER(CONCAT(o.firstName, ' ', o.lastName)) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-                "OR LOWER(o.address) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-                "OR LOWER(o.note) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-                "OR LOWER(o.email) LIKE LOWER(CONCAT('%', :keyword, '%')))" +
+                "LOWER(CONCAT(o.firstName, ' ', o.lastName)) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+                "LOWER(o.address) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+                "LOWER(o.note) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+                "LOWER(o.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+                "LOWER(o.phoneNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
                 "ORDER BY o.orderDate DESC"
     )
-    fun findByKeyword(
+    fun findByKeywordAndStatus(
         @Param("keyword") keyword: String?,
         @Param("status") status: OrderStatus?,
-    ): List<Order>
+        pageable: Pageable
+    ): Page<Order>
 
     fun findByStatus(status: OrderStatus): List<Order>
 
@@ -48,4 +50,16 @@ interface OrderRepository : JpaRepository<Order, Long> {
                 "ORDER BY o.orderDate DESC"
     )
     fun searchUserOrdersByKeyword(keyword: String?, userId: Long, pageable: Pageable): Page<Order>
+
+    @Query(
+        "SELECT o FROM Order o WHERE o.active = true " +
+                "AND (:keyword IS NULL OR :keyword = '' OR " +
+                "LOWER(CONCAT(o.firstName, ' ', o.lastName)) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+                "OR LOWER(o.address) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+                "OR LOWER(o.note) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+                "OR LOWER(o.email) LIKE LOWER(CONCAT('%', :keyword, '%')))" +
+                "OR LOWER(o.phoneNumber) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+                "ORDER BY o.orderDate DESC"
+    )
+    fun findByKeyword(keyword: String, pageable: Pageable): Page<Order>
 }

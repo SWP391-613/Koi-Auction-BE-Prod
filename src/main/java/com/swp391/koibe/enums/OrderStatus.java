@@ -10,9 +10,10 @@ public enum OrderStatus {
        ALL("ALL"), // for view
        PENDING("PENDING"),
        PROCESSING("PROCESSING"),
-       SHIPPED("SHIPPED"),
+       SHIPPING("SHIPPING"),
        DELIVERED("DELIVERED"),
-       CANCELLED("CANCELLED");
+       CANCELLED("CANCELLED"),
+       COMPLETED("COMPLETED");
 
          private final String status;
 }

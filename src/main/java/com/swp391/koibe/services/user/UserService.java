@@ -313,8 +313,9 @@ public class UserService implements IUserService {
         existingUser.setAccountBalance(existingUser.getAccountBalance() + payment);
 
         Context context = new Context();
-        context.setVariable("name", existingUser.getFirstName());
+        context.setVariable("name", existingUser.getFirstName() + " " + existingUser.getLastName());
         context.setVariable("amount", payment);
+        context.setVariable("balance", existingUser.getAccountBalance());
 
         try {
             mailService.sendMail(

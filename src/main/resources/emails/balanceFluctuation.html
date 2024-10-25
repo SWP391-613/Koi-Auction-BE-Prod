@@ -67,16 +67,13 @@
   </div>
   <div class="content">
     <p>Dear Mr/Ms <strong th:text="${name}"></strong>,</p>
-    <p>We are pleased to inform you that the auction for <strong th:text="${auction_title}"></strong> has officially closed.</p>
-    <p>Thank you for your participation! Here’s a summary of the auction:</p>
+    <p>Your account balance has been updated</p>
     <ul>
-      <li><strong>Auction Title:</strong> <span th:text="${auction_title}"></span></li>
-      <li><strong>Auction End Date:</strong> <span th:text="${auction_end_date}"></span></li>
-      <li><strong>Your Highest Bid:</strong> $<span th:text="${user_bid}"></span></li>
+      <li><strong>Change Amount:</strong> $<span th:text="${amount}"></span></li>
+        <li><strong>Current Balance:</strong> $<span th:text="${balance}"></span></li>
     </ul>
     <p>If you have any questions or need further assistance, feel free to reach out to our support team.</p>
     <p>Thank you for being a valued member of our auction platform!</p>
-    <a class="button" th:href="${auction_url}">View Auction Details</a>
   </div>
   <div class="footer">
     <p>&copy; <span th:text="${year}"></span> Auction Platform. All Rights Reserved.</p>

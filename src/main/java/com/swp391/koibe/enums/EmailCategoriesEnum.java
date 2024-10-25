@@ -19,7 +19,10 @@ public enum EmailCategoriesEnum {
     KOI_APPROVED("koiApproved"),
     KOI_REJECTED("koiRejected"),
     KOI_ADDED_TO_AUCTION("koiAddedToAuction"),
-    RESET_PASSWORD("resetPassword"),;
+    RESET_PASSWORD("resetPassword"),
+    ORDER_CANCELLED("orderCancelled"),
+    ORDER_CANCELLED_BREEDER("orderCancelledForBreeder"),
+    ;
 
     private final String type;
 }
