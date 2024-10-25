@@ -81,9 +81,8 @@ public class FeedbackService implements IFeedbackService {
 
     @Override
     public Feedback getFeedbackById(long id) {
-        Feedback feedback = feedbackRepository.findById(id)
+        return feedbackRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Feedback not found"));
-        return feedback;
     }
 
     @Override

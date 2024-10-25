@@ -4,28 +4,29 @@ import com.swp391.koibe.dtos.BidDTO;
 import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
 import com.swp391.koibe.exceptions.BiddingRuleException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
-import com.swp391.koibe.models.*;
+import com.swp391.koibe.models.Auction;
+import com.swp391.koibe.models.AuctionKoi;
+import com.swp391.koibe.models.AuctionParticipant;
+import com.swp391.koibe.models.Bid;
+import com.swp391.koibe.models.User;
 import com.swp391.koibe.repositories.BidHistoryRepository;
 import com.swp391.koibe.responses.BidResponse;
 import com.swp391.koibe.services.Biddable;
 import com.swp391.koibe.services.auctionkoi.IAuctionKoiService;
 import com.swp391.koibe.services.auctionparticipant.IAuctionParticipantService;
-import com.swp391.koibe.services.order.IOrderMailService;
 import com.swp391.koibe.services.order.IOrderService;
-import com.swp391.koibe.services.orderdetail.IOrderDetailService;
 import com.swp391.koibe.services.user.IUserService;
 import com.swp391.koibe.utils.DTOConverter;
 import com.swp391.koibe.utils.DateTimeUtils;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -40,10 +41,6 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
     private final IAuctionParticipantService auctionParticipantService;
 
     private final IOrderService orderService;
-
-    private final IOrderDetailService orderDetailService;
-
-    private final IOrderMailService orderMailService;
 
     @Override
     public Bid createBidHistory(Bid bid) throws DataNotFoundException {
