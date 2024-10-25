@@ -38,4 +38,14 @@ interface OrderRepository : JpaRepository<Order, Long> {
 
     fun findOrdersByUserId(userId: Long, pageable: Pageable): Page<Order>
 
+    @Query(
+        "SELECT o FROM Order o LEFT JOIN OrderDetail od on o.id = od.order.id " +
+                "WHERE o.user.id = :userId " +
+                "OR CAST(o.status as string) LIKE CONCAT('%', :keyword, '%') " + //search by order status
+                "OR od.koi.name LIKE CONCAT('%', :keyword, '%') " + //search by product name
+                "OR od.koi.owner.firstName LIKE CONCAT('%', :keyword, '%') " + //search by shop name
+//                "OR CAST (o.id as string) LIKE LOWER(CONCAT('%', :keyword, '%')) " + //search by any order id
+                "ORDER BY o.orderDate DESC"
+    )
+    fun searchUserOrdersByKeyword(keyword: String?, userId: Long, pageable: Pageable): Page<Order>
 }

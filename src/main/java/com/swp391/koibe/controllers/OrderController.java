@@ -8,10 +8,13 @@ import com.swp391.koibe.exceptions.InvalidApiPathVariableException;
 import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.Order;
+import com.swp391.koibe.models.User;
 import com.swp391.koibe.responses.base.BaseResponse;
 import com.swp391.koibe.responses.order.OrderResponse;
 import com.swp391.koibe.responses.pagination.OrderPaginationResponse;
 import com.swp391.koibe.services.order.IOrderService;
+import com.swp391.koibe.services.user.IUserService;
+import com.swp391.koibe.services.user.UserService;
 import com.swp391.koibe.utils.DTOConverter;
 import com.swp391.koibe.utils.MessageKeys;
 import jakarta.validation.Valid;
@@ -33,6 +36,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,6 +48,7 @@ public class OrderController {
 
     private final IOrderService orderService;
     private final LocalizationUtils localizationUtils;
+    private final IUserService userService;
 
     @PostMapping("")
     @PreAuthorize("hasAnyRole('ROLE_MEMBER')")
@@ -73,6 +78,28 @@ public class OrderController {
         PageRequest pageRequest = PageRequest.of(page, limit);
         Page<OrderResponse> orders =
             orderService.findByUserId(userId, pageRequest).map(DTOConverter::fromOrder);
+        OrderPaginationResponse response = new OrderPaginationResponse();
+        response.setTotalPage(orders.getTotalPages());
+        response.setTotalItem(orders.getTotalElements());
+        response.setItem(orders.getContent());
+        return ResponseEntity.ok(response);
+    }
+
+    // this endpoint will search all order of user retrieve from token (some condition)
+    @GetMapping("/search-user-orders-by-keyword")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER', 'ROLE_STAFF', 'ROLE_BREEDER')")
+    public ResponseEntity<OrderPaginationResponse> searchUserOrdersByKeyword(
+        @RequestParam(defaultValue = "", required = false) String keyword,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int limit,
+        @RequestHeader("Authorization") String authorizationHeader
+    ) throws Exception {
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userService.getUserDetailsFromToken(extractedToken);
+
+        PageRequest pageRequest = PageRequest.of(page, limit);
+        Page<OrderResponse> orders =
+            orderService.searchUserOrders(keyword,user.getId(), pageRequest).map(DTOConverter::fromOrder);
         OrderPaginationResponse response = new OrderPaginationResponse();
         response.setTotalPage(orders.getTotalPages());
         response.setTotalItem(orders.getTotalElements());

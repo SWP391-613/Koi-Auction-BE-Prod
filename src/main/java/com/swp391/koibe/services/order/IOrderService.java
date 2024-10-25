@@ -28,4 +28,5 @@ public interface IOrderService {
     Page<Order> getOrdersByStatus(Long userId, OrderStatus keyword, Pageable pageable);
     Order updateOrderStatusAndShipDate(Long id, OrderStatus orderStatus) throws Exception;
     void cancelOrder(Long id) throws DataNotFoundException;
+    Page<Order> searchUserOrders(String keyword, long userId, Pageable pageable);
 }

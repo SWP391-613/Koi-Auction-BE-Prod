@@ -209,6 +209,11 @@ public class OrderService implements IOrderService {
     }
 
     @Override
+    public Page<Order> searchUserOrders(String keyword, long userId, Pageable pageable) {
+        return orderRepository.searchUserOrdersByKeyword(keyword, userId, pageable);
+    }
+
+    @Override
     public Page<Order> findByUserId(Long userId, Pageable pageable) {
         userRepository.findById(userId)
             .orElseThrow(() -> new DataNotFoundException("Cannot find user with id: " + userId));
