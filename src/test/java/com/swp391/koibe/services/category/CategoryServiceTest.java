@@ -17,7 +17,7 @@ import java.util.Collections;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 class CategoryServiceTest {
 
     @MockBean
