@@ -2,7 +2,7 @@ name: CI for Koi-Auction-BE
 
 on:
   push:
-    branches: [ "develop", "test" ]
+    branches: [ "develop", "test", "preview" ]
   pull_request:
     branches: [ "develop" ]
 
@@ -39,4 +39,13 @@ jobs:
         with:
           name: allure-report
           path: allure-history/
+
+      - name: Deploy to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.CLASSIC_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history
+          keep_files: true
 
