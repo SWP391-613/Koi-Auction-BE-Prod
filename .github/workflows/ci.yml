@@ -2,7 +2,7 @@ name: CI for Koi-Auction-BE
 
 on:
   push:
-    branches: [ "develop", "test", "preview" ]
+    branches: [ "develop", "test" ]
   pull_request:
     branches: [ "develop" ]
 
@@ -24,28 +24,3 @@ jobs:
         run: mvn -B clean test --file pom.xml
         env:
           SPRING_PROFILES_ACTIVE: test
-
-      - name: Generate Allure Report
-        uses: simple-elf/allure-report-action@master
-        if: always()
-        with:
-          allure_results: target/allure-results
-          allure_history: allure-history
-          keep_reports: 20
-
-      - name: Upload Allure Report as Artifact
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: allure-report
-          path: allure-history/
-
-      - name: Deploy to GitHub Pages
-        if: always()
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.CLASSIC_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: allure-history
-          keep_files: true
-
