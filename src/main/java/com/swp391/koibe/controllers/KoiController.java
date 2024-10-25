@@ -14,6 +14,7 @@ import com.swp391.koibe.repositories.KoiRepository;
 import com.swp391.koibe.responses.KoiResponse;
 import com.swp391.koibe.responses.pagination.KoiPaginationResponse;
 import com.swp391.koibe.services.koi.IKoiService;
+import com.swp391.koibe.services.redis.koi.IKoiRedisService;
 import com.swp391.koibe.services.user.IUserService;
 import com.swp391.koibe.utils.DTOConverter;
 import jakarta.validation.Valid;
@@ -26,12 +27,12 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -60,6 +61,7 @@ public class KoiController {
     private final IKoiService<KoiResponse> koiService;
     private final KoiRepository koiRepository;
     private final IUserService userService;
+    private final IKoiRedisService koiRedisService;
 
 //    @PostMapping("/generateFakeKois")
 //    private ResponseEntity<String> generateFakeKois() {
@@ -184,13 +186,36 @@ public class KoiController {
         @RequestParam(defaultValue = "10") int limit,
         @RequestParam("owner_id") Long ownerId
     ) throws Exception {
-        PageRequest pageRequest = PageRequest.of(page, limit);
-        Page<KoiResponse> koiPage = koiService.findKoiByKeyword(keyword, ownerId, pageRequest)
-            .map(DTOConverter::convertToKoiDTO);
+
         KoiPaginationResponse response = new KoiPaginationResponse();
+
+        PageRequest pageRequest = PageRequest.of(
+            page, limit,
+            //Sort.by("createdAt").descending()
+            Sort.by("id").ascending()
+        );
+
+//        List<KoiResponse> koiResponses = koiRedisService.findKoiByKeyword(keyword, ownerId, pageRequest);
+//
+//        if (koiResponses != null && !koiResponses.isEmpty()) {
+//            response.setItem(koiResponses);
+//            response.setTotalItem(koiResponses.size());
+//            response.setTotalPage((int) Math.ceil((double) koiResponses.size() / limit));
+//            return ResponseEntity.ok(response);
+//        }
+
+        // If not found in Redis, fetch from the database.
+        Page<KoiResponse> koiPage = koiService.findKoiByKeyword(
+            keyword,
+            ownerId,
+            pageRequest).map(DTOConverter::convertToKoiDTO);
+
         response.setItem(koiPage.getContent());
-        response.setTotalPage(koiPage.getTotalPages());
         response.setTotalItem(koiPage.getTotalElements());
+        response.setTotalPage(koiPage.getTotalPages());
+//        koiRedisService.saveAllKois(koiPage.getContent(), keyword, ownerId, pageRequest);
+
+
         return ResponseEntity.ok(response);
     }
 
