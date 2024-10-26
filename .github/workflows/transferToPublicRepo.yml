@@ -38,7 +38,11 @@ jobs:
           # Copy files, excluding Spring Boot profile files and docker-compose-prod.yml
           rsync -av --exclude='.git' \
                     --exclude='.env' \
-                    --exclude='src/main/resources/application-*.yml' \
+                    --exclude='src/main/resources/application-dev.yml' \
+                    --exclude='src/main/resources/application-devV2.yml' \
+                    --exclude='src/main/resources/application-docker.yml' \
+                    --exclude='src/main/resources/application-dockerdeployment.yml' \
+                    --exclude='src/main/resources/application-prod.yml' \
                     --exclude='src/main/resources/application-*.properties' \
                     --exclude='docker-compose-prod.yml' \
                     --exclude='docs/'\

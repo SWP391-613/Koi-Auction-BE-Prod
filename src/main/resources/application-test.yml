@@ -1,0 +1,93 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: lvhhoangg1@gmail.com
+    password: ojlx ohfr qxwd llxx
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: 1093656938461-fod9qlmrd68m0otn7mhrggipp15b8cnj.apps.googleusercontent.com
+            clientSecret: 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
+
+  data:
+    redis:
+      #spring.data.redis.use-redis-cache
+      use-redis-cache: false
+      host: ${REDIS_HOST:localhost} # Default to 'localhost' if not provided
+      port: ${REDIS_PORT:6379}      # Default to 6379 if not provided
+
+alert:
+  manager:
+    emails: "hoangclw@gmail.com,manhduonglhp4@gmail.com"
+
+server:
+  port: 4000
+
+api:
+  prefix: /api/v1
+
+jwt:
+  expiration: 2592000 #30 days = 30 * 24 * 60 * 60
+  expiration-refresh-token: 5184000 #60 days = 60 * 24 * 60 * 60
+  secretKey: TaqlmGv1iEDMRiFp/pHuID1+T84IABfuA0xXh4GhiUI=
+
+logging:
+  level:
+    org.springframework: DEBUG
+    springframework.security: DEBUG
+    org.hibernate: DEBUG
+
+# swagger-ui custom path
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /api-docs
+  show-actuator: true
+
+#health check
+management:
+  endpoints:
+    web:
+      base-path: /api/v1/actuator
+      exposure:
+        include: "health,info,prometheus"
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+
+# 3rd party
+unsplash:
+  api:
+    root: https://api.unsplash.com
+    client-id: 2Me57Gt0_US3pizvMojZYoV55q_TinbMvYVmwEUqoOI
+
+vnpay:
+  api:
+    vnp_Version: 2.0.0
+    vnp_Command: pay
+    vnp_OrderType: "billpayment"
+    vnp_PayUrl: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+    vnp_Returnurl: "http://localhost:4000/api/v1/payment/vnpay/payment_return"
+    vnp_TmnCode: "XM1B4C8V"
+    vnp_HashSecret: "JC3DPNWE1FO1PE8441MVDMCB77N16S71"
+    vnp_apiUrl: "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"
