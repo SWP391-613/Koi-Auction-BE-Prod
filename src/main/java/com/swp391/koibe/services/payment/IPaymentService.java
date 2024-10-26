@@ -32,5 +32,6 @@ public interface IPaymentService {
         Page<Payment> getPaymentsByUserId(Long userId, Pageable pageable);
         Page<Payment> getPaymentsByUserIdAndStatus(Long userId, EPaymentStatus status, Pageable pageable);
         Page<Payment> getPaymentsByKeywordAndStatus(String keyword, EPaymentStatus status, Pageable pageable);
-        Payment updatePaymentStatus(Long id, EPaymentStatus status);
+        Page<Payment> getPaymentsByKeyword(String keyword, Pageable pageable);
+        Payment updatePaymentStatus(Long id, EPaymentStatus status) throws Exception;
 }

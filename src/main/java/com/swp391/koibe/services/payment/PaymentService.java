@@ -4,6 +4,7 @@ import com.swp391.koibe.configs.VNPayConfig;
 import com.swp391.koibe.dtos.payment.PaymentDTO;
 import com.swp391.koibe.enums.EPaymentStatus;
 import com.swp391.koibe.enums.EPaymentType;
+import com.swp391.koibe.enums.EmailCategoriesEnum;
 import com.swp391.koibe.enums.OrderStatus;
 import com.swp391.koibe.exceptions.MalformDataException;
 import com.swp391.koibe.exceptions.base.DataAlreadyExistException;
@@ -13,13 +14,17 @@ import com.swp391.koibe.models.User;
 import com.swp391.koibe.repositories.OrderRepository;
 import com.swp391.koibe.repositories.PaymentRepository;
 import com.swp391.koibe.repositories.UserRepository;
+import com.swp391.koibe.services.mail.IMailService;
+import com.swp391.koibe.services.mail.MailService;
 import com.swp391.koibe.services.order.IOrderService;
 import com.swp391.koibe.services.user.IUserService;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -38,6 +43,7 @@ public class PaymentService implements IPaymentService {
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
     private final VNPayConfig VNPayConfig;
+    private final IMailService mailService;
 
     @Override
     public Map<String, String> createDepositPayment(PaymentDTO paymentDTO, String ipAddress)
@@ -164,10 +170,10 @@ public class PaymentService implements IPaymentService {
                 .user(orderInfo.startsWith("Deposit")
                         ? userRepository.findById(Long.parseLong(orderInfo.split(":")[1])).orElse(null)
                         : orderRepository.findById(Long.parseLong(orderInfo.split(":")[1]))
-                                .orElseThrow(() -> new MalformDataException("Order not found")).getUser())
+                        .orElseThrow(() -> new MalformDataException("Order not found")).getUser())
                 .order(orderInfo.startsWith("Payment for order")
                         ? orderRepository.findById(Long.parseLong(orderInfo.split(":")[1]))
-                                .orElseThrow(() -> new MalformDataException("Order not found"))
+                        .orElseThrow(() -> new MalformDataException("Order not found"))
                         : null)
                 .build();
     }
@@ -256,7 +262,7 @@ public class PaymentService implements IPaymentService {
         paymentDrawOutDTO.setPaymentStatus(EPaymentStatus.PENDING.toString());
         Payment payment = createPayment(paymentDrawOutDTO);
 
-        userService.updateAccountBalance(paymentDrawOutDTO.getUserId(), - paymentDrawOutDTO.getPaymentAmount().longValue());
+        userService.updateAccountBalance(paymentDrawOutDTO.getUserId(), -paymentDrawOutDTO.getPaymentAmount().longValue());
 
         Map<String, Object> response = new HashMap<>();
         response.put("payment", payment);
@@ -287,9 +293,41 @@ public class PaymentService implements IPaymentService {
     }
 
     @Override
-    public Payment updatePaymentStatus(Long id, EPaymentStatus status) {
+    public Page<Payment> getPaymentsByKeyword(String keyword, Pageable pageable) {
+        return paymentRepository.findPaymentsByKeyword(keyword, pageable);
+    }
+
+    @Override
+    public Payment updatePaymentStatus(Long id, EPaymentStatus status) throws Exception {
         Payment payment = paymentRepository.findById(id).orElseThrow(() -> new MalformDataException("Payment not found"));
+        if (payment.getPaymentStatus().equals(EPaymentStatus.PENDING)) {
+            if (payment.getPaymentType().equals(EPaymentType.DRAW_OUT)) {
+                if (status.equals(EPaymentStatus.REFUNDED)) {
+                    User user = payment.getUser();
+                    userService.updateAccountBalance(user.getId(), payment.getPaymentAmount().longValue());
+                    sendMail(payment, status);
+                } else if (status.equals(EPaymentStatus.SUCCESS)) {
+                    sendMail(payment, status);
+                }
+            }
+        }
         payment.setPaymentStatus(status);
         return paymentRepository.save(payment);
+    }
+
+    private void sendMail(Payment payment, EPaymentStatus paymentStatus) throws MessagingException {
+        Context context = new Context();
+        context.setVariable("name", payment.getUser().getFirstName() + " " + payment.getUser().getLastName());
+        context.setVariable("payment_amount", payment.getPaymentAmount());
+        context.setVariable("payment_id", payment.getId());
+        context.setVariable("payment_status", payment.getPaymentStatus());
+        context.setVariable("payment_date", payment.getPaymentDate());
+        context.setVariable("payment_type", payment.getPaymentMethod());
+
+        if (paymentStatus.equals(EPaymentStatus.SUCCESS)) {
+            mailService.sendMail(payment.getUser().getEmail(), "Payment successful", EmailCategoriesEnum.PAYMENT_SUCCESS.getType(), context);
+        } else if (paymentStatus.equals(EPaymentStatus.REFUNDED)) {
+            mailService.sendMail(payment.getUser().getEmail(), "Payment failed", EmailCategoriesEnum.PAYMENT_REFUND.getType(), context);
+        }
     }
 }

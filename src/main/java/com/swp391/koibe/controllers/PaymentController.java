@@ -99,11 +99,11 @@ public class PaymentController {
         }
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/user/{user_id}/get-sorted-payments")
     @PreAuthorize("hasAnyRole('ROLE_MEMBER')")
     public ResponseEntity<?> getPaymentByUserIdAndStatus(
-            @PathVariable Long userId,
-            @RequestParam EPaymentStatus status,
+            @PathVariable("user_id") Long userId,
+            @RequestParam("status") EPaymentStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit) {
         try {
@@ -131,7 +131,7 @@ public class PaymentController {
         }
     }
 
-    @GetMapping("/get_payments_by_status_and_keyword")
+    @GetMapping("/get-payments-by-keyword-and-status")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
     public ResponseEntity<?> getPaymentsByStatusAndKeyword(
             @RequestParam(defaultValue = "", required = false) String keyword,
@@ -140,8 +140,14 @@ public class PaymentController {
             @RequestParam(defaultValue = "10") int limit) {
         try {
             PageRequest pageRequest = PageRequest.of(page, limit);
-            Page<PaymentResponse> payments = paymentService.getPaymentsByKeywordAndStatus(keyword, status, pageRequest)
-                    .map(DTOConverter::fromPayment);
+            Page<PaymentResponse> payments;
+            if (String.valueOf(status).equals("ALL")) {
+                payments = paymentService.getPaymentsByKeyword(keyword, pageRequest)
+                        .map(DTOConverter::fromPayment);
+            } else {
+                payments = paymentService.getPaymentsByKeywordAndStatus(keyword, status, pageRequest)
+                        .map(DTOConverter::fromPayment);
+            }
             PaymentPaginationResponse response = new PaymentPaginationResponse();
             response.setItem(payments.getContent());
             response.setTotalItem(payments.getTotalElements());
@@ -155,11 +161,11 @@ public class PaymentController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/update-payment-status")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
     public ResponseEntity<?> updatePaymentStatus(
             @PathVariable Long id,
-            @RequestParam EPaymentStatus status) {
+            @RequestParam("status") EPaymentStatus status) {
         try {
             Payment payment = paymentService.updatePaymentStatus(id, status);
             return ResponseEntity.ok(payment);
@@ -170,6 +176,4 @@ public class PaymentController {
             return ResponseEntity.badRequest().body(response);
         }
     }
-
-
 }

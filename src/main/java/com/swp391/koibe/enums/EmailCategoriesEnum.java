@@ -22,6 +22,8 @@ public enum EmailCategoriesEnum {
     RESET_PASSWORD("resetPassword"),
     ORDER_CANCELLED("orderCancelled"),
     ORDER_CANCELLED_BREEDER("orderCancelledForBreeder"),
+    PAYMENT_SUCCESS("paymentSuccess"),
+    PAYMENT_REFUND("paymentRefund"),
     ;
 
     private final String type;

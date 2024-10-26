@@ -238,7 +238,7 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{id}/status")
+    @PutMapping("/{id}/update-order-status")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
     public ResponseEntity<?> updateOrderStatus(
             @Valid @PathVariable long id,

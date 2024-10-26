@@ -16,24 +16,25 @@ interface PaymentRepository : JpaRepository<Payment, Long> {
 
     @Query(
         "SELECT p FROM Payment p WHERE " +
-                "p.paymentStatus = :status AND " +
-                ":keyword IS NULL OR :keyword = '' OR " +
-                "(p.order.user.email LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-                "OR p.order.user.phoneNumber LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+                "(:status IS NULL OR p.paymentStatus = :status)  " +
+                "AND (:keyword IS NULL OR :keyword = '' " +
                 "OR p.bankNumber LIKE LOWER(CONCAT('%', :keyword, '%')) " +
                 " OR LOWER(CONCAT(p.user.firstName, ' ', p.user.lastName)) LIKE LOWER(CONCAT('%', :keyword, '%'))" +
-                " OR CAST(p.user.id AS string) LIKE LOWER(CONCAT('%', :keyword, '%')))"
+                " OR CAST(p.id AS string) LIKE LOWER(CONCAT('%', :keyword, '%'))" +
+                " OR CAST(p.paymentAmount AS string) LIKE LOWER(CONCAT('%', :keyword, '%'))" +
+                " OR CAST(p.user.id AS string) LIKE LOWER(CONCAT('%', :keyword, '%')))" +
+                "ORDER BY p.paymentDate DESC"
     )
     fun findPaymentsByStatusAndKeyWord(keyword: String?, status: EPaymentStatus, pageable: Pageable): Page<Payment>
 
     @Query(
         "SELECT p FROM Payment p WHERE " +
-                ":keyword IS NULL OR :keyword = '' OR " +
-                "(p.order.user.email LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-                "OR p.order.user.phoneNumber LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-                "OR p.bankNumber LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-                " OR LOWER(CONCAT(p.user.firstName, ' ', p.user.lastName)) LIKE LOWER(CONCAT('%', :keyword, '%'))" +
-                " OR CAST(p.user.id AS string) LIKE LOWER(CONCAT('%', :keyword, '%')))"
+                "(:keyword IS NULL OR :keyword = '' OR " +
+                "p.bankNumber LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+                "OR LOWER(CONCAT(p.user.firstName, ' ', p.user.lastName)) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+                " OR CAST(p.id AS string) LIKE LOWER(CONCAT('%', :keyword, '%'))" +
+                " OR CAST(p.paymentAmount AS string) LIKE LOWER(CONCAT('%', :keyword, '%'))" +
+                "OR CAST(p.user.id AS string) LIKE LOWER(CONCAT('%', :keyword, '%')))"
     )
     fun findPaymentsByKeyword(keyword: String?, pageable: Pageable): Page<Payment>
 }
