@@ -25,8 +25,8 @@ public class DTOConverter {
                 .googleAccountId(user.getGoogleAccountId())
                 .roleName(user.getRole() != null ? user.getRole().getName() : null)
                 .accountBalance(user.getAccountBalance())
-                .createdAt(user.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME))
-                .updatedAt(user.getUpdatedAt().format(DateTimeFormatter.ISO_DATE_TIME))
+                .createdAt(user.getCreatedAt() != null ? user.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME) : null)
+                .updatedAt(user.getUpdatedAt() != null ? user.getUpdatedAt().format(DateTimeFormatter.ISO_DATE_TIME) : null)
                 .build();
     }
 
