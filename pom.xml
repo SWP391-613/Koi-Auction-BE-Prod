@@ -33,6 +33,8 @@
     <kotlin.version>2.0.0</kotlin.version>
     <aspectj.version>1.9.19</aspectj.version>
     <allure.version>2.24.0</allure.version>
+    <sonar.organization>swp391-613</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
   </properties>
   <dependencies>
     <dependency>
