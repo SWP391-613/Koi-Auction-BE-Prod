@@ -25,7 +25,7 @@ import java.net.URI;
 import java.util.*;
 
 @RestController
-@RequestMapping("${api.prefix}/payment")
+@RequestMapping("${api.prefix}/payments")
 @RequiredArgsConstructor
 public class PaymentController {
 

@@ -177,7 +177,7 @@ public class WebSecurityConfig {
                             .permitAll()
                             .requestMatchers(PUT, String.format("%s/forgot-password**", apiPrefix))
                             .permitAll()
-                            // .requestMatchers(GET, "/api/v1/payment/vnpay/payment_return")
+                            // .requestMatchers(GET, "/api/v1/payments/vnpay/payment_return")
                             // .permitAll()
 
                             // OtpController
@@ -192,7 +192,7 @@ public class WebSecurityConfig {
 
                             // Add this new rule to allow access to the VNPay payment return endpoint
                             .requestMatchers(GET,
-                                    String.format("%s/payment/vnpay/payment_return", apiPrefix))
+                                    String.format("%s/payments/vnpay/payment_return", apiPrefix))
                             .permitAll()
 
                             .anyRequest().authenticated();

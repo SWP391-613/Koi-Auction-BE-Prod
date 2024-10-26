@@ -98,7 +98,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             }
             filterChain.doFilter(request, response); // enable bypass
 
-            if (request.getRequestURI().contains("/api/v1/payment/vnpay/payment_return")) {
+            if (request.getRequestURI().contains("/api/v1/payments/vnpay/payment_return")) {
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -221,8 +221,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of("/topic", "POST"),
 
                 // 3rd payment
-                Pair.of(String.format("%s/payment", apiPrefix), "GET"),
-                Pair.of(String.format("%s/payment", apiPrefix), "POST"),
+                Pair.of(String.format("%s/payments", apiPrefix), "GET"),
+                Pair.of(String.format("%s/payments", apiPrefix), "POST"),
 
                 // ForgotPassword
                 Pair.of(String.format("%s/forgot-password", apiPrefix), "GET"),
@@ -235,7 +235,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/feedback", apiPrefix), "DELETE"),
 
                 // VNPay
-                Pair.of(String.format("%s/payment/vnpay/payment_return", apiPrefix), "GET")
+                Pair.of(String.format("%s/payments/vnpay/payment_return", apiPrefix), "GET")
 
         // Pair.of(String.format("%s/products/test/view", apiPrefix), "GET")
         );
