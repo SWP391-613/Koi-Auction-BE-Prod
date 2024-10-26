@@ -25,11 +25,12 @@ class BreederServiceTest {
         Mockito.reset(breederService);
     }
 
+    private final Role breederRole = Role.builder()
+        .id(3L)
+        .build();
+
     @Test
     void getAllBreeders() {
-        Role breederRole = Role.builder()
-            .id(3L)
-            .build();
 
         List<User> breeders = List.of(
             User.builder().id(1L).role(breederRole).build(),
@@ -41,21 +42,16 @@ class BreederServiceTest {
         );
 
         Mockito.when(breederService.getAllBreeders())
-                .thenReturn(breeders.stream().map(DTOConverter::convertToUserDTO)
-                .toList());
+            .thenReturn(breeders.stream().map(DTOConverter::convertToUserDTO)
+                            .toList());
 
-    }
-
-    @Test
-    void testGetAllBreeders() {
     }
 
     @Test
     void findById() {
-    }
-
-    @Test
-    void createKoi() {
+        User breeder = User.builder().id(1L).role(breederRole).build();
+        Mockito.when(breederService.findById(1L))
+            .thenReturn(breeder);
     }
 
     @Test
@@ -63,15 +59,7 @@ class BreederServiceTest {
     }
 
     @Test
-    void updateKoi() {
-    }
-
-    @Test
     void deleteBreeder() {
-    }
-
-    @Test
-    void deleteKoi() {
     }
 
     @Test

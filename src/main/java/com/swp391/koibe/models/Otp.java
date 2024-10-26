@@ -26,7 +26,7 @@ public class Otp extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonProperty("id")
-    private long id;
+    private Long id;
 
     @Column(name = "email")
     private String email;

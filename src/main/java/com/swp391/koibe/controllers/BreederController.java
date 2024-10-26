@@ -117,47 +117,6 @@ public class BreederController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/kois")
-    @PreAuthorize("hasRole('ROLE_BREEDER')")
-    public ResponseEntity<KoiResponse> createKoi(
-        @RequestParam("category_id") Integer categoryId,
-        @RequestParam("breeder_id") long breederId,
-        @Valid @RequestBody KoiDTO koiDTO,
-        BindingResult result
-    ) {
-
-        if (result.hasErrors()) {
-            throw new MethodArgumentNotValidException(result);
-        }
-
-        try {
-            KoiResponse koi = breederService.createKoi(categoryId, koiDTO, breederId);
-            return ResponseEntity.ok(koi);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
-        }
-    }
-
-//    @PutMapping("/kois/{id}")
-//    public ResponseEntity<KoiResponse> updateKoi(
-//        @PathVariable("id") long id,
-//        @Valid @RequestBody KoiDTO koiDTO,
-//        BindingResult result
-//    ) {
-//
-//        if(result.hasErrors()){
-//            throw new MethodArgumentNotValidException(result);
-//        }
-//
-//        try {
-//            KoiResponse koi = breederService.updateKoi(id, koiDTO);
-//            return ResponseEntity.ok(koi);
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(null);
-//        }
-//    }
-
-
     @DeleteMapping("/{breeder_id}/koi/{id}")
     public ResponseEntity<?> deleteKoi(
         @PathVariable("id") long id,
