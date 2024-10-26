@@ -35,4 +35,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.CLASSIC_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify -P sonarcloudbuild org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=SWP391-613_Koi-Auction-BE-Prod
+        run: mvn -B verify -P test org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=SWP391-613_Koi-Auction-BE-Prod
