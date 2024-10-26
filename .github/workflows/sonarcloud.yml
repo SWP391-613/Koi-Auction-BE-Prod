@@ -30,9 +30,9 @@ name: SonarCloud analysis
 
 on:
   push:
-    branches: [ "develop", "preview", "main" ]
+    branches: [ "preview" ] #open on develop, main when turn to public repo
   pull_request:
-    branches: [ "develop", "preview", "main" ]
+    branches: [ "preview" ] #open on develop, main when turn to public repo
   workflow_dispatch:
 
 permissions:
@@ -55,8 +55,8 @@ jobs:
           args:
             # Unique keys of your project and organization. You can find them in SonarCloud > Information (bottom-left menu)
             # mandatory
-            -Dsonar.projectKey=
-            -Dsonar.organization=
+            -Dsonar.projectKey=SWP391-613_Koi-Auction-BE-Prod
+            -Dsonar.organization=SWP391-613
             # Comma-separated paths to directories containing main source files.
             #-Dsonar.sources= # optional, default is project base directory
             # Comma-separated paths to directories containing test source files.
