@@ -13,7 +13,7 @@ public interface IKoiRedisService {
     //Clear cached data in Redis
     void clear();
 
-    List<KoiResponse> getAllKois(
+    List<KoiResponse> getKoisOwnerByKeywordNotAuth(
         String keyword,
         Long categoryId,
         PageRequest pageRequest

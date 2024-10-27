@@ -33,10 +33,9 @@ public class RedisConfig {
                 new RedisStandaloneConfiguration(redisHost, redisPort);
         return new LettuceConnectionFactory(configuration);
     }
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate()
 
-    {
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory());
 
@@ -48,6 +47,7 @@ public class RedisConfig {
         template.afterPropertiesSet();
         return template;
     }
+
     @Bean
     public ObjectMapper redisObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -57,5 +57,6 @@ public class RedisConfig {
         objectMapper.registerModule(module);
         return objectMapper;
     }
+
 }
 

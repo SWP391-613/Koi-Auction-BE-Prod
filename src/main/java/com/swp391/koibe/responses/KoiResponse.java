@@ -54,4 +54,9 @@ public class KoiResponse extends BaseResponse<Koi> {
     @JsonProperty("category_id")
     private Integer categoryId;
 
+    @JsonProperty("total_page")
+    private Integer totalPage;
+    //this field is for holding the total number of pages (in case query directly from database)
+    //and retrieve from redis cache
+
 }

@@ -27,6 +27,7 @@ public class KoiRedisService implements IKoiRedisService {
     @Value("${spring.data.redis.use-redis-cache}")
     private boolean useRedisCache;
 
+    //@GetMapping("/get-kois-owner-by-keyword-not-auth")
     private String getKeyFrom(
         String keyword,
         long data,
@@ -37,13 +38,15 @@ public class KoiRedisService implements IKoiRedisService {
         Sort sort = pageRequest.getSort();
         String sortDirection = Objects.requireNonNull(sort.getOrderFor("id"))
             .getDirection() == Sort.Direction.ASC ? "asc" : "desc";
-        String key = String.format("all_breeder_kois:%s:%d:%d:%d:%s",
-                                   keyword, data, pageNumber, pageSize, sortDirection);
-        return key;
+
+        //"all_breeder_kois:a:27:0:10:asc" : List<KoiResponse>
+
+        return String.format("all_breeder_kois:%s:%d:%d:%d:%s",
+                             keyword, data, pageNumber, pageSize, sortDirection);
     }
 
     @Override
-    public List<KoiResponse> getAllKois(String keyword,
+    public List<KoiResponse> getKoisOwnerByKeywordNotAuth(String keyword,
                                         Long categoryId,
                                         PageRequest pageRequest) throws JsonProcessingException {
 
@@ -54,7 +57,7 @@ public class KoiRedisService implements IKoiRedisService {
         String json = (String) redisTemplate.opsForValue().get(key);
         List<KoiResponse> auctionResponses =
             json != null ?
-                redisObjectMapper.readValue(json, new TypeReference<List<KoiResponse>>() {
+                redisObjectMapper.readValue(json, new TypeReference<>() {
                 })
                 : null;
         return auctionResponses;

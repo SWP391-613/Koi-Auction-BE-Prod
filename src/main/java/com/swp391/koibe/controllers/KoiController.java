@@ -195,14 +195,14 @@ public class KoiController {
             Sort.by("id").ascending()
         );
 
-//        List<KoiResponse> koiResponses = koiRedisService.findKoiByKeyword(keyword, ownerId, pageRequest);
-//
-//        if (koiResponses != null && !koiResponses.isEmpty()) {
-//            response.setItem(koiResponses);
-//            response.setTotalItem(koiResponses.size());
-//            response.setTotalPage((int) Math.ceil((double) koiResponses.size() / limit));
-//            return ResponseEntity.ok(response);
-//        }
+        List<KoiResponse> koiResponses = koiRedisService.findKoiByKeyword(keyword, ownerId, pageRequest);
+
+        if (koiResponses != null && !koiResponses.isEmpty()) {
+            response.setItem(koiResponses);
+            response.setTotalItem(koiResponses.size());
+            response.setTotalPage(koiResponses.get(0).getTotalPage());
+            return ResponseEntity.ok(response);
+        }
 
         // If not found in Redis, fetch from the database.
         Page<KoiResponse> koiPage = koiService.findKoiByKeyword(
@@ -213,8 +213,18 @@ public class KoiController {
         response.setItem(koiPage.getContent());
         response.setTotalItem(koiPage.getTotalElements());
         response.setTotalPage(koiPage.getTotalPages());
-//        koiRedisService.saveAllKois(koiPage.getContent(), keyword, ownerId, pageRequest);
 
+        int totalPage = koiPage.getTotalPages();
+        koiResponses = koiPage.getContent();
+        for(KoiResponse koi: koiResponses){
+            koi.setTotalPage(totalPage);
+        }
+
+        koiRedisService.saveAllKois(
+            koiResponses,
+            keyword,
+            ownerId,
+            pageRequest);
 
         return ResponseEntity.ok(response);
     }
