@@ -271,11 +271,6 @@ public class PaymentService implements IPaymentService {
     }
 
     @Override
-    public Payment updatePaymentStatus(Long id, String status) {
-        return null;
-    }
-
-    @Override
     public Page<Payment> getPaymentsByUserId(Long userId, Pageable pageable) {
         userRepository.findById(userId).orElseThrow(() -> new MalformDataException("User not found"));
         return paymentRepository.findPaymentsByUserId(userId, pageable);

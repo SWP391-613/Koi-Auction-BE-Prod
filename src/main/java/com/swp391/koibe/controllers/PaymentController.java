@@ -2,6 +2,7 @@ package com.swp391.koibe.controllers;
 
 import com.swp391.koibe.configs.VNPayConfig;
 import com.swp391.koibe.dtos.payment.PaymentDTO;
+import com.swp391.koibe.dtos.payment.PaymentStatusUpdateDTO;
 import com.swp391.koibe.enums.EPaymentStatus;
 import com.swp391.koibe.models.Payment;
 import com.swp391.koibe.responses.PaymentResponse;
@@ -100,7 +101,7 @@ public class PaymentController {
     }
 
     @GetMapping("/user/{user_id}/get-sorted-payments")
-    @PreAuthorize("hasAnyRole('ROLE_MEMBER')")
+    @PreAuthorize("hasAnyRole('ROLE_MEMBER', 'ROLE_BREEDER')")
     public ResponseEntity<?> getPaymentByUserIdAndStatus(
             @PathVariable("user_id") Long userId,
             @RequestParam("status") EPaymentStatus status,
@@ -165,10 +166,11 @@ public class PaymentController {
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
     public ResponseEntity<?> updatePaymentStatus(
             @PathVariable Long id,
-            @RequestParam("status") EPaymentStatus status) {
+            @Valid @RequestBody PaymentStatusUpdateDTO paymentStatusUpdateDTO) {
         try {
-            Payment payment = paymentService.updatePaymentStatus(id, status);
-            return ResponseEntity.ok(payment);
+            Payment payment = paymentService.updatePaymentStatus(id,
+                    EPaymentStatus.valueOf(paymentStatusUpdateDTO.getStatus()));
+            return ResponseEntity.ok(DTOConverter.fromPayment(payment));
         } catch (Exception e) {
             BaseResponse<?> response = new BaseResponse<>();
             response.setMessage("Failed to update payment status");

@@ -28,7 +28,6 @@ public interface IPaymentService {
 
         Map<String, Object> createDrawOutRequest(PaymentDTO paymentDrawOutDTO) throws Exception;
 
-        Payment updatePaymentStatus(Long id, String status);
         Page<Payment> getPaymentsByUserId(Long userId, Pageable pageable);
         Page<Payment> getPaymentsByUserIdAndStatus(Long userId, EPaymentStatus status, Pageable pageable);
         Page<Payment> getPaymentsByKeywordAndStatus(String keyword, EPaymentStatus status, Pageable pageable);
