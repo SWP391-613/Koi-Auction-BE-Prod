@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -22,6 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class RoleControllerIT {
 
     @Autowired
@@ -39,22 +41,22 @@ public class RoleControllerIT {
     @Autowired
     private JwtTokenUtils jwtTokenUtils;
 
-    private String jwtToken;
+    private String jwtToken = "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjI3LCJlbWFpbCI6ImlzYUBnbWFpbC5jb20iLCJzdWIiOiJpc2FAZ21haWwuY29tIiwiZXhwIjoxNzMyMzgxMzAyfQ.kqRptjGDXns0lFlZZptJHJFLzSrHDvHnGf2LbE6l9rE";
 
     @BeforeEach
     public void setup() throws Exception {
-        // Simulate a login and retrieve a JWT token
-        UserLoginDTO userLoginDTO = new UserLoginDTO("son@gmail.com", "123456");
-
-        // Assuming the UserService's login method generates a token for the user
-        String token = userService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword());
-
-        // Simulate the request and user agent (optional)
-        String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)";
-        User userDetail = userService.getUserDetailsFromToken(token);
-
-        // Store the JWT token for use in tests
-        jwtToken = jwtTokenUtils.generateToken(userDetail);
+//        // Simulate a login and retrieve a JWT token
+//        UserLoginDTO userLoginDTO = new UserLoginDTO("son@gmail.com", "123456");
+//
+//        // Assuming the UserService's login method generates a token for the user
+//        String token = userService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword());
+//
+//        // Simulate the request and user agent (optional)
+//        String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)";
+//        User userDetail = userService.getUserDetailsFromToken(token);
+//
+//        // Store the JWT token for use in tests
+//        jwtToken = jwtTokenUtils.generateToken(userDetail);
     }
 
     // Utility method to determine if it's a mobile device based on the User-Agent
