@@ -69,6 +69,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         specialCasePatterns.add(Pair.of("GET", Pattern.compile("/webjars.*")));
         specialCasePatterns.add(Pair.of("GET", Pattern.compile("/topic.*")));
 
+        //RoleController
+        specialCasePatterns.add(Pair.of("GET", Pattern.compile(String.format("%s/roles/\\d+", apiPrefix))));
+
         // Add more special case patterns here as needed
     }
 
@@ -120,7 +123,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     }
 
     private boolean isBypassToken(@NonNull HttpServletRequest request) {
-        final List<Pair<String, String>> bypassTokens = Arrays.asList(
+        final List<Pair<String, String>> bypassTokens = Arrays.<Pair<String, String>>asList(
                 // RoleController
                 Pair.of(String.format("%s/roles", apiPrefix), "GET"),
                 Pair.of(String.format("%s/roles", apiPrefix), "POST"),

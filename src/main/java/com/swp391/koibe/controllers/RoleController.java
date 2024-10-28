@@ -43,18 +43,17 @@ public class RoleController {
     @GetMapping("/{id}")
     public ResponseEntity<RoleResponse> getRoleById(@PathVariable Long id) {
         Role role = roleService.getRoleById(id);
-        RoleResponse response = new RoleResponse();
-        response.setMessage("Role fetched successfully");
-        response.setSingleData(role);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(
+            RoleResponse.builder()
+                .message("Role fetched successfully")
+                .singleData(role)
+                .build());
     }
 
     @PostMapping("")
     public ResponseEntity<RoleResponse> createRole(
         @Valid @RequestBody RoleDTO roleDTO,
         BindingResult bindingResult) {
-
-        RoleResponse response = new RoleResponse();
 
         // Check if there are validation errors
         if (bindingResult.hasErrors()) {
@@ -63,33 +62,38 @@ public class RoleController {
 
         try {
             Role newRole = roleService.createRole(roleDTO);
-            response.setMessage("Role created successfully");
-            response.setSingleData(newRole);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(
+                RoleResponse.builder()
+                    .message("Role created successfully")
+                    .singleData(newRole)
+                    .build());
         } catch (Exception e) {
             log.error("Error while creating role", e);
-            response.setMessage("Error while creating role");
-            throw new RuntimeException("Error while creating role", e); // Rethrow as a generic exception
+            throw new RuntimeException("Error while creating role",
+                                       e); // Rethrow as a generic exception
         }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<RoleResponse> updateRole(
-            @PathVariable Long id,
-            @Valid @RequestBody RoleDTO roleDTO) {
-        Role updatedRole = roleService.updateRole(id, roleDTO);
-
-        RoleResponse response = new RoleResponse();
-        response.setMessage("Role updated successfully");
-        return ResponseEntity.ok(response);
+        @PathVariable Long id,
+        @Valid @RequestBody RoleDTO roleDTO) {
+        roleService.updateRole(id, roleDTO);
+        return ResponseEntity.ok(
+            RoleResponse.builder()
+                .message("Role updated successfully")
+                .build()
+        );
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<RoleResponse> deleteRole(@PathVariable Long id) {
         roleService.deleteRole(id);
-        RoleResponse response = new RoleResponse();
-        response.setMessage("Role deleted successfully");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+            RoleResponse.builder()
+                .message("Role deleted successfully")
+                .build()
+        );
     }
 
 }

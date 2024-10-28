@@ -28,7 +28,7 @@ public class ApplicationExceptionHandler {
     private final LocalizationUtils localizationUtils;
 
     @ExceptionHandler(DataNotFoundException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public BaseResponse<Object> handleDataNotFoundException(DataNotFoundException e) {
         return ExceptionResponse.builder()
                 .message(localizationUtils.getLocalizedMessage("exception.data_not_found"))
