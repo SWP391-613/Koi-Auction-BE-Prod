@@ -18,8 +18,13 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Run All Tests
+      - name: Run All Unit Tests
         run: mvn -B clean test --file pom.xml
+        env:
+          SPRING_PROFILES_ACTIVE: test
+
+      - name: Run All Integration Tests
+        run: mvn -B clean verify --file pom.xml
         env:
           SPRING_PROFILES_ACTIVE: test
 
