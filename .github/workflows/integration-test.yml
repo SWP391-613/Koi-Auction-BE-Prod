@@ -10,6 +10,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: lcaohoanq/koiauction_on_ci:latest
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: Luucaohoang1604^^
+          MYSQL_DATABASE: koi_company_dev_db
+          MYSQL_USER: lcaohoanq
+        options: >-
+          --health-cmd="mysqladmin ping --silent" 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=3
+
     steps:
       - uses: actions/checkout@v4
 
@@ -20,8 +35,17 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Wait for MySQL to be ready
+        run: |
+          while ! mysqladmin ping -h127.0.0.1 -uroot -pLuucaohoang1604^^ --silent; do
+            echo "Waiting for MySQL..."
+            sleep 5
+          done
+
       - name: Run All Integration Tests
         run: mvn -B clean verify --file pom.xml
         env:
-          SPRING_PROFILES_ACTIVE: test
-
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/koi_company_dev_db
+          SPRING_DATASOURCE_USERNAME: lcaohoanq
+          SPRING_DATASOURCE_PASSWORD: Luucaohoang1604^^
+          SPRING_PROFILES_ACTIVE: dev
