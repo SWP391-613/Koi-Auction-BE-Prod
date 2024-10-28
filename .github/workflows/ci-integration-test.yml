@@ -1,4 +1,4 @@
-name: CI for Koi-Auction-BE
+name: CI-Integration-Test for Koi-Auction-BE
 
 on:
   push:
