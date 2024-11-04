@@ -95,6 +95,7 @@ public class AuctionController {
     }
 
     @GetMapping("/koi_register")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER', 'ROLE_STAFF', 'ROLE_BREEDER')")
     public ResponseEntity<List<AuctionResponse>> getAuctionsByStatus(
         @RequestParam int page,
         @RequestParam int limit,

@@ -198,6 +198,7 @@ public class AuctionKoiController {
 
     // assign koi list to an auction
     @PostMapping("")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF', 'ROLE_BREEDER')")
     public ResponseEntity<AuctionKoiResponse> createAuctionKoi(
             @Valid @RequestBody AuctionKoiDTO auctionKoiDTO,
             BindingResult result) {
