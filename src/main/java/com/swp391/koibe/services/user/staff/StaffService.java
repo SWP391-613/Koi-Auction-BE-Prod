@@ -38,7 +38,7 @@ public class StaffService implements IStaffService {
 
     @Override
     public Page<UserResponse> getAllStaffs(Pageable pageable) {
-        Page<User> staffs = userRepository.findByRoleName("STAFF", pageable);
+        Page<User> staffs = userRepository.findAllStaff(pageable);
         return staffs.map(DTOConverter::convertToUserDTO);
     }
 

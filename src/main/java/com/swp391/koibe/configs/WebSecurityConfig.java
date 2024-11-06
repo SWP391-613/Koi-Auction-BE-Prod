@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.util.Pair;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -44,28 +45,47 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(requests -> {
                     requests
                             .requestMatchers(
-                                    String.format("%s/users/register", apiPrefix),
-                                    String.format("%s/users/login", apiPrefix),
-                                    String.format("%s/healthcheck/**", apiPrefix),
+                                //actuator
+                                String.format("%s/actuator/**", apiPrefix),
+                                String.format("%s/actuator/prometheus", apiPrefix),
+                                String.format("%s/actuator/info", apiPrefix),
+                                String.format("%s/actuator/health", apiPrefix),
 
-                                    // swagger
-                                    // "/v3/api-docs",
-                                    // "/v3/api-docs/**",
-                                    "/api-docs",
-                                    "/api-docs/**",
-                                    "/swagger-resources",
-                                    "/swagger-resources/**",
-                                    "/configuration/ui",
-                                    "/configuration/security",
-                                    "/swagger-ui/**",
-                                    "/swagger-ui.html",
-                                    "/webjars/swagger-ui/**",
-                                    "/swagger-ui/index.html",
-                                    "/topic/**"
+                                //prometheus
+                                "/actuator/prometheus",
+
+                                String.format("%s/healthcheck/**", apiPrefix),
+
+                                // swagger
+                                // "/v3/api-docs",
+                                // "/v3/api-docs/**",
+                                "/api-docs",
+                                "/api-docs/**",
+                                "/swagger-resources",
+                                "/swagger-resources/**",
+                                "/configuration/ui",
+                                "/configuration/security",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/webjars/swagger-ui/**",
+                                "/swagger-ui/index.html",
+                                "/topic/**"
 
                             )
                             .permitAll()
-                            .requestMatchers(GET, String.format("%s/users", apiPrefix)).permitAll()
+
+                            //UserController
+                            .requestMatchers(GET, String.format("%s/users/{id:\\d+}", apiPrefix)).permitAll()
+                            .requestMatchers(POST, String.format("%s/users/details", apiPrefix)).hasAnyRole(Role.MANAGER, Role.MEMBER, Role.BREEDER, Role.STAFF)
+                            .requestMatchers(POST, String.format("%s/users/login", apiPrefix)).permitAll()
+                            .requestMatchers(POST, String.format("%s/users/register", apiPrefix)).permitAll()
+                            .requestMatchers(PUT,String.format(("%s/users/verify/{otp:\\d+}"),apiPrefix)).permitAll()
+                            .requestMatchers(POST,String.format(("%s/users/verify"),apiPrefix)).permitAll()
+                            .requestMatchers(POST, String.format("%s/users/logout", apiPrefix)).
+                            hasAnyRole(Role.MANAGER, Role.MEMBER, Role.BREEDER, Role.STAFF)
+                            .requestMatchers(PUT, String.format("%s/users/{userId:\\d+}/deposit/{payment:\\d+}", apiPrefix))
+                            .hasAnyRole(Role.MANAGER, Role.MEMBER, Role.BREEDER, Role.STAFF)
+
 
                             .requestMatchers(GET,
                                     String.format("%s/roles", apiPrefix))

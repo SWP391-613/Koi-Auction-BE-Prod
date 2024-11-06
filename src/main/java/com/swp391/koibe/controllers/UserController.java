@@ -102,7 +102,8 @@ public class UserController {
     }
 
     @PostMapping("/details")
-    public ResponseEntity<UserResponse> getUserDetails(
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER', 'ROLE_STAFF', 'ROLE_BREEDER')")
+    public ResponseEntity<UserResponse> takeUserDetailsFromToken(
         @RequestHeader("Authorization") String authorizationHeader
     ) {
         try {
@@ -281,6 +282,7 @@ public class UserController {
         value = "custom.logout.requests",
         extraTags = {"uri", "/api/v1/users/logout"},
         description = "Track logout request count")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER', 'ROLE_STAFF', 'ROLE_BREEDER')")
     @PostMapping("/logout")
     public ResponseEntity<LogoutResponse> logout(
         @RequestHeader("Authorization") String authorizationHeader

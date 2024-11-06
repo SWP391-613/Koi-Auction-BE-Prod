@@ -72,6 +72,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         //RoleController
         specialCasePatterns.add(Pair.of("GET", Pattern.compile(String.format("%s/roles/\\d+", apiPrefix))));
 
+
+        //UserController
+        specialCasePatterns.add(Pair.of("GET", Pattern.compile(String.format("%s/users/\\d+", apiPrefix))));
+        specialCasePatterns.add(Pair.of("PUT", Pattern.compile(String.format("%s/users/verify/\\d"
+                                                                                 + "+", apiPrefix))));
+
         // Add more special case patterns here as needed
     }
 
@@ -151,14 +157,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/managers", apiPrefix), "DELETE"),
 
                 // UserController
-                Pair.of(String.format("%s/users", apiPrefix), "GET"),
                 Pair.of(String.format("%s/users/register", apiPrefix), "POST"),
                 Pair.of(String.format("%s/users/login", apiPrefix), "POST"),
-                Pair.of(String.format("%s/users/details", apiPrefix), "PUT"),
-                Pair.of(String.format("%s/users/block", apiPrefix), "PUT"),
 
                 // Verify OTP
-                Pair.of(String.format("%s/users/verify", apiPrefix), "PUT"),
+
                 Pair.of(String.format("%s/users/verify", apiPrefix), "POST"),
 
                 Pair.of(String.format("%s/oauth2", apiPrefix), "POST"),
@@ -204,7 +207,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
                 // Actuator
                 Pair.of(String.format("%s/healthcheck/health", apiPrefix), "GET"),
+
+                Pair.of(String.format("%s/actuator", apiPrefix), "GET"),
                 Pair.of(String.format("%s/actuator/prometheus", apiPrefix), "GET"),
+                Pair.of(String.format("%s/actuator/info", apiPrefix), "GET"),
+                Pair.of(String.format("%s/actuator/health", apiPrefix), "GET"),
 
                 // Prometheus
                 Pair.of("/actuator/prometheus", "GET"),
