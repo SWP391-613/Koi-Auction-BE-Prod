@@ -18,7 +18,7 @@ public record UpdateKoiDTO(
 
     @NotBlank(message = "Koi status is required")
     @Pattern(regexp = "UNVERIFIED|VERIFIED|REJECTED|PENDING|SOLD", message = "Status must be either UNVERIFIED, VERIFIED, REJECTED, PENDING, SOLD")
-    @JsonProperty("tracking_status") String trackingStatus,
+    @JsonProperty("status_name") String trackingStatus,
 
     @NotNull(message = "Koi is display is required")
     @JsonProperty("is_display") int isDisplay,
@@ -28,7 +28,7 @@ public record UpdateKoiDTO(
 
     @NotBlank(message = "Koi gender is required")
     @Pattern(regexp = "MALE|FEMALE|UNKNOWN", message = "Gender must be either MALE | FEMALE | UNKNOWN")
-    @JsonProperty("gender") String sex,
+    @JsonProperty("sex") String sex,
 
     @NotNull(message = "Koi length is required")
     @Min(value = 1, message = "Koi length must be greater than 0")

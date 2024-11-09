@@ -95,7 +95,7 @@ public class AuctionController {
     }
 
     @GetMapping("/koi_register")
-    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MEMBER', 'ROLE_STAFF', 'ROLE_BREEDER')")
+    @PreAuthorize("hasAnyRole('ROLE_BREEDER')")
     public ResponseEntity<List<AuctionResponse>> getAuctionsByStatus(
         @RequestParam int page,
         @RequestParam int limit,
@@ -243,7 +243,8 @@ public class AuctionController {
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             log.error("Error deleting auction: " + e.getMessage());
-            response.setMessage(e.getMessage());
+            response.setMessage("Error deleting auction: " + e.getMessage());
+            response.setReason(e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }

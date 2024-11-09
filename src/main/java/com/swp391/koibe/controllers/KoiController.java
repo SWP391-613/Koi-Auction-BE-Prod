@@ -247,6 +247,7 @@ public class KoiController {
     }
 
     @GetMapping("/get-unverified-kois-by-keyword")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF','ROLE_BREEDER')")
     public ResponseEntity<KoiPaginationResponse> getUnverifiedKoisByKeyword(
         @RequestParam(defaultValue = "") String keyword,
         @RequestParam(defaultValue = "0") int page,
@@ -318,18 +319,8 @@ public class KoiController {
         @Valid @RequestBody UpdateKoiDTO updateKoiDTO,
         BindingResult result
     ) {
-
-        if(result.hasErrors()){
-            throw new MethodArgumentNotValidException(result);
-        }
-        KoiResponse updatedKoi = new KoiResponse();
-        try {
-            updatedKoi = koiService.updateKoi(koiId, updateKoiDTO);
-            return ResponseEntity.ok(updatedKoi);
-        } catch (Exception e) {
-            updatedKoi.setMessage(e.getMessage());
-            return ResponseEntity.badRequest().body(updatedKoi);
-        }
+        if(result.hasErrors()) throw new MethodArgumentNotValidException(result);
+        return ResponseEntity.ok(koiService.updateKoi(koiId, updateKoiDTO));
     }
 
     @DeleteMapping("/{id}")

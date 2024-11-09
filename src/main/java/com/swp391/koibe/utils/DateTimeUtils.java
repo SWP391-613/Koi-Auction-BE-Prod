@@ -45,6 +45,19 @@ public class DateTimeUtils {
         }
     }
 
+    public static void validateUpdateAuctionTimes(LocalDateTime startTime, LocalDateTime endTime) {
+        // Check if start time is after end time
+        if (startTime.isAfter(endTime)) {
+            throw new MalformDataException("Auction start time cannot be after end time");
+        }
+
+        // Optional: Ensure the auction has a reasonable duration (at least 30 minutes, for example)
+        if (startTime.plusDays(2).isAfter(endTime)) {
+            throw new MalformDataException("Auction range must last at least 2 days");
+        }
+    }
+
+
     public static Date convertFromString (String date) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         try {

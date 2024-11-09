@@ -110,7 +110,8 @@ public class AuctionService implements IAuctionService {
 
         LocalDateTime startTime = DateTimeUtils.parseTime(updateAuctionDTO.startTime());
         LocalDateTime endTime = DateTimeUtils.parseTime(updateAuctionDTO.endTime());
-        DateTimeUtils.validateAuctionTimes(startTime, endTime);
+        DateTimeUtils.validateUpdateAuctionTimes(startTime, endTime);
+
 
         // check if status name is valid
         boolean isValidStatus = Arrays.stream(EAuctionStatus.values())
