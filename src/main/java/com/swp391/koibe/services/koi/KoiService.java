@@ -62,7 +62,7 @@ public non-sealed class KoiService implements IKoiService<KoiResponse> {
             .name(koiDTO.name())
             .price(koiDTO.price())
             .status(EKoiStatus.UNVERIFIED) //default when create a new koi, breeder need to wait staff verify
-            .isDisplay(0) //default when create a new koi, breeder need to wait staff verify then turn to 1
+            .isDisplay(1) //default when create a new koi, breeder need to wait staff verify then turn to 1
             .thumbnail(koiDTO.thumbnail())
             .sex(koiDTO.sex())
             .length(koiDTO.length())

@@ -22,7 +22,7 @@ interface KoiRepository : JpaRepository<Koi, Long> {
     @Query(
         "SELECT new com.swp391.koibe.responses.KoiInAuctionResponse(k.id, k.name, k.sex, k.length, k.age, k.price, k.status, k.isDisplay, k.thumbnail, k.description, k.owner.id, k.category.id, ak.auction.id) " +
                 "FROM Koi k INNER JOIN AuctionKoi ak ON k.id = ak.koi.id " +
-                "WHERE k.status = 'VERIFIED' AND k.isDisplay = 1 AND " +
+                "WHERE (k.status = 'VERIFIED') AND (k.isDisplay = 1) AND " +
                 "(:keyword IS NULL OR :keyword = '' OR " +
                 "k.name LIKE CONCAT('%', :keyword, '%') " +
                 "OR k.description LIKE CONCAT('%', :keyword, '%') " +
@@ -40,15 +40,15 @@ interface KoiRepository : JpaRepository<Koi, Long> {
     ): Page<KoiInAuctionResponse>
 
     @Query(
-        "SELECT k FROM Koi k WHERE k.owner.id = :breederId " +
-                "AND (k.name LIKE CONCAT('%', :keyword, '%') AND k.isDisplay = 1" +
+        "SELECT k FROM Koi k WHERE (k.owner.id = :breederId) " +
+                "AND (k.isDisplay = 1) AND ((k.name LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.sex as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.length as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.age as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.price as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR k.description LIKE CONCAT('%', :keyword, '%') " +
                 "OR k.category.name LIKE CONCAT('%', :keyword, '%') " +
-                "OR CAST(k.status as string) LIKE CONCAT('%', :keyword, '%'))"
+                "OR CAST(k.status as string) LIKE CONCAT('%', :keyword, '%')))"
     )
     fun findKoiByKeyword(
         @Param("keyword") keyword: String,
@@ -58,13 +58,13 @@ interface KoiRepository : JpaRepository<Koi, Long> {
 
     @Query(
         "SELECT k FROM Koi k WHERE k.status = 'UNVERIFIED' " +
-                "AND (k.name LIKE CONCAT('%', :keyword, '%') AND k.isDisplay = 1" +
+                "AND (k.isDisplay = 1) AND ((k.name LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.sex as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.length as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.age as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.price as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR k.description LIKE CONCAT('%', :keyword, '%') " +
-                "OR k.category.name LIKE CONCAT('%', :keyword, '%'))"
+                "OR k.category.name LIKE CONCAT('%', :keyword, '%')))"
     )
     fun findUnverifiedKoiByKeyword(keyword: String, pageable: Pageable): Page<Koi>
 
