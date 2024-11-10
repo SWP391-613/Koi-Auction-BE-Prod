@@ -123,7 +123,8 @@ public non-sealed class KoiService implements IKoiService<KoiResponse> {
         //find if koi exist
         Koi existingKoi = koiRepository.findById(id)
             .orElseThrow(() -> new DataNotFoundException("Koi not found: " + id));
-        koiRepository.delete(existingKoi);
+        existingKoi.setIsDisplay(0);
+        koiRepository.save(existingKoi);
     }
 
     @Override

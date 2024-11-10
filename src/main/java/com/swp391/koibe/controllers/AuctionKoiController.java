@@ -4,13 +4,16 @@ import com.swp391.koibe.dtos.auctionkoi.AuctionKoiDTO;
 import com.swp391.koibe.dtos.auctionkoi.UpdateAuctionKoiDTO;
 import com.swp391.koibe.exceptions.GenerateDataException;
 import com.swp391.koibe.exceptions.KoiRevokeException;
+import com.swp391.koibe.exceptions.MalformDataException;
 import com.swp391.koibe.exceptions.MethodArgumentNotValidException;
 import com.swp391.koibe.exceptions.base.DataNotFoundException;
 import com.swp391.koibe.models.AuctionKoi;
+import com.swp391.koibe.models.User;
 import com.swp391.koibe.responses.AuctionKoiResponse;
 import com.swp391.koibe.responses.KoiInAuctionResponse;
 import com.swp391.koibe.responses.pagination.KoiInAuctionPaginationResponse;
 import com.swp391.koibe.services.auctionkoi.IAuctionKoiService;
+import com.swp391.koibe.services.user.IUserService;
 import com.swp391.koibe.utils.DTOConverter;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -22,15 +25,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -39,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuctionKoiController {
 
     private final IAuctionKoiService auctionKoiService;
+    private final IUserService userService;
 
     @GetMapping("/auction/{id}")
     public ResponseEntity<List<AuctionKoiResponse>> getAuctionKoisByAuctionId(@PathVariable Long id) {
@@ -92,10 +88,18 @@ public class AuctionKoiController {
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF', 'ROLE_BREEDER')")
     public ResponseEntity<AuctionKoiResponse> createAuctionKoi(
             @Valid @RequestBody AuctionKoiDTO auctionKoiDTO,
-            BindingResult result) {
-
+            BindingResult result,
+            @RequestHeader("Authorization") String authorizationHeader
+    ) throws Exception {
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userService.getUserDetailsFromToken(extractedToken);
         if (result.hasErrors()) {
             throw new MethodArgumentNotValidException(result);
+        }
+
+        //check breeder account have enough money to register koi to auction
+        if (user.getAccountBalance() < Math.floorDiv(auctionKoiDTO.basePrice(),10)){
+            throw new MalformDataException("You dont have enough money to register Koi to Auction");
         }
 
         AuctionKoiResponse response = new AuctionKoiResponse();

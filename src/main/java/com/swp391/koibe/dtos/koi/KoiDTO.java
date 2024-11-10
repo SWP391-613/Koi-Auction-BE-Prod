@@ -14,8 +14,8 @@ public record KoiDTO(
     String name,
 
     @NotNull(message = "Koi base_price is required when create a new koi")
-    @Min(value = 300, message = "Minimum koi price is $300")
-    @Max(value = 2000000, message = "Maximum koi price is $2M ")
+    @Min(value = 1000000, message = "Minimum koi price is 1.000.000(vnd)")
+    @Max(value = 30000000, message = "Maximum koi price is 30.000.000(vnd)")
     @JsonProperty("base_price") Long price,
 
     @NotBlank(message = "Koi thumbnail is required when create a new koi")
@@ -26,8 +26,8 @@ public record KoiDTO(
     @JsonProperty("gender") String sex,
 
     @NotNull(message = "Koi length is required when create a new koi")
-    @Min(value = 1, message = "Koi length must be greater than 0")
-    @Max(value = 1000, message = "Koi length must be less than 1000")
+    @Min(value = 1, message = "Koi length must be greater than 0(cm)")
+    @Max(value = 150, message = "Koi length must be less than 150(cm)")
     @JsonProperty("length") Integer length,
 
     @NotNull(message = "Koi age is required when create a new koi")
