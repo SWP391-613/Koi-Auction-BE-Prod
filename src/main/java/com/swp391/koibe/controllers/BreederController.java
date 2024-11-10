@@ -66,7 +66,7 @@ public class BreederController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getBreeder(@PathVariable long id) {
+    public ResponseEntity<?> getBreederById(@PathVariable long id) {
         try {
             User breeder = breederService.findById(id);
             return ResponseEntity.ok(breeder);

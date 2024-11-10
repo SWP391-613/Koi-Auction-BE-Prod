@@ -72,6 +72,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         //RoleController
         specialCasePatterns.add(Pair.of("GET", Pattern.compile(String.format("%s/roles/\\d+", apiPrefix))));
 
+        //BreederController
+        specialCasePatterns.add(Pair.of("GET", Pattern.compile(String.format("%s/breeders/\\d+", apiPrefix))));
 
         //UserController
         specialCasePatterns.add(Pair.of("GET", Pattern.compile(String.format("%s/users/\\d+", apiPrefix))));
