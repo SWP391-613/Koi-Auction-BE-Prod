@@ -86,6 +86,8 @@ public class WebSecurityConfig {
                             .requestMatchers(PUT, String.format("%s/users/{userId:\\d+}/deposit/{payment:\\d+}", apiPrefix))
                             .hasAnyRole(Role.MANAGER, Role.MEMBER, Role.BREEDER, Role.STAFF)
 
+                            //GET: breeders .permitAll()
+                            .requestMatchers(GET, String.format("%s/breeders", apiPrefix)).permitAll()
 
                             .requestMatchers(GET,
                                     String.format("%s/roles", apiPrefix))

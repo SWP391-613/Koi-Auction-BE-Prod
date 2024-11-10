@@ -34,7 +34,6 @@ public class BreederController {
     private final IBreederService breederService;
 
     @GetMapping("")
-    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_STAFF')")
     public ResponseEntity<UserPaginationResponse> getAllBreeders(
         @RequestParam("page") int page,
         @RequestParam("limit") int limit
