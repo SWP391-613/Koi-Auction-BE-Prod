@@ -8,6 +8,12 @@ public class EmailSubject {
             """.formatted(name);
     }
 
+    public static String subjectRequestUpdateRole(){
+        return """
+            Koi Auction  Corporation - New Request to update role
+            """;
+    }
+
     public static String subjectForgotPassword(String name) {
         return """
             Koi Auction  Corporation - Hi %s, we're here to help you get the password back!

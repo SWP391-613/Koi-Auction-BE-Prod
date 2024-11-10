@@ -32,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -161,7 +162,7 @@ public class KoiController {
 
     @GetMapping("/get-kois-owner-by-keyword")
     public ResponseEntity<KoiPaginationResponse> getKoisByKeyword(
-        @RequestParam(defaultValue = "") String keyword,
+        @RequestParam(defaultValue = "", required = false) String keyword,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int limit,
         @RequestHeader("Authorization") String authorizationHeader
@@ -252,16 +253,20 @@ public class KoiController {
         @RequestParam(defaultValue = "") String keyword,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int limit
-    ) throws Exception {
-        PageRequest pageRequest = PageRequest.of(page, limit);
-        Page<KoiResponse> koiPage = koiService.findUnverifiedKoiByKeyword(keyword, pageRequest)
+    ) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.desc("createdAt")));
+
+        Page<KoiResponse> koiPage = koiService.findUnverifiedKoiByKeyword(keyword, pageable)
             .map(DTOConverter::convertToKoiDTO);
+
         KoiPaginationResponse response = new KoiPaginationResponse();
         response.setItem(koiPage.getContent());
         response.setTotalPage(koiPage.getTotalPages());
         response.setTotalItem(koiPage.getTotalElements());
+
         return ResponseEntity.ok(response);
     }
+
 
     @PostMapping(value = "")
     @PreAuthorize("hasRole('ROLE_BREEDER')")

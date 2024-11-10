@@ -22,7 +22,7 @@ public class EmailPhoneAspect {
     private final UserRepository userRepository;
     private final HttpServletRequest request;
 
-    @Before("execution(* com.swp391.koibe.controllers.MailController.*(..)) && args(toEmail,..)")
+    @Before("execution(* com.swp391.koibe.controllers.MailController.*(..)) && args(toEmail,..) && !@annotation(com.swp391.koibe.annotations.SkipEmailValidation)")
     public void checkValidEmail(JoinPoint joinPoint, String toEmail) {
         User user = validateUserEmail(toEmail);
 
@@ -46,7 +46,7 @@ public class EmailPhoneAspect {
 
     private User validateUserEmail(String email) {
         return userRepository.findByEmail(email)
-            .orElseThrow(() -> new DataNotFoundException(String.format("User with email %s not found", email)));
+            .orElseThrow(() -> new DataNotFoundException(String.format("User with email %s not found (FROM AOP validation)", email)));
 
     }
 

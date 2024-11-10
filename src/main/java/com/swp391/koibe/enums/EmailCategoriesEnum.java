@@ -24,7 +24,8 @@ public enum EmailCategoriesEnum {
     ORDER_CANCELLED_BREEDER("orderCancelledForBreeder"),
     PAYMENT_SUCCESS("paymentSuccess"),
     PAYMENT_REFUND("paymentRefund"),
-    ;
+    UPDATE_ROLE("requestUpdateRole"),
+    PROCESSING_UPDATE_ROLE("processingUpdateRole");
 
     private final String type;
 }

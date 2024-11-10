@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.swp391.koibe.models.Koi;
 import com.swp391.koibe.responses.base.BaseResponse;
+import jakarta.persistence.Column;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -53,6 +55,12 @@ public class KoiResponse extends BaseResponse<Koi> {
 
     @JsonProperty("category_id")
     private Integer categoryId;
+
+    @Column(name="created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name="updated_at")
+    private LocalDateTime updatedAt;
 
     @JsonProperty("total_page")
     private Integer totalPage;

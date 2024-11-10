@@ -1,7 +1,7 @@
 package com.swp391.koibe.controllers;
 
 import com.swp391.koibe.components.LocalizationUtils;
-import com.swp391.koibe.custom.RetryAndBlock;
+import com.swp391.koibe.annotations.RetryAndBlock;
 import com.swp391.koibe.dtos.UpdateUserDTO;
 import com.swp391.koibe.dtos.UserLoginDTO;
 import com.swp391.koibe.dtos.UserRegisterDTO;
@@ -21,7 +21,6 @@ import com.swp391.koibe.services.token.TokenService;
 import com.swp391.koibe.services.user.IUserService;
 import com.swp391.koibe.utils.DTOConverter;
 import com.swp391.koibe.utils.MessageKeys;
-import com.swp391.koibe.utils.ResponseUtils;
 import io.micrometer.core.annotation.Timed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

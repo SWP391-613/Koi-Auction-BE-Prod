@@ -1,4 +1,4 @@
-package com.swp391.koibe.custom;
+package com.swp391.koibe.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,8 +7,5 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface RetryAndBlock {
-    int maxAttempts() default 3;
-    long blockDurationSeconds() default 3600; // 1 hour by default
-    int maxDailyAttempts() default 6;
+public @interface SkipEmailValidation {
 }

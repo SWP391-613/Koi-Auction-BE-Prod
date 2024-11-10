@@ -34,7 +34,7 @@ public class DTOConverter {
         return KoiResponse.builder()
                 .id(koi.getId())
                 .name(koi.getName())
-                .sex(koi.getSex())
+                .sex(koi.getSex().toUpperCase())
                 .length(koi.getLength())
                 .age(koi.getAge())
                 .price(koi.getPrice())
@@ -44,6 +44,8 @@ public class DTOConverter {
                 .description(koi.getDescription())
                 .ownerId(koi.getOwner().getId())
                 .categoryId(koi.getCategory().getId())
+                .createdAt(koi.getCreatedAt())
+                .updatedAt(koi.getUpdatedAt())
                 .build();
     }
 

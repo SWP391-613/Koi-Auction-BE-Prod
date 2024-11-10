@@ -217,6 +217,9 @@ public class WebSecurityConfig {
                             .requestMatchers(PUT, String.format("%s/feedbacks**", apiPrefix)).permitAll()
                             .requestMatchers(DELETE, String.format("%s/feedbacks**", apiPrefix)).permitAll()
 
+                            // MailController
+                            .requestMatchers(GET, String.format("%s/mail/update-role", apiPrefix)).hasAnyRole(Role.MEMBER)
+
                             // Add this new rule to allow access to the VNPay payment return endpoint
                             .requestMatchers(GET,
                                     String.format("%s/payments/vnpay/payment_return", apiPrefix))

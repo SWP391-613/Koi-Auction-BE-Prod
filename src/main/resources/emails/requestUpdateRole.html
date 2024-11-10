@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Role Update Request</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+    }
+    .container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      margin-bottom: 20px;
+    }
+    .content {
+      margin-bottom: 20px;
+    }
+    .footer {
+      font-size: 12px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Role Update Request</h1>
+  </div>
+  <div class="content">
+    <p>Dear <strong>Koi Auction Corporation</strong>,</p>
+    <p>This email is a request to update the role of <strong th:text="${name}"></strong> from the email address <strong th:text="${sendFromEmail}"></strong>.</p>
+    <p>The requested new role is <strong th:text="${role}"></strong>.</p>
+    <p>Please review this request and take appropriate action. If you have any questions or need further verification, feel free to contact the user.</p>
+  </div>
+  <div class="footer">
+    <p>&copy; 2024 Your Corporation. All rights reserved.</p>
+  </div>
+</div>
+</body>
+</html>
