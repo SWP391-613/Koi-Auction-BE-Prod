@@ -241,7 +241,7 @@ public class OrderService implements IOrderService {
                 .status(OrderStatus.PENDING)
                 .address(bidder.getAddress())
                 .phoneNumber(bidder.getPhoneNumber() == null ? "" : bidder.getPhoneNumber())
-                .totalMoney(10000F)
+                .totalMoney(500000F)
                 .shippingMethod("Standard")
                 .shippingAddress(bidder.getAddress())
                 .shippingDate(null)

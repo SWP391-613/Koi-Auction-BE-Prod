@@ -92,9 +92,7 @@ public class SystemService {
         for (AuctionKoi auctionKoi : auctionKois) {
             boolean isUpdate = auctionKoiService.updateAuctionKoiStatus(auctionKoi.getId(), auctionKoi);
             if (isUpdate) {
-                if (auctionKoi.isSold()) {
-                    orderService.createOrderForAuctionKoi(auctionKoi, userService.getUserById(auctionKoi.getCurrentBidderId()));
-                }
+                orderService.createOrderForAuctionKoi(auctionKoi, userService.getUserById(auctionKoi.getCurrentBidderId()));
             }
             autoRefundUserBalanceAndCreateOrder(auctionKoi);
             biddingHistoryEmailService.sendRefundEmail(auctionKoi, "Balance Refund Email", "balanceRefunded", new Context());
@@ -198,6 +196,30 @@ public class SystemService {
             }
         } catch (SystemServiceTaskException e) {
             log.error("Error updating order status", e.getCause());
+        }
+    }
+
+    //every 5 minutes
+//for the auction is force to end, the order will be created for the latest bidder if the koi is not sold
+    @Scheduled(cron = "0 */5 * * * *")
+    @Async
+    public void updateEndedAuction() {
+        try {
+            List<Auction> auctions = auctionService.getAuctionByStatus(EAuctionStatus.ENDED);
+            for (Auction auction : auctions) {
+                //check if the auction is force to end (the end time is in that date)
+                if (auction.getEndTime().getDayOfYear() == LocalDateTime.now().getDayOfYear() &&
+                        auction.getEndTime().getYear() == LocalDateTime.now().getYear()) {
+                    updateAuctionKoiStatus(auction);
+                    Context context = new Context();
+                    auctionMailService.sendAuctionClosedEmailToAllUser(
+                            auction.getId(), "Auction Closed", "auctionClosed", context);
+                }
+            }
+        } catch (SystemServiceTaskException e) {
+            log.error("Error updating on going auction status", e.getCause());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
