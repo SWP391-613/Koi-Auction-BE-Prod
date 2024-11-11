@@ -141,13 +141,6 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
             throw new BiddingRuleException("Bid amount must be higher than the current bid plus bid step");
         }
 
-        // 8.1.2 check Bidder Balance => calculate the cost if bidder already bid before
-
-        //handle if ceil price is null (example data error)
-        if (auctionKoi.getCeilPrice() == null) {
-            auctionKoi.setCeilPrice(100000L);
-        }
-
         // 8.1.5 if Bid_amount is higher than ceiling price, set is_sold true
         if (bid.getBidAmount() >= auctionKoi.getCeilPrice()) {
             auctionKoi.setSold(true);
@@ -231,6 +224,7 @@ public class BiddingHistoryService implements IBiddingHistoryService, Biddable {
         // Update the current bid and current bidder of the auction koi
         UpdateAuctionKoiDTO updateAuctionKoiDTO = UpdateAuctionKoiDTO.builder()
                 .basePrice(auctionKoi.getBasePrice())
+                .ceilPrice(auctionKoi.getCeilPrice())
                 .bidStep(auctionKoi.getBidStep())
                 .bidMethod(String.valueOf(auctionKoi.getBidMethod()))
                 .currentBid(bid.getBidAmount())
