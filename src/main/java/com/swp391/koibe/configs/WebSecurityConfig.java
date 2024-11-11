@@ -208,8 +208,6 @@ public class WebSecurityConfig {
                             .permitAll()
                             .requestMatchers(PUT, String.format("%s/forgot-password**", apiPrefix))
                             .permitAll()
-                            // .requestMatchers(GET, "/api/v1/payments/vnpay/payment_return")
-                            // .permitAll()
 
                             // OtpController
                             .requestMatchers(GET, String.format("%s/otp/send", apiPrefix)).permitAll()

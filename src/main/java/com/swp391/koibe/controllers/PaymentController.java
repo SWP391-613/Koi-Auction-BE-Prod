@@ -48,7 +48,7 @@ public class PaymentController {
         }
     }
 
-    @GetMapping("vnpay/payment_return")
+    @GetMapping("/vnpay/payment_return")
     public ResponseEntity<?> handleVNPayReturn(@RequestParam Map<String, String> requestParams) {
         Map<String, Object> result = paymentService.handlePaymentReturn(requestParams);
 
