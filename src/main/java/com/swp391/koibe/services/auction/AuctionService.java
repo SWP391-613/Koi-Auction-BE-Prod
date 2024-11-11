@@ -108,6 +108,11 @@ public class AuctionService implements IAuctionService {
         Auction auction = auctionRepository.findById(auctionId)
                 .orElseThrow(() -> new DataNotFoundException("Auction not found"));
 
+        //cannot update auction with status ended or ongoing
+        if(auction.getStatus().equals(EAuctionStatus.ENDED) || auction.getStatus().equals(EAuctionStatus.ONGOING)) {
+            throw new MalformDataException("Cannot update ended or ongoing auction");
+        }
+
         LocalDateTime startTime = DateTimeUtils.parseTime(updateAuctionDTO.startTime());
         LocalDateTime endTime = DateTimeUtils.parseTime(updateAuctionDTO.endTime());
         DateTimeUtils.validateUpdateAuctionTimes(startTime, endTime);
