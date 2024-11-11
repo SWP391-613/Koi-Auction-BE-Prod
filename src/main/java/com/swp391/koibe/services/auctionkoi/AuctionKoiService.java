@@ -89,9 +89,10 @@ public class AuctionKoiService implements IAuctionKoiService {
 
         // Validate ceil price based on bid method
         Long validCeilPrice = null;
-        if (EBidMethod.valueOf(auctionKoiDTO.bidMethod()) == EBidMethod.DESCENDING_BID) {
+        if (EBidMethod.valueOf(auctionKoiDTO.bidMethod()) == EBidMethod.DESCENDING_BID ||
+            EBidMethod.valueOf(auctionKoiDTO.bidMethod()) == EBidMethod.ASCENDING_BID) {
             if (auctionKoiDTO.ceilPrice() == null) {
-                throw new MalformDataException("Ceil price is required for DESCENDING_BID");
+                throw new MalformDataException("Ceil price is required for DESCENDING_BID and ASCENDING_BID");
             }
             validCeilPrice = auctionKoiDTO.ceilPrice(); // Set the provided ceil price
 
