@@ -15,8 +15,8 @@ public record AuctionKoiDTO(
     @JsonProperty("base_price")
     @NotNull(message = "Base rice is required")
     @Positive(message = "Base price must be positive")
-    @Min(value = 300, message = "Minimum koi price is $300")
-    @Max(value = 2000000, message = "Maximum koi price is $2M ")
+    @Min(value = 1000000, message = "Minimum koi register price is 1.000.000 VND")
+    @Max(value = 30000000, message = "Maximum koi register price is 30.000.000 VND")
     long basePrice,
 
     @JsonProperty("bid_step")

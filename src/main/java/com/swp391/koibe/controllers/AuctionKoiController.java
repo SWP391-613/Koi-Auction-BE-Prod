@@ -116,6 +116,8 @@ public class AuctionKoiController {
             response.setKoiId(newAuctionKoi.getKoi().getId());
             response.setAuctionId(newAuctionKoi.getAuction().getId());
             response.setBidStep(newAuctionKoi.getBidStep());
+            //update breeder account balance
+            userService.updateUserBalance(user.getId(), -Math.floorDiv(auctionKoiDTO.basePrice(),10));
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error creating auctionkoi: " + e.getMessage());

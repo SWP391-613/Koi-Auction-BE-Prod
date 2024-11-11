@@ -20,14 +20,12 @@ public class SecurityConfig {
 
     private final UserRepository userRepository;
 
-    //user's detail object
+    // user's detail object
     @Bean
     public UserDetailsService userDetailsService() {
-        return email ->
-            userRepository
+        return email -> userRepository
                 .findByEmail(email)
-                .orElseThrow(() ->
-                    new UsernameNotFoundException(
+                .orElseThrow(() -> new UsernameNotFoundException(
                         "Cannot find user with email = " + email));
     }
 
@@ -46,8 +44,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(
-        AuthenticationConfiguration config
-    ) throws Exception {
+            AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 }
