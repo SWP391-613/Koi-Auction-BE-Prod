@@ -20,7 +20,7 @@ interface KoiRepository : JpaRepository<Koi, Long> {
     //SELECT koi data is display in existing auction
     //notice im want to retrieve the auction id at that last column to use in fe call
     @Query(
-        "SELECT new com.swp391.koibe.responses.KoiInAuctionResponse(k.id, k.name, k.sex, k.length, k.age, k.price, k.status, k.isDisplay, k.thumbnail, k.description, k.owner.id, k.category.id, ak.auction.id) " +
+        "SELECT new com.swp391.koibe.responses.KoiInAuctionResponse(k.id, k.name, k.sex, k.length, k.age, k.price, k.status, k.isDisplay, k.thumbnail, k.description, k.owner.id, k.category.id, ak.auction.id, ak.bidMethod) " +
                 "FROM Koi k INNER JOIN AuctionKoi ak ON k.id = ak.koi.id " +
                 "WHERE (k.status = 'VERIFIED') AND (k.isDisplay = 1) AND " +
                 "(:keyword IS NULL OR :keyword = '' OR " +
