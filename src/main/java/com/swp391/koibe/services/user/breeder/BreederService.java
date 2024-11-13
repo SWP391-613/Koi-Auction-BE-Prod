@@ -91,7 +91,7 @@ public class BreederService implements IBreederService {
             .thumbnail(koiDTO.thumbnail())
             .sex(koiDTO.sex())
             .length(koiDTO.length())
-            .age(koiDTO.age())
+            .yearBorn(koiDTO.yearBorn())
             .description(koiDTO.description() == null ? "Not provided" : koiDTO.description())
             .category(existingCategory.get())
             .owner(existingBreeder)

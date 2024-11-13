@@ -66,7 +66,7 @@ public non-sealed class KoiService implements IKoiService<KoiResponse> {
             .thumbnail(koiDTO.thumbnail())
             .sex(koiDTO.sex())
             .length(koiDTO.length())
-            .age(koiDTO.age())
+            .yearBorn(koiDTO.yearBorn())
             .description(koiDTO.description() == null ? "Not provided" : koiDTO.description())
             .owner(existedUser)
             .category(existedCategory)
@@ -110,7 +110,7 @@ public non-sealed class KoiService implements IKoiService<KoiResponse> {
         existingKoi.setThumbnail(koiDTO.thumbnail());
         existingKoi.setSex(koiDTO.sex());
         existingKoi.setLength(koiDTO.length());
-        existingKoi.setAge(koiDTO.age());
+        existingKoi.setYearBorn(koiDTO.yearBorn());
         existingKoi.setDescription(koiDTO.description());
         existingKoi.setCategory(existingCategory);
         existingKoi.setOwner(existingUser);

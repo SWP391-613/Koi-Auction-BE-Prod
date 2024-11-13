@@ -36,7 +36,7 @@ public class DTOConverter {
                 .name(koi.getName())
                 .sex(koi.getSex().toUpperCase())
                 .length(koi.getLength())
-                .age(koi.getAge())
+                .yearBorn(koi.getYearBorn())
                 .price(koi.getPrice())
                 .statusName(koi.getStatus() != null ? koi.getStatus().getStatus() : null)
                 .idDisplay(koi.getIsDisplay())

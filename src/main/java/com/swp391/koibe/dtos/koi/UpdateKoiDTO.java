@@ -35,10 +35,10 @@ public record UpdateKoiDTO(
     @Max(value = 1000, message = "Koi length must be less than 1000")
     @JsonProperty("length") int length,
 
-    @NotNull(message = "Koi age is required")
-    @Min(value = 1, message = "Koi age must be greater than 0")
-    @Max(value = 230, message = "Koi age must be less than 230")
-    @JsonProperty("age") int age,
+    @NotNull(message = "Koi year born is required")
+    @Min(value = 1, message = "Koi year born must be greater than 0")
+    @Max(value = 230, message = "Koi year born must be less than 230")
+    @JsonProperty("year_born") int yearBorn,
 
     @JsonProperty("description") String description,
 

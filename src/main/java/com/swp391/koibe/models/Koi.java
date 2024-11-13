@@ -43,8 +43,8 @@ public class Koi extends BaseEntity{
     @Column(name = "length")
     private int length;
 
-    @Column(name= "age")
-    private int age;
+    @Column(name= "year_born")
+    private int yearBorn;
     //koi properties
 
     @Column(name = "base_price") // Negotiated with Koi Breeder

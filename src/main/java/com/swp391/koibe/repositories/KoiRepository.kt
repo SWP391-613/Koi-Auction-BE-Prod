@@ -20,7 +20,7 @@ interface KoiRepository : JpaRepository<Koi, Long> {
     //SELECT koi data is display in existing auction
     //notice im want to retrieve the auction id at that last column to use in fe call
     @Query(
-        "SELECT new com.swp391.koibe.responses.KoiInAuctionResponse(k.id, k.name, k.sex, k.length, k.age, k.price, k.status, k.isDisplay, k.thumbnail, k.description, k.owner.id, k.category.id, ak.auction.id, ak.bidMethod) " +
+        "SELECT new com.swp391.koibe.responses.KoiInAuctionResponse(k.id, k.name, k.sex, k.length, k.yearBorn, k.price, k.status, k.isDisplay, k.thumbnail, k.description, k.owner.id, k.category.id, ak.auction.id, ak.bidMethod) " +
                 "FROM Koi k INNER JOIN AuctionKoi ak ON k.id = ak.koi.id " +
                 "WHERE (k.status = 'VERIFIED') AND (k.isDisplay = 1) AND " +
                 "(:keyword IS NULL OR :keyword = '' OR " +
@@ -28,7 +28,7 @@ interface KoiRepository : JpaRepository<Koi, Long> {
                 "OR k.description LIKE CONCAT('%', :keyword, '%') " +
                 "OR k.sex LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.length AS string) LIKE CONCAT('%', :keyword, '%') " +
-                "OR CAST(k.age AS string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.yearBorn AS string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.price AS string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.owner.id as string) LIKE CONCAT('%', :keyword, '%')" +
                 "OR CAST(ak.bidMethod as string) LIKE CONCAT('%', :keyword, '%')" +
@@ -44,7 +44,7 @@ interface KoiRepository : JpaRepository<Koi, Long> {
                 "AND (k.isDisplay = 1) AND ((k.name LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.sex as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.length as string) LIKE CONCAT('%', :keyword, '%') " +
-                "OR CAST(k.age as string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.yearBorn as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.price as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR k.description LIKE CONCAT('%', :keyword, '%') " +
                 "OR k.category.name LIKE CONCAT('%', :keyword, '%') " +
@@ -61,7 +61,7 @@ interface KoiRepository : JpaRepository<Koi, Long> {
                 "AND (k.isDisplay = 1) AND ((k.name LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.sex as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.length as string) LIKE CONCAT('%', :keyword, '%') " +
-                "OR CAST(k.age as string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.yearBorn as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.price as string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR k.description LIKE CONCAT('%', :keyword, '%') " +
                 "OR k.category.name LIKE CONCAT('%', :keyword, '%')))"
@@ -73,7 +73,7 @@ interface KoiRepository : JpaRepository<Koi, Long> {
                 "OR k.description LIKE CONCAT('%', :keyword, '%') " +
                 "OR k.sex LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.length AS string) LIKE CONCAT('%', :keyword, '%') " +
-                "OR CAST(k.age AS string) LIKE CONCAT('%', :keyword, '%') " +
+                "OR CAST(k.yearBorn AS string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR CAST(k.price AS string) LIKE CONCAT('%', :keyword, '%') " +
                 "OR k.category.name LIKE CONCAT('%', :keyword, '%'))"
     )

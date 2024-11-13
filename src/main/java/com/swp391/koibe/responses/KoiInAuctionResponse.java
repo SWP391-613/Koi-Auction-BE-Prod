@@ -31,7 +31,7 @@ public class KoiInAuctionResponse extends BaseResponse<Koi> {
     @JsonProperty("length")
     private Integer length;
 
-    @JsonProperty("age")
+    @JsonProperty("year_born")
     private Integer age;
 
     @JsonProperty("base_price")
