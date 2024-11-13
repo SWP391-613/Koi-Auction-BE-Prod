@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swp391.koibe.dtos.KoiCacheData;
+import com.swp391.koibe.responses.KoiInAuctionResponse;
 import com.swp391.koibe.responses.KoiResponse;
 import com.swp391.koibe.responses.pagination.KoiPaginationResponse;
 import java.util.HashMap;
@@ -27,6 +28,12 @@ public class KoiRedisService implements IKoiRedisService {
     @Value("${spring.data.redis.use-redis-cache}")
     private boolean useRedisCache;
 
+    @Override
+    public void clear() {
+        Objects.requireNonNull(redisTemplate.getConnectionFactory()).getConnection()
+            .serverCommands();
+    }
+
     //@GetMapping("/get-kois-owner-by-keyword-not-auth")
     private String getKeyFrom(
         String keyword,
@@ -43,24 +50,6 @@ public class KoiRedisService implements IKoiRedisService {
 
         return String.format("all_breeder_kois:%s:%d:%d:%d:%s",
                              keyword, data, pageNumber, pageSize, sortDirection);
-    }
-
-    @Override
-    public List<KoiResponse> getKoisOwnerByKeywordNotAuth(String keyword,
-                                        Long categoryId,
-                                        PageRequest pageRequest) throws JsonProcessingException {
-
-        if (!useRedisCache) {
-            return null;
-        }
-        String key = this.getKeyFrom(keyword, categoryId, pageRequest);
-        String json = (String) redisTemplate.opsForValue().get(key);
-        List<KoiResponse> auctionResponses =
-            json != null ?
-                redisObjectMapper.readValue(json, new TypeReference<>() {
-                })
-                : null;
-        return auctionResponses;
     }
 
     @Override
@@ -83,13 +72,6 @@ public class KoiRedisService implements IKoiRedisService {
     }
 
 
-
-    @Override
-    public void clear() {
-        Objects.requireNonNull(redisTemplate.getConnectionFactory()).getConnection()
-            .serverCommands();
-    }
-
     @Override
     //save to Redis
     public void saveAllKois(List<KoiResponse> koiResponses,
@@ -102,35 +84,46 @@ public class KoiRedisService implements IKoiRedisService {
         redisTemplate.opsForValue().set(key, json);
     }
 
+    private String getKeyFromFindKoiInAuctionByKeyword(
+        String keyword,
+        PageRequest pageRequest
+    ) {
+        int pageNumber = pageRequest.getPageNumber();
+        int pageSize = pageRequest.getPageSize();
+        Sort sort = pageRequest.getSort();
+        String sortDirection = Objects.requireNonNull(sort.getOrderFor("id"))
+            .getDirection() == Sort.Direction.ASC ? "asc" : "desc";
+
+        //"all_breeder_kois:a:27:0:10:asc" : List<KoiResponse>
+
+        return String.format("search_kois_in_auctions:%s:%d:%d:%s",
+                             keyword, pageNumber, pageSize, sortDirection);
+    }
+
     @Override
-    public Map<String, Object> findKoiPaginationByKeyword(String keyword,
-                                                            Long breederId,
-                                                            PageRequest pageRequest) throws JsonProcessingException {
+    public List<KoiInAuctionResponse> findKoiInAuctionByKeyword(String keyword, PageRequest pageRequest)
+        throws JsonProcessingException {
+
         if (!useRedisCache) {
             return null;
         }
 
-        String key = this.getKeyFrom(keyword, breederId, pageRequest);
+        String key = this.getKeyFromFindKoiInAuctionByKeyword(keyword, pageRequest);
         String json = (String) redisTemplate.opsForValue().get(key);
         return json != null ?
-            redisObjectMapper.readValue(json, new TypeReference<Map<String, Object>>() {})
+            redisObjectMapper.readValue(json, new TypeReference<>() {
+            })
             : null;
     }
 
     @Override
-    public void saveKoiPaginationResponse(List<KoiResponse> koiResponses,
-                                          String keyword,
-                                          Long breederId,
-                                          PageRequest pageRequest,
-                                          long totalElement,  // Add these parameters
-                                          int totalPage) throws JsonProcessingException {
-        Map<String, Object> cacheData = new HashMap<>();
-        cacheData.put("item", koiResponses);
-        cacheData.put("totalElement", totalElement);
-        cacheData.put("totalPage", totalPage);
-
-        String key = this.getKeyFrom(keyword, breederId, pageRequest);
-        String json = redisObjectMapper.writeValueAsString(cacheData);
+    public void saveAllKoiFindInAuctionByKeyword(List<KoiInAuctionResponse> productResponses, String keyword,
+                                                 PageRequest pageRequest)
+        throws JsonProcessingException {
+        String key = this.getKeyFromFindKoiInAuctionByKeyword(keyword, pageRequest);
+        String json = redisObjectMapper.writeValueAsString(productResponses);
         redisTemplate.opsForValue().set(key, json);
     }
+
+
 }

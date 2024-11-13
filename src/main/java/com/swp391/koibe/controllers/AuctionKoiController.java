@@ -13,6 +13,7 @@ import com.swp391.koibe.responses.AuctionKoiResponse;
 import com.swp391.koibe.responses.KoiInAuctionResponse;
 import com.swp391.koibe.responses.pagination.KoiInAuctionPaginationResponse;
 import com.swp391.koibe.services.auctionkoi.IAuctionKoiService;
+import com.swp391.koibe.services.redis.koi.IKoiRedisService;
 import com.swp391.koibe.services.user.IUserService;
 import com.swp391.koibe.utils.DTOConverter;
 import jakarta.validation.Valid;
@@ -35,6 +36,7 @@ public class AuctionKoiController {
 
     private final IAuctionKoiService auctionKoiService;
     private final IUserService userService;
+    private final IKoiRedisService koiRedisService;
 
     @GetMapping("/auction/{id}")
     public ResponseEntity<List<AuctionKoiResponse>> getAuctionKoisByAuctionId(@PathVariable Long id) {
@@ -166,22 +168,41 @@ public class AuctionKoiController {
         }
     }
 
+
     @GetMapping("/get-kois-by-keyword")
     public ResponseEntity<KoiInAuctionPaginationResponse> getOrdersByKeyword(
         @RequestParam(defaultValue = "", required = false) String keyword,
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int limit) {
-        // Tạo Pageable từ thông tin trang và giới hạn
+        @RequestParam(defaultValue = "10") int limit
+    ) throws Exception {
+
+        KoiInAuctionPaginationResponse response = new KoiInAuctionPaginationResponse();
+
         PageRequest pageRequest = PageRequest.of(
             page, limit,
-            // Sort.by("createdAt").descending()
-            Sort.by("id").ascending());
-        Page<KoiInAuctionResponse> koiPage = auctionKoiService
-            .getKoiByKeyword(keyword, pageRequest);
-        KoiInAuctionPaginationResponse response = new KoiInAuctionPaginationResponse();
+            Sort.by("id").ascending()
+        );
+
+        List<KoiInAuctionResponse> koiResponses = koiRedisService.findKoiInAuctionByKeyword(keyword, pageRequest);
+
+
+        if (koiResponses != null && !koiResponses.isEmpty()) {
+            response.setItem(koiResponses);
+            response.setTotalItem(koiResponses.size());
+            response.setTotalPage(koiResponses.get(0).getTotalPage());
+            return ResponseEntity.ok(response);
+        }
+
+        Page<KoiInAuctionResponse> koiPage = auctionKoiService.getKoiByKeyword(keyword, pageRequest);
         response.setItem(koiPage.getContent());
         response.setTotalItem(koiPage.getTotalElements());
         response.setTotalPage(koiPage.getTotalPages());
+
+        int totalPage = koiPage.getTotalPages();
+        koiResponses = koiPage.getContent();
+        koiResponses.forEach(koi -> koi.setTotalPage(totalPage));
+
+        koiRedisService.saveAllKoiFindInAuctionByKeyword(koiResponses, keyword , pageRequest);
 
         return ResponseEntity.ok(response);
     }
