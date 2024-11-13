@@ -218,6 +218,7 @@ public class PaymentService implements IPaymentService {
                 .user(userRepository.findById(paymentDTO.getUserId()).orElse(null))
                 .paymentStatus(EPaymentStatus.valueOf(paymentDTO.getPaymentStatus()))
                 .bankNumber(paymentDTO.getBankNumber())
+                .bankName(paymentDTO.getBankName())
                 .paymentDate(LocalDateTime.now())
                 .build();
         return paymentRepository.save(payment);

@@ -49,8 +49,8 @@ public class SystemService {
     private final IOtpService otpService;
     private final ITokenService tokenService;
 
-    //every 5 minutes
-    @Scheduled(cron = "0 */5 * * * *")
+    //every minute
+    @Scheduled(cron = "0 */1 * * * *")
     @Async
     public void updateUpcomingAuctionStatus() {
         try {
@@ -63,8 +63,8 @@ public class SystemService {
         }
     }
 
-    //every 5 minutes
-    @Scheduled(cron = "0 */5 * * * *")
+    //every minutes
+    @Scheduled(cron = "0 */1 * * * *")
     @Async
     public void updateOnGoingAuctionStatus() {
         try {
@@ -122,7 +122,7 @@ public class SystemService {
     }
 
     //every 10 minutes
-    @Scheduled(cron = "0 */10 * * * *")
+    @Scheduled(cron = "0 */5 * * * *")
     @Async
     public void updateDescendingAuctionPrice() {
         try {

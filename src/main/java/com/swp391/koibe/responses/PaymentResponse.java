@@ -38,4 +38,7 @@ public class PaymentResponse {
     @JsonProperty("bank_number")
     private String bankNumber;
 
+    @JsonProperty("bank_name")
+    private String bankName;
+
 }

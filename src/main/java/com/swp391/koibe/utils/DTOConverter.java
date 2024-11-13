@@ -145,6 +145,7 @@ public class DTOConverter {
                 .user(DTOConverter.convertToUserDTO(payment.getUser()))
                 .paymentType(payment.getPaymentType().getType())
                 .bankNumber(payment.getBankNumber())
+                .bankName(payment.getBankName())
                 .build();
     }
 

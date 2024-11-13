@@ -30,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 
 @Service
@@ -58,7 +59,7 @@ public class AuctionKoiService implements IAuctionKoiService {
             }
         }
 
-        //check if the auction is already include this koi
+        // check if the auction is already include this koi
         List<AuctionKoi> auctionKois = auctionKoiRepository.findAuctionKoiByAuctionId(
                 auctionKoiDTO.auctionId());
         for (AuctionKoi auctionKoi : auctionKois) {
@@ -90,7 +91,7 @@ public class AuctionKoiService implements IAuctionKoiService {
         // Validate ceil price based on bid method
         Long validCeilPrice = null;
         if (EBidMethod.valueOf(auctionKoiDTO.bidMethod()) == EBidMethod.DESCENDING_BID ||
-            EBidMethod.valueOf(auctionKoiDTO.bidMethod()) == EBidMethod.ASCENDING_BID) {
+                EBidMethod.valueOf(auctionKoiDTO.bidMethod()) == EBidMethod.ASCENDING_BID) {
             if (auctionKoiDTO.ceilPrice() == null) {
                 throw new MalformDataException("Ceil price is required for DESCENDING_BID and ASCENDING_BID");
             }
@@ -118,7 +119,7 @@ public class AuctionKoiService implements IAuctionKoiService {
                 .currentBid(currentBidValue)
                 .currentBidderId(
                         auctionKoiDTO.currentBidderId() != null ? auctionKoiDTO.currentBidderId() : 0L)
-                .revoked(0) //default is 0 when add new koi to auction
+                .revoked(0) // default is 0 when add new koi to auction
                 .auction(auctionService.findAuctionById(auctionKoiDTO.auctionId()))
                 .koi(existingKoi.get())
                 .build();
@@ -184,7 +185,7 @@ public class AuctionKoiService implements IAuctionKoiService {
                 .orElseThrow(() -> new DataNotFoundException(String.format("""
                         KoiId %d not found in auctionId "%d"
                         """, koiId, auctionId)));
-        auctionKoi.setRevoked(1); //soft delete
+        auctionKoi.setRevoked(1); // soft delete
         auctionKoiRepository.save(auctionKoi);
 
         return auctionKoi;
@@ -210,7 +211,7 @@ public class AuctionKoiService implements IAuctionKoiService {
 
     @Override
     public AuctionKoiResponse updateAuctionKoi(long auctionKoiId,
-                                               UpdateAuctionKoiDTO updateAuctionKoiDTO) {
+            UpdateAuctionKoiDTO updateAuctionKoiDTO) {
         // find auctionKoi
         AuctionKoi updateAuctionKoi = auctionKoiRepository.findById(auctionKoiId)
                 .orElseThrow(() -> new DataNotFoundException("auctionKoi not found: " + auctionKoiId));
@@ -282,6 +283,7 @@ public class AuctionKoiService implements IAuctionKoiService {
     }
 
     @Override
+    @Transactional
     public boolean updateAuctionKoiStatus(long auctionKoiId, AuctionKoi auctionKoi) {
         AuctionKoi auctionKoiToUpdate = auctionKoiRepository.findById(auctionKoiId)
                 .orElseThrow(() -> new DataNotFoundException("Auction Koi not found"));
@@ -289,14 +291,16 @@ public class AuctionKoiService implements IAuctionKoiService {
         if (auctionKoiToUpdate.getAuction().getStatus().equals(EAuctionStatus.ENDED)) {
             if (auctionKoiToUpdate.isSold()) {
                 return false;
-            } else {
-                if (auctionKoiToUpdate.getCurrentBid() != 0 && auctionKoiToUpdate.getCurrentBidderId() != 0) {
-                    auctionKoiToUpdate.setSold(true);
-                    auctionKoiRepository.save(auctionKoiToUpdate);
-                    return true;
-                } else {
-                    throw new DataNotFoundException("No valid bidder or bid amount found for Auction Koi");
-                }
+            }
+
+            // Handle force-ended auctions
+            if (auctionKoiToUpdate.getCurrentBidderId() != 0) {
+                // There's a valid bidder, mark as sold regardless of bid amount
+                auctionKoiToUpdate.setSold(true);
+                auctionKoiRepository.save(auctionKoiToUpdate);
+                return true;
+            } else if (auctionKoiToUpdate.getCurrentBid() > 0) {
+                // Has bids but no current bidder (edge case)
             }
         }
         return false;
