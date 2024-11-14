@@ -33,6 +33,7 @@ build/
 .vscode/
 
 .env
+src/main/resources/.env
 src/main/resources/application-prod.yml
 logs/
 redis-data/dump.rdb

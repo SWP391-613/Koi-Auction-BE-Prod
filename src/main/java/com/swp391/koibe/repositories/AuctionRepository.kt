@@ -11,16 +11,7 @@ import java.time.LocalDateTime
 
 interface AuctionRepository : JpaRepository<Auction, Long> {
     fun findAllByStatus(status: EAuctionStatus): List<Auction>
-    fun existsByTitle(title: String): Boolean
-    fun getAuctionsByStartTimeAfter(startTime: LocalDateTime): Set<Auction>
-    fun getAuctionsByEndTimeBefore(endTime: LocalDateTime): Set<Auction>
-    fun getAuctionsByStartTimeBeforeAndEndTimeAfter(
-        startTime: LocalDateTime,
-        endTime: LocalDateTime
-    ): Set<Auction>
-
     fun findAuctionsByStatus(status: EAuctionStatus): Set<Auction>
-    fun findByAuctioneerId(auctioneerId: Long): List<Auction>
     fun findAuctionByAuctioneerId(auctioneerId: Long): List<Auction>
 
     @Query("SELECT a FROM Auction a WHERE " +
